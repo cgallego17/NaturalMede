@@ -1,0 +1,218 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Crear Nuevo Cliente{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user-plus"></i> Crear Nuevo Cliente</h2>
+                <a href="{% url 'custom_admin:admin_customers' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Clientes
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-user-edit"></i> Información del Nuevo Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <!-- Información Personal -->
+                                <h6 class="text-primary mb-3"><i class="fas fa-user"></i> Información Personal</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="first_name">Nombre *</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="last_name">Apellido *</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email">
+                                            <small class="form-text text-muted">Opcional - para comunicación</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="customer_type">Tipo de Cliente</label>
+                                            <select class="form-control" id="customer_type" name="customer_type">
+                                                <option value="normal">Normal</option>
+                                                <option value="vip">VIP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="channel">¿Cómo nos conoció?</label>
+                                            <select class="form-control" id="channel" name="channel">
+                                                <option value="instagram">📸 Instagram</option>
+                                                <option value="facebook">👥 Facebook</option>
+                                                <option value="whatsapp">💬 WhatsApp</option>
+                                                <option value="google">🔍 Google</option>
+                                                <option value="referral">👤 Referido por cliente</option>
+                                                <option value="walk_in">🏪 Cliente de tienda física</option>
+                                                <option value="website">🌐 Sitio web</option>
+                                                <option value="email">📧 Email</option>
+                                                <option value="phone">📞 Llamada telefónica</option>
+                                                <option value="other">❓ Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="phone">Teléfono</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información de Documento -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-id-card"></i> Información de Documento</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="document_type">Tipo de Documento</label>
+                                            <select class="form-control" id="document_type" name="document_type">
+                                                <option value="CC">Cédula de Ciudadanía</option>
+                                                <option value="CE">Cédula de Extranjería</option>
+                                                <option value="TI">Tarjeta de Identidad</option>
+                                                <option value="PP">Pasaporte</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="document_number">Número de Documento</label>
+                                            <input type="text" class="form-control" id="document_number" name="document_number">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información de Contacto -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-map-marker-alt"></i> Información de Contacto</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="city">Ciudad</label>
+                                            <input type="text" class="form-control" id="city" name="city">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="birth_date">Fecha de Nacimiento</label>
+                                            <input type="date" class="form-control" id="birth_date" name="birth_date">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="address">Dirección</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                                </div>
+
+                                <!-- Información Adicional -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-info-circle"></i> Información Adicional</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="is_active">Estado</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                                <label class="form-check-label" for="is_active">
+                                                    Cliente Activo
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes">Notas</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Notas adicionales sobre el cliente..."></textarea>
+                                </div>
+
+                                <!-- Botones -->
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Crear Cliente
+                                    </button>
+                                    <a href="{% url 'custom_admin:admin_customers' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info"></i> Información</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Campos Requeridos</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Nombre</li>
+                                <li><i class="fas fa-check text-success"></i> Apellido</li>
+                            </ul>
+                            
+                            <hr>
+                            
+                            <h6>Campos Opcionales</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-info text-info"></i> Email (para comunicación)</li>
+                                <li><i class="fas fa-info text-info"></i> Teléfono</li>
+                                <li><i class="fas fa-info text-info"></i> Documento</li>
+                                <li><i class="fas fa-info text-info"></i> Dirección</li>
+                                <li><i class="fas fa-info text-info"></i> Ciudad</li>
+                                <li><i class="fas fa-info text-info"></i> Fecha de nacimiento</li>
+                                <li><i class="fas fa-info text-info"></i> Canal de llegada</li>
+                                <li><i class="fas fa-info text-info"></i> Notas</li>
+                            </ul>
+                            
+                            <hr>
+                            
+                            <h6>Tipos de Cliente</h6>
+                            <p><strong>Normal:</strong> Cliente estándar</p>
+                            <p><strong>VIP:</strong> Cliente premium con beneficios especiales</p>
+                            
+                            <hr>
+                            
+                            <h6>Tipos de Documento</h6>
+                            <ul class="list-unstyled small">
+                                <li><strong>CC:</strong> Cédula de Ciudadanía</li>
+                                <li><strong>CE:</strong> Cédula de Extranjería</li>
+                                <li><strong>TI:</strong> Tarjeta de Identidad</li>
+                                <li><strong>PP:</strong> Pasaporte</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

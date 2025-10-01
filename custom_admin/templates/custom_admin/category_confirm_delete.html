@@ -1,0 +1,90 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Categoría - NaturalMede Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-trash text-danger"></i> Eliminar Categoría</h2>
+                <a href="{% url 'custom_admin:admin_category_detail' category.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <h6><strong>¡Advertencia!</strong></h6>
+                                <p>Estás a punto de eliminar la categoría <strong>"{{ category.name }}"</strong>. Esta acción no se puede deshacer.</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><strong>Información de la Categoría:</strong></h6>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Nombre:</strong> {{ category.name }}</li>
+                                        <li><strong>Slug:</strong> {{ category.slug }}</li>
+                                        <li><strong>Estado:</strong> 
+                                            {% if category.is_active %}
+                                                <span class="badge badge-success">Activa</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Inactiva</span>
+                                            {% endif %}
+                                        </li>
+                                        <li><strong>Fecha de Creación:</strong> {{ category.created_at|date:"d/m/Y H:i" }}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if category.image %}
+                                        <h6><strong>Imagen:</strong></h6>
+                                        <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-fluid rounded" style="max-height: 150px;">
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if category.description %}
+                                <hr>
+                                <h6><strong>Descripción:</strong></h6>
+                                <p class="text-muted">{{ category.description|linebreaks }}</p>
+                            {% endif %}
+
+                            <div class="alert alert-info mt-3">
+                                <h6><strong>Productos en esta categoría:</strong></h6>
+                                <p>Esta categoría tiene <strong>{{ category.product_set.count }}</strong> producto(s) asociado(s).</p>
+                                {% if category.product_set.count > 0 %}
+                                    <p class="text-warning"><strong>Nota:</strong> Los productos asociados a esta categoría no serán eliminados, pero perderán su categorización.</p>
+                                {% endif %}
+                            </div>
+
+                            <form method="post" class="mt-4">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'custom_admin:admin_category_detail' category.pk %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> Sí, Eliminar Categoría
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+

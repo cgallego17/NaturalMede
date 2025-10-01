@@ -1,0 +1,133 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Editar Bodega{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-edit"></i> Editar Bodega: {{ warehouse.name }}</h2>
+                <a href="{% url 'custom_admin:admin_warehouse_management' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información de la Bodega</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="name" class="form-label">Nombre *</label>
+                                            <input type="text" class="form-control" id="name" name="name" 
+                                                   value="{{ warehouse.name }}" required placeholder="Ej: Bodega Principal">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="code" class="form-label">Código *</label>
+                                            <input type="text" class="form-control" id="code" name="code" 
+                                                   value="{{ warehouse.code }}" required placeholder="Ej: BOD001" maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="address" class="form-label">Dirección *</label>
+                                    <input type="text" class="form-control" id="address" name="address" 
+                                           value="{{ warehouse.address }}" required placeholder="Dirección completa">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="city" class="form-label">Ciudad *</label>
+                                            <input type="text" class="form-control" id="city" name="city" 
+                                                   value="{{ warehouse.city }}" required placeholder="Ciudad">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="phone" class="form-label">Teléfono</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   value="{{ warehouse.phone }}" placeholder="Teléfono de contacto">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ warehouse.email }}" placeholder="Email de contacto">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_main" name="is_main" 
+                                                       {% if warehouse.is_main %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_main">
+                                                    Bodega Principal
+                                                </label>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Solo puede haber una bodega principal
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                                       {% if warehouse.is_active %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_active">
+                                                    Bodega Activa
+                                                </label>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Las bodegas inactivas no aparecen en las listas
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-save"></i> Actualizar Bodega
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h6><i class="fas fa-info-circle"></i> Información</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="fas fa-check text-success"></i> El código debe ser único</li>
+                                <li><i class="fas fa-check text-success"></i> Los campos marcados con * son obligatorios</li>
+                                <li><i class="fas fa-check text-success"></i> Solo puede haber una bodega principal</li>
+                                <li><i class="fas fa-check text-success"></i> Las bodegas inactivas no aparecen en las listas</li>
+                                <li><i class="fas fa-check text-success"></i> Creada: {{ warehouse.created_at|date:"d/m/Y H:i" }}</li>
+                                <li><i class="fas fa-check text-success"></i> Última actualización: {{ warehouse.updated_at|date:"d/m/Y H:i" }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

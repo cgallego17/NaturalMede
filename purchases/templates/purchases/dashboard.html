@@ -1,0 +1,263 @@
+{% extends 'purchases/base.html' %}
+
+{% block page_title_text %}Dashboard de Compras{% endblock %}
+{% block page_title_display %}Dashboard de Compras{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'purchases:purchase_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nueva Compra
+    </a>
+    <a href="{% url 'purchases:supplier_create' %}" class="btn btn-success">
+        <i class="fas fa-truck"></i> Nuevo Proveedor
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Acciones Rápidas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt"></i> Acciones Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'purchases:purchase_create' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-plus"></i><br>
+                                Nueva Compra
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'purchases:supplier_create' %}" class="btn btn-success btn-block">
+                                <i class="fas fa-truck"></i><br>
+                                Nuevo Proveedor
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'purchases:purchase_list' %}" class="btn btn-info btn-block">
+                                <i class="fas fa-list"></i><br>
+                                Ver Compras
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'purchases:supplier_list' %}" class="btn btn-warning btn-block">
+                                <i class="fas fa-truck"></i><br>
+                                Ver Proveedores
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Compras
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_purchases }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Proveedores Activos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_suppliers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Compras del Mes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ monthly_purchases.count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total del Mes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ monthly_purchases.total|floatformat:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Compras por Estado -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie"></i> Compras por Estado
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for status, count in purchases_by_status.items %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-primary">{{ status }}</div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge badge-primary">{{ count }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-pie fa-2x mb-2"></i><br>
+                        No hay datos de compras disponibles
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Proveedores -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-trophy"></i> Top Proveedores
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for supplier in top_suppliers %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-primary">{{ supplier.name }}</div>
+                            <div class="text-muted small">{{ supplier.purchase_count }} compras</div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge badge-success">${{ supplier.total_amount|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-trophy fa-2x mb-2"></i><br>
+                        No hay datos de proveedores disponibles
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compras Recientes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-list"></i> Compras Recientes
+                        </h6>
+                        <a href="{% url 'purchases:purchase_list' %}" class="btn btn-outline-primary btn-sm">
+                            Ver Todas
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Proveedor</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Creado por</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for purchase in recent_purchases %}
+                                <tr>
+                                    <td><strong>#{{ purchase.purchase_number }}</strong></td>
+                                    <td>{{ purchase.supplier.name }}</td>
+                                    <td>{{ purchase.order_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if purchase.status == 'draft' %}secondary{% elif purchase.status == 'pending' %}warning{% elif purchase.status == 'received' %}success{% else %}danger{% endif %}">
+                                            {{ purchase.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td><strong>${{ purchase.total|floatformat:0 }}</strong></td>
+                                    <td>{{ purchase.created_by.get_full_name|default:purchase.created_by.username }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-outline-primary" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'purchases:purchase_edit' purchase.pk %}" class="btn btn-outline-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                        <div>No hay compras recientes</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

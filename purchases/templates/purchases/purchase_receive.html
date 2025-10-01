@@ -1,0 +1,286 @@
+{% extends 'purchases/base.html' %}
+
+{% block page_title_text %}Recibir Compra #{{ purchase.purchase_number }}{% endblock %}
+{% block page_title_display %}Recibir Compra #{{ purchase.purchase_number }}{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'purchases:purchase_list' %}">Compras</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'purchases:purchase_detail' purchase.pk %}">#{{ purchase.purchase_number }}</a></li>
+    <li class="breadcrumb-item active">Recibir</li>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <!-- Información de la Compra -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle"></i> Información de la Compra
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Número:</strong></td>
+                                    <td>#{{ purchase.purchase_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Proveedor:</strong></td>
+                                    <td>{{ purchase.supplier.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha de Orden:</strong></td>
+                                    <td>{{ purchase.order_date|date:"d/m/Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha Esperada:</strong></td>
+                                    <td>
+                                        {% if purchase.expected_delivery %}
+                                            {{ purchase.expected_delivery|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Total:</strong></td>
+                                    <td><strong>${{ purchase.total|floatformat:0 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Items:</strong></td>
+                                    <td>{{ purchase.items_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cantidad Total:</strong></td>
+                                    <td>{{ purchase.total_quantity }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td>
+                                        <span class="badge badge-warning">{{ purchase.get_status_display }}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items de la Compra -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-box"></i> Productos a Recibir
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unit.</th>
+                                    <th>Total</th>
+                                    <th>Stock Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in purchase.items.all %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong>
+                                            <br><small class="text-muted">{{ item.product.sku }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>${{ item.unit_cost|floatformat:0 }}</td>
+                                    <td><strong>${{ item.total|floatformat:0 }}</strong></td>
+                                    <td>
+                                        {% for stock in item.product.stock_set.all %}
+                                            <small class="d-block">
+                                                {{ stock.warehouse.name }}: {{ stock.quantity }}
+                                            </small>
+                                        {% empty %}
+                                            <span class="text-muted">Sin stock</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-box fa-2x mb-2"></i>
+                                        <div>No hay productos en esta compra</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Recepción -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-check-circle"></i> Confirmar Recepción
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Importante:</strong> Al confirmar la recepción, se actualizará automáticamente el stock de los productos en la bodega principal y se cambiará el estado de la compra a "Recibida".
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ receipt_form.receipt_number.id_for_label }}" class="form-label">Número de Recibo *</label>
+                            {{ receipt_form.receipt_number }}
+                            {% if receipt_form.receipt_number.errors %}
+                                <div class="text-danger">{{ receipt_form.receipt_number.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Número del recibo físico entregado por el proveedor</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ receipt_form.notes.id_for_label }}" class="form-label">Notas de Recepción</label>
+                            {{ receipt_form.notes }}
+                            {% if receipt_form.notes.errors %}
+                                <div class="text-danger">{{ receipt_form.notes.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Observaciones sobre la recepción (opcional)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmReceive" required>
+                                <label class="form-check-label" for="confirmReceive">
+                                    Confirmo que he recibido todos los productos listados arriba y que el stock será actualizado automáticamente.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success" id="receiveBtn" disabled>
+                                <i class="fas fa-check"></i> Confirmar Recepción
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="col-md-4">
+            <!-- Resumen -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calculator"></i> Resumen
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Subtotal:</strong></div>
+                        <div class="col-6 text-right">${{ purchase.subtotal|floatformat:0 }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Descuento:</strong></div>
+                        <div class="col-6 text-right">${{ purchase.discount_amount|floatformat:0 }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>IVA:</strong></div>
+                        <div class="col-6 text-right">${{ purchase.tax_amount|floatformat:0 }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Envío:</strong></div>
+                        <div class="col-6 text-right">${{ purchase.shipping_cost|floatformat:0 }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6"><strong>Total:</strong></div>
+                        <div class="col-6 text-right"><strong>${{ purchase.total|floatformat:0 }}</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Proveedor -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-truck"></i> Proveedor
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6><strong>{{ purchase.supplier.name }}</strong></h6>
+                    {% if purchase.supplier.contact_person %}
+                        <p><strong>Contacto:</strong> {{ purchase.supplier.contact_person }}</p>
+                    {% endif %}
+                    {% if purchase.supplier.email %}
+                        <p><strong>Email:</strong> <a href="mailto:{{ purchase.supplier.email }}">{{ purchase.supplier.email }}</a></p>
+                    {% endif %}
+                    {% if purchase.supplier.phone %}
+                        <p><strong>Teléfono:</strong> <a href="tel:{{ purchase.supplier.phone }}">{{ purchase.supplier.phone }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle"></i> Instrucciones
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ol class="small">
+                        <li>Verifica que todos los productos estén presentes</li>
+                        <li>Confirma las cantidades recibidas</li>
+                        <li>Ingresa el número del recibo físico</li>
+                        <li>Agrega notas si es necesario</li>
+                        <li>Marca la confirmación</li>
+                        <li>Confirma la recepción</li>
+                    </ol>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <small>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Nota:</strong> Esta acción actualizará automáticamente el stock de los productos.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmCheckbox = document.getElementById('confirmReceive');
+            const receiveBtn = document.getElementById('receiveBtn');
+            
+            confirmCheckbox.addEventListener('change', function() {
+                receiveBtn.disabled = !this.checked;
+            });
+        });
+    </script>
+{% endblock %}

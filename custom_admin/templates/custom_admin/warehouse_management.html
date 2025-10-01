@@ -1,0 +1,94 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Bodegas{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-building"></i> Gestión de Bodegas</h2>
+                <a href="{% url 'custom_admin:admin_create_warehouse' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nueva Bodega
+                </a>
+            </div>
+
+            <!-- Tabla de bodegas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                    <th>Ciudad</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for warehouse in warehouses %}
+                                <tr>
+                                    <td><strong>{{ warehouse.code }}</strong></td>
+                                    <td>{{ warehouse.name }}</td>
+                                    <td>{{ warehouse.address }}</td>
+                                    <td>{{ warehouse.city }}</td>
+                                    <td>{{ warehouse.phone|default:"-" }}</td>
+                                    <td>{{ warehouse.email|default:"-" }}</td>
+                                    <td>
+                                        {% if warehouse.is_main %}
+                                            <span class="badge badge-primary">Principal</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Secundaria</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if warehouse.is_active %}
+                                            <span class="badge badge-success">Activa</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'custom_admin:admin_warehouse_detail' warehouse.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'custom_admin:admin_edit_warehouse' warehouse.id %}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if warehouse.is_active %}
+                                                <a href="{% url 'custom_admin:admin_toggle_warehouse_status' warehouse.id %}" class="btn btn-sm btn-outline-danger" title="Desactivar" onclick="return confirm('¿Está seguro de desactivar esta bodega?')">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'custom_admin:admin_toggle_warehouse_status' warehouse.id %}" class="btn btn-sm btn-outline-success" title="Activar" onclick="return confirm('¿Está seguro de activar esta bodega?')">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        <i class="fas fa-building fa-2x mb-2"></i><br>
+                                        No se encontraron bodegas
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

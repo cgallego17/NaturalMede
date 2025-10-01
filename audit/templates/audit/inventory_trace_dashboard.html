@@ -1,0 +1,456 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Dashboard de Trazabilidad{% endblock %}
+{% block page_title_display %}Dashboard de Trazabilidad{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:inventory_trace_list' %}" class="btn btn-primary">
+        <i class="fas fa-list"></i> Ver Trazas
+    </a>
+    <a href="{% url 'audit:inventory_trace_export' %}" class="btn btn-success">
+        <i class="fas fa-download"></i> Exportar
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Auditoría</a></li>
+    <li class="breadcrumb-item active">Trazabilidad</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card.incoming {
+    background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+}
+
+.stat-card.outgoing {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.stat-card.total {
+    background: linear-gradient(135deg, #a55eea 0%, #26de81 100%);
+}
+
+.stat-card.today {
+    background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.movement-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.movement-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.movement-item.incoming {
+    border-left-color: #48dbfb;
+}
+
+.movement-item.outgoing {
+    border-left-color: #ff6b6b;
+}
+
+.movement-time {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.movement-description {
+    font-weight: 500;
+    margin: 5px 0;
+}
+
+.movement-details {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.badge-incoming {
+    background: #48dbfb;
+    color: white;
+}
+
+.badge-outgoing {
+    background: #ff6b6b;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card total">
+                <div class="stat-number">{{ total_traces|floatformat:0 }}</div>
+                <div class="stat-label">Total de Movimientos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card today">
+                <div class="stat-number">{{ today_traces|floatformat:0 }}</div>
+                <div class="stat-label">Movimientos Hoy</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card incoming">
+                <div class="stat-number">{{ incoming_movements|floatformat:0 }}</div>
+                <div class="stat-label">Entradas</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card outgoing">
+                <div class="stat-number">{{ outgoing_movements|floatformat:0 }}</div>
+                <div class="stat-label">Salidas</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Gráfico de Movimientos Diarios -->
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    Movimientos Diarios (Últimos 30 días)
+                    <div class="btn-group btn-group-sm float-right" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="showCounts">
+                            Conteos
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="showQuantities">
+                            Cantidades
+                        </button>
+                    </div>
+                </h5>
+                <canvas id="dailyChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Estadísticas por Tipo de Movimiento -->
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-pie text-success"></i>
+                    Movimientos por Tipo
+                </h5>
+                <canvas id="movementChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Productos Más Movidos -->
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-box text-info"></i>
+                    Productos Más Movidos
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>SKU</th>
+                                <th>Movimientos</th>
+                                <th>Cantidad Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product_stat in product_stats %}
+                                <tr>
+                                    <td>{{ product_stat.product__name }}</td>
+                                    <td><code>{{ product_stat.product__sku }}</code></td>
+                                    <td>
+                                        <span class="badge badge-primary">{{ product_stat.count }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if product_stat.total_quantity > 0 %}badge-incoming{% else %}badge-outgoing{% endif %}">
+                                            {{ product_stat.total_quantity|floatformat:0 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        No hay datos disponibles
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movimientos por Bodega -->
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-warehouse text-warning"></i>
+                    Movimientos por Bodega
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Bodega</th>
+                                <th>Movimientos</th>
+                                <th>Cantidad Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for warehouse_stat in warehouse_stats %}
+                                <tr>
+                                    <td>{{ warehouse_stat.warehouse__name }}</td>
+                                    <td>
+                                        <span class="badge badge-primary">{{ warehouse_stat.count }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if warehouse_stat.total_quantity > 0 %}badge-incoming{% else %}badge-outgoing{% endif %}">
+                                            {{ warehouse_stat.total_quantity|floatformat:0 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        No hay datos disponibles
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Costos por Tipo de Movimiento -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-dollar-sign text-success"></i>
+                    Análisis de Costos por Tipo de Movimiento
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Movimiento</th>
+                                <th>Costo Promedio</th>
+                                <th>Costo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cost_stat in cost_stats %}
+                                <tr>
+                                    <td>{{ cost_stat.movement_type }}</td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            ${{ cost_stat.avg_cost|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            ${{ cost_stat.total_cost|floatformat:0 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        No hay datos de costos disponibles
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de movimientos diarios
+    const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+    const dailyData = {{ daily_stats|safe }};
+    
+    let dailyChart = new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: dailyData.map(item => item.date),
+            datasets: [
+                {
+                    label: 'Movimientos de Entrada',
+                    data: dailyData.map(item => item.incoming),
+                    borderColor: '#48dbfb',
+                    backgroundColor: 'rgba(72, 219, 251, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Movimientos de Salida',
+                    data: dailyData.map(item => item.outgoing),
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Movimientos Netos',
+                    data: dailyData.map(item => item.net),
+                    borderColor: '#a55eea',
+                    backgroundColor: 'rgba(165, 94, 234, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20,
+                    min: -10,
+                    ticks: {
+                        stepSize: 2
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxTicksLimit: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // Toggle entre conteos y cantidades
+    document.getElementById('showCounts').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('showQuantities').classList.remove('active');
+        
+        dailyChart.data.datasets[0].data = dailyData.map(item => item.incoming);
+        dailyChart.data.datasets[0].label = 'Movimientos de Entrada';
+        dailyChart.data.datasets[1].data = dailyData.map(item => item.outgoing);
+        dailyChart.data.datasets[1].label = 'Movimientos de Salida';
+        dailyChart.data.datasets[2].data = dailyData.map(item => item.net);
+        dailyChart.data.datasets[2].label = 'Movimientos Netos';
+        
+        dailyChart.options.scales.y.max = 20;
+        dailyChart.options.scales.y.min = -10;
+        dailyChart.options.scales.y.ticks.stepSize = 2;
+        
+        dailyChart.update();
+    });
+    
+    document.getElementById('showQuantities').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('showCounts').classList.remove('active');
+        
+        dailyChart.data.datasets[0].data = dailyData.map(item => item.incoming_qty);
+        dailyChart.data.datasets[0].label = 'Cantidades de Entrada (log)';
+        dailyChart.data.datasets[1].data = dailyData.map(item => item.outgoing_qty);
+        dailyChart.data.datasets[1].label = 'Cantidades de Salida (log)';
+        dailyChart.data.datasets[2].data = dailyData.map(item => item.net_qty);
+        dailyChart.data.datasets[2].label = 'Cantidades Netas (log)';
+        
+        dailyChart.options.scales.y.max = 3;
+        dailyChart.options.scales.y.min = -1;
+        dailyChart.options.scales.y.ticks.stepSize = 0.5;
+        
+        dailyChart.update();
+    });
+
+    // Gráfico de movimientos por tipo
+    const movementCtx = document.getElementById('movementChart').getContext('2d');
+    const movementData = {{ movement_stats|safe }};
+    
+    new Chart(movementCtx, {
+        type: 'doughnut',
+        data: {
+            labels: movementData.map(item => item.movement_type),
+            datasets: [{
+                data: movementData.map(item => item.count),
+                backgroundColor: [
+                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                    '#ffecd2', '#fcb69f', '#a8edea', '#fed6e3'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

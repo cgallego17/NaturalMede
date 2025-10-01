@@ -1,0 +1,1234 @@
+{% extends 'purchases/base.html' %}
+
+{% block page_title_text %}{% if purchase %}Editar Compra{% else %}Nueva Compra{% endif %}{% endblock %}
+{% block page_title_display %}{% if purchase %}Editar Compra{% else %}Nueva Compra{% endif %}{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'purchases:purchase_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'purchases:purchase_list' %}">Compras</a></li>
+    <li class="breadcrumb-item active">{% if purchase %}Editar{% else %}Nueva{% endif %}</li>
+{% endblock %}
+
+{% block page_content %}
+    <form method="post" id="purchaseForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Información Principal -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-info-circle"></i> Información de la Compra
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.supplier.id_for_label }}" class="form-label">Proveedor *</label>
+                                    {{ form.supplier }}
+                                    {% if form.supplier.errors %}
+                                        <div class="text-danger">{{ form.supplier.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.order_date.id_for_label }}" class="form-label">Fecha de Orden *</label>
+                                    {{ form.order_date }}
+                                    {% if form.order_date.errors %}
+                                        <div class="text-danger">{{ form.order_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.expected_delivery.id_for_label }}" class="form-label">Fecha Esperada de Entrega</label>
+                                    {{ form.expected_delivery }}
+                                    {% if form.expected_delivery.errors %}
+                                        <div class="text-danger">{{ form.expected_delivery.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.shipping_cost.id_for_label }}" class="form-label">Costo de Envío</label>
+                                    {{ form.shipping_cost }}
+                                    {% if form.shipping_cost.errors %}
+                                        <div class="text-danger">{{ form.shipping_cost.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">Estado</label>
+                                    {{ form.status }}
+                                    {% if form.status.errors %}
+                                        <div class="text-danger">{{ form.status.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.payment_status.id_for_label }}" class="form-label">Estado de Pago</label>
+                                    {{ form.payment_status }}
+                                    {% if form.payment_status.errors %}
+                                        <div class="text-danger">{{ form.payment_status.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Notas</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos a Comprar - Estilo Tablet -->
+                <div class="tablet-section">
+                    <div class="tablet-header">
+                        <div class="tablet-title">
+                            <h5><i class="fas fa-shopping-cart"></i> Productos a Comprar</h5>
+                            <div class="tablet-badge tablet-badge-success" id="productCount">
+                                0 productos
+                            </div>
+                        </div>
+                        <div class="tablet-actions">
+                            <button type="button" class="tablet-btn tablet-btn-primary" id="addProductBtn">
+                                <i class="fas fa-plus"></i>
+                                Agregar Producto
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tablet-content">
+                        {{ formset.management_form }}
+                        
+                        <!-- Mensaje cuando no hay productos -->
+                        <div id="noProductsMessage" class="tablet-empty-state">
+                            <div class="tablet-empty-content">
+                                <div class="tablet-empty-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <h5>No hay productos agregados</h5>
+                                <p>Selecciona un proveedor y agrega productos para comprar</p>
+                                <div class="text-center">
+                                    <button type="button" class="tablet-btn tablet-btn-primary" id="addFirstProductBtn" disabled>
+                                        <i class="fas fa-plus"></i>
+                                        <span>Agregar Primer Producto</span>
+                                    </button>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Selecciona un proveedor primero
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contenedor para formularios dinámicos -->
+                        <div id="dynamicFormsContainer" class="products-list"></div>
+                        
+                        {% for form in formset %}
+                            <div class="tablet-product-row" data-form-index="{{ forloop.counter0 }}" style="display: none;">
+                                <div class="tablet-product-content">
+                                    <div class="flex-grow-1">
+                                        <div class="form-group">
+                                            <label class="form-label">Producto *</label>
+                                            <div class="autocomplete-container">
+                                                <input type="text" class="form-control product-autocomplete" 
+                                                       placeholder="Buscar por nombre o referencia..." autocomplete="off">
+                                                <input type="hidden" name="{{ form.product.name }}" class="product-id-input">
+                                                <div class="autocomplete-suggestions"></div>
+                                            </div>
+                                            {% if form.product.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.product.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0" style="width: 120px;">
+                                        <div class="form-group">
+                                            <label class="form-label">Cantidad *</label>
+                                            {{ form.quantity }}
+                                            {% if form.quantity.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.quantity.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0" style="width: 120px;">
+                                        <div class="form-group">
+                                            <label class="form-label">Costo Unit. *</label>
+                                            {{ form.unit_cost }}
+                                            {% if form.unit_cost.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.unit_cost.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0" style="width: 100px;">
+                                        <div class="form-group">
+                                            <label class="form-label">IVA %</label>
+                                            {{ form.tax_percentage }}
+                                            {% if form.tax_percentage.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.tax_percentage.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0" style="width: 100px;">
+                                        <div class="form-group">
+                                            <label class="form-label">Desc. %</label>
+                                            {{ form.discount_percentage }}
+                                            {% if form.discount_percentage.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.discount_percentage.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="tablet-action">
+                                        <button type="button" class="tablet-btn tablet-btn-danger remove-product" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% if form.DELETE %}
+                                            {{ form.DELETE }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Información del producto seleccionado -->
+                                <div class="selected-product-info mt-2" style="display: none;">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Producto seleccionado: <span class="selected-product-name">-</span>
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if formset.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in formset.non_form_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-calculator"></i> Resumen
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Subtotal:</strong></div>
+                            <div class="col-6 text-right" id="subtotal">$0</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Descuento:</strong></div>
+                            <div class="col-6 text-right" id="discount">$0</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>IVA:</strong></div>
+                            <div class="col-6 text-right" id="tax">$0</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Envío:</strong></div>
+                            <div class="col-6 text-right" id="shipping">$0</div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6"><strong>Total:</strong></div>
+                            <div class="col-6 text-right"><strong id="total">$0</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="card">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary btn-block mb-2">
+                            <i class="fas fa-save"></i> {% if purchase %}Actualizar Compra{% else %}Crear Compra{% endif %}
+                        </button>
+                        <a href="{% url 'purchases:purchase_list' %}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Template para nuevos productos -->
+    <template id="productFormTemplate">
+        <div class="tablet-product-row">
+            <div class="tablet-product-content">
+                <div class="flex-grow-1">
+                    <div class="form-group">
+                        <label class="form-label">Producto *</label>
+                        <div class="autocomplete-container">
+                            <input type="text" class="form-control product-autocomplete" 
+                                   placeholder="Buscar por nombre o referencia..." autocomplete="off">
+                            <input type="hidden" name="formset-__prefix__-product" class="product-id-input">
+                            <div class="autocomplete-suggestions"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0" style="width: 120px;">
+                    <div class="form-group">
+                        <label class="form-label">Cantidad *</label>
+                        <input type="number" class="form-control" name="formset-__prefix__-quantity" min="1" required>
+                    </div>
+                </div>
+                <div class="flex-shrink-0" style="width: 120px;">
+                    <div class="form-group">
+                        <label class="form-label">Costo Unit. *</label>
+                        <input type="number" class="form-control" name="formset-__prefix__-unit_cost" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="flex-shrink-0" style="width: 100px;">
+                    <div class="form-group">
+                        <label class="form-label">IVA %</label>
+                        <input type="number" class="form-control" name="formset-__prefix__-tax_percentage" step="0.01" min="0" max="100" value="19.00">
+                    </div>
+                </div>
+                <div class="flex-shrink-0" style="width: 100px;">
+                    <div class="form-group">
+                        <label class="form-label">Desc. %</label>
+                        <input type="number" class="form-control" name="formset-__prefix__-discount_percentage" step="0.01" min="0" max="100" value="0.00">
+                    </div>
+                </div>
+                <div class="tablet-action">
+                    <button type="button" class="tablet-btn tablet-btn-danger remove-product" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <input type="checkbox" name="formset-__prefix__-DELETE" style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Información del producto seleccionado -->
+            <div class="selected-product-info mt-2" style="display: none;">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Producto seleccionado: <span class="selected-product-name">-</span>
+                </small>
+            </div>
+        </div>
+    </template>
+
+    <style>
+    /* Estilos para autocompletado */
+    .autocomplete-container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white !important;
+        border: 1px solid #e9ecef;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 9999;
+        display: none;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        margin-top: 2px;
+    }
+
+    .autocomplete-suggestion {
+        padding: 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        min-height: 60px;
+        transition: all 0.2s ease;
+        position: relative;
+        background: white !important;
+        color: #495057 !important;
+    }
+
+    .autocomplete-suggestion:hover {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #2c3e50;
+        transform: translateX(4px);
+        border-left: 4px solid #28a745;
+    }
+
+    .autocomplete-suggestion.selected {
+        background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .autocomplete-suggestion:last-child {
+        border-bottom: none;
+        border-radius: 0 0 12px 12px;
+    }
+
+    /* Asegurar que el dropdown se vea completamente */
+    .autocomplete-container.show-suggestions {
+        z-index: 10000;
+    }
+
+    .autocomplete-container.show-suggestions .autocomplete-suggestions {
+        z-index: 10001;
+    }
+
+    .product-info {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .product-image {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 12px;
+        border: 1px solid #ddd;
+        flex-shrink: 0;
+    }
+
+    .product-details {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .product-text {
+        flex: 1;
+    }
+
+    /* Estilos Tablet para Productos */
+    .tablet-section {
+        background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%);
+        border-radius: 20px;
+        padding: 0;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .tablet-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(44,85,48,0.1) 0%, rgba(30,58,33,0.1) 100%);
+        pointer-events: none;
+    }
+
+    .tablet-header {
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+        padding: 24px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .tablet-title {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .tablet-title h5 {
+        color: #f5f5dc;
+        font-weight: 700;
+        margin-bottom: 6px;
+        font-size: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .tablet-badge {
+        background: rgba(218,165,32,0.3);
+        color: #f5f5dc;
+        padding: 6px 16px;
+        border-radius: 24px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(218,165,32,0.4);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tablet-badge-success {
+        background: rgba(218,165,32,0.8) !important;
+        color: #f5f5dc !important;
+    }
+
+    .tablet-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .tablet-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 14px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tablet-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .tablet-btn:hover::before {
+        left: 100%;
+    }
+
+    .tablet-btn-primary {
+        background: rgba(218,165,32,0.3);
+        color: #f5f5dc;
+        border: 1px solid rgba(218,165,32,0.4);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .tablet-btn-primary:hover {
+        background: rgba(218,165,32,0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(218,165,32,0.3);
+    }
+
+    .tablet-btn-primary:disabled {
+        background: rgba(218,165,32,0.1);
+        color: rgba(245,245,220,0.5);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .tablet-content {
+        padding: 30px;
+        background: rgba(245,245,220,0.05);
+        backdrop-filter: blur(10px);
+    }
+
+    .tablet-product-row {
+        background: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: visible;
+    }
+
+    .tablet-product-content {
+        display: flex;
+        align-items: end;
+        gap: 20px;
+    }
+
+    .tablet-action {
+        flex: 0 0 auto;
+        width: 60px;
+    }
+
+    .tablet-btn-danger {
+        background: rgba(220,53,69,0.3);
+        color: #f5f5dc;
+        border: 1px solid rgba(220,53,69,0.4);
+        padding: 14px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .tablet-btn-danger:hover {
+        background: rgba(220,53,69,0.6);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(220,53,69,0.3);
+    }
+
+    .tablet-product-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .tablet-product-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .product-autocomplete-container {
+        flex: 2;
+        position: relative;
+    }
+
+    .product-quantity, .product-cost, .product-tax, .product-discount {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .product-total {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .product-actions {
+        flex: 0 0 auto;
+        width: 60px;
+    }
+
+    .tablet-empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(245,245,220,0.1);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        border: 2px dashed rgba(218,165,32,0.3);
+    }
+
+    .tablet-empty-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .tablet-empty-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(218,165,32,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #f5f5dc;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(218,165,32,0.3);
+    }
+
+    .tablet-empty-content h6 {
+        color: #f5f5dc;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 1.25rem;
+    }
+
+    .tablet-empty-content p {
+        color: rgba(245,245,220,0.8);
+        margin-bottom: 0;
+    }
+
+    /* Autocomplete Styles */
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 9999;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        display: none;
+    }
+
+    .autocomplete-suggestion {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background-color 0.2s ease;
+    }
+
+    .autocomplete-suggestion:hover {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .autocomplete-suggestion.selected {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+
+    .autocomplete-suggestion:last-child {
+        border-bottom: none;
+    }
+
+    .suggestion-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #e0e0e0;
+    }
+
+    .suggestion-info {
+        flex: 1;
+    }
+
+    .suggestion-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .suggestion-details {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .suggestion-price {
+        font-weight: 600;
+        color: #28a745;
+        font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .tablet-product-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+        
+        .product-autocomplete-container,
+        .product-quantity,
+        .product-cost,
+        .product-tax,
+        .product-discount,
+        .product-total {
+            flex: none;
+            min-width: auto;
+        }
+        
+        .product-actions {
+            width: auto;
+            text-align: center;
+        }
+    }
+    </style>
+
+    <script>
+    // Cache de productos reales
+    let productsCache = [];
+    
+    // Función para manejar errores de imagen
+    function handleImageError(img) {
+        img.onerror = null; // Prevenir loop infinito
+        img.src = '/static/images/no-image.svg';
+        img.style.opacity = '0.7';
+    }
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INICIANDO AUTOCOMPLETADO COMPRAS ===');
+    
+    // Debug: Log de errores de recursos
+    window.addEventListener('error', function(e) {
+        if (e.target.tagName === 'IMG') {
+            console.warn('Error cargando imagen:', e.target.src);
+        }
+    });
+    
+    // Buscar elementos
+    const formsetContainer = document.getElementById('dynamicFormsContainer');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const template = document.getElementById('productFormTemplate');
+    const supplierSelect = document.querySelector('select[name="supplier"]');
+    const managementForm = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    console.log('Management form encontrado:', !!managementForm);
+    if (managementForm) {
+        console.log('Management form name:', managementForm.name);
+        console.log('Management form value:', managementForm.value);
+    }
+    
+    // Variables de estado
+    let formCount = {{ formset.total_form_count }};
+    const maxForms = {{ formset.max_num }};
+    
+    console.log('Formularios iniciales:', formCount);
+    console.log('Máximo formularios:', maxForms);
+    
+    // Función para cargar productos desde API
+    function loadProductsFromAPI() {
+        console.log('Cargando productos desde API...');
+        
+        return fetch('/purchases/api/products/')
+            .then(response => {
+                console.log('Respuesta API:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(products => {
+                console.log('Productos recibidos:', products.length);
+                productsCache = products;
+                console.log('Cache actualizado:', productsCache.length);
+                return products;
+            })
+            .catch(error => {
+                console.error('Error cargando productos:', error);
+                productsCache = [];
+                return [];
+            });
+    }
+    
+    // Función para filtrar productos
+    function filterProducts(query) {
+        if (!query || query.length < 2) return [];
+        
+        const lowerQuery = query.toLowerCase();
+        return productsCache.filter(product => 
+            product.name.toLowerCase().includes(lowerQuery) ||
+            product.sku.toLowerCase().includes(lowerQuery) ||
+            (product.barcode && product.barcode.toLowerCase().includes(lowerQuery))
+        );
+    }
+    
+    // Función para mostrar sugerencias
+    function showSuggestions(input, products) {
+        const container = input.closest('.autocomplete-container');
+        let suggestions = container.querySelector('.autocomplete-suggestions');
+        
+        if (!suggestions) {
+            suggestions = document.createElement('div');
+            suggestions.className = 'autocomplete-suggestions';
+            container.appendChild(suggestions);
+        }
+
+        suggestions.innerHTML = '';
+        
+        if (products.length === 0) {
+            suggestions.style.display = 'none';
+            return;
+        }
+
+        products.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-suggestion';
+            item.innerHTML = `
+                <div class="product-details">
+                    <img src="${product.image_url || '/static/images/no-image.svg'}" 
+                         alt="${product.name}" class="product-image" 
+                         onerror="handleImageError(this)">
+                    <div class="product-text">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-info">
+                            SKU: ${product.sku} | 
+                            ${product.category ? `Categoría: ${product.category} | ` : ''}
+                            Precio: $${product.price || 0}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            item.addEventListener('click', () => selectProduct(product, input));
+            suggestions.appendChild(item);
+        });
+
+        suggestions.style.display = 'block';
+        container.classList.add('show-suggestions');
+    }
+    
+    // Función para ocultar sugerencias
+    function hideSuggestions(input) {
+        const container = input.closest('.autocomplete-container');
+        const suggestions = container.querySelector('.autocomplete-suggestions');
+        if (suggestions) {
+            suggestions.style.display = 'none';
+            container.classList.remove('show-suggestions');
+        }
+    }
+    
+    // Función para seleccionar producto
+    function selectProduct(product, input) {
+        console.log('Producto seleccionado:', product);
+        
+        input.value = product.name;
+        const hiddenInput = input.closest('.autocomplete-container').querySelector('.product-id-input');
+        if (hiddenInput) {
+            hiddenInput.value = product.id;
+        }
+        
+        hideSuggestions(input);
+        
+        // Mostrar información del producto seleccionado
+        showSelectedProductInfo(product, input);
+        
+        // Auto-completar precio si está disponible
+        const costInput = input.closest('.tablet-product-row').querySelector('input[name*="unit_cost"]');
+        if (costInput && !costInput.value && product.price) {
+            costInput.value = product.price;
+            calculateTotals();
+        }
+    }
+    
+    // Función para mostrar información del producto seleccionado
+    function showSelectedProductInfo(product, input) {
+        const container = input.closest('.tablet-product-row');
+        const infoDiv = container.querySelector('.selected-product-info');
+        const nameSpan = container.querySelector('.selected-product-name');
+        
+        if (infoDiv && nameSpan) {
+            nameSpan.textContent = `${product.name} (${product.sku})`;
+            infoDiv.style.display = 'block';
+        }
+    }
+    
+    // Función simple para inicializar autocompletado
+    function initAutocomplete(input) {
+        console.log('Configurando event listener para input:', input);
+        
+        input.addEventListener('input', function() {
+            const query = this.value;
+            console.log('Input event disparado con query:', query);
+            
+            // Si el input está vacío, limpiar información
+            if (!query || query.trim() === '') {
+                const container = this.closest('.tablet-product-row');
+                const infoDiv = container.querySelector('.selected-product-info');
+                if (infoDiv) {
+                    infoDiv.style.display = 'none';
+                }
+                const hiddenInput = container.querySelector('.product-id-input');
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+            }
+            
+            const suggestions = filterProducts(query);
+            console.log('Sugerencias encontradas:', suggestions.length);
+            showSuggestions(this, suggestions);
+        });
+        
+        // Cerrar al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!input.closest('.autocomplete-container').contains(e.target)) {
+                hideSuggestions(input);
+            }
+        });
+    }
+    
+    // Inicializar todos los inputs existentes
+    function initAllAutocompletes() {
+        const inputs = document.querySelectorAll('.product-autocomplete:not([style*="display: none"])');
+        console.log('Inicializando', inputs.length, 'inputs de autocompletado');
+        
+        inputs.forEach((input, index) => {
+            console.log('Inicializando input', index + 1);
+            initAutocomplete(input);
+        });
+    }
+    
+    // Función para actualizar estado del botón agregar primer producto
+    function updateAddFirstProductButton() {
+        const addFirstProductBtn = document.getElementById('addFirstProductBtn');
+        if (!addFirstProductBtn) return;
+        
+        const supplierSelected = supplierSelect && supplierSelect.value;
+        
+        if (supplierSelected) {
+            addFirstProductBtn.disabled = false;
+            addFirstProductBtn.style.opacity = '1';
+            addFirstProductBtn.style.cursor = 'pointer';
+        } else {
+            addFirstProductBtn.disabled = true;
+            addFirstProductBtn.style.opacity = '0.6';
+            addFirstProductBtn.style.cursor = 'not-allowed';
+        }
+    }
+    
+    // Función para agregar nuevo producto
+    function addNewProduct() {
+        console.log('Agregando nuevo producto...');
+        
+        if (formCount >= maxForms) {
+            alert('No se pueden agregar más productos.');
+            return;
+        }
+        
+        const template = document.getElementById('productFormTemplate');
+        const newFormHtml = template.content.cloneNode(true);
+        
+        // Actualizar nombres de campos
+        const formIndex = formCount;
+        
+        // Convertir el DocumentFragment a string, hacer replace, y crear nuevo elemento
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(newFormHtml);
+        let htmlString = tempDiv.innerHTML;
+        htmlString = htmlString.replace(/__prefix__/g, formIndex);
+        
+        // Crear nuevo elemento con el HTML actualizado
+        const newElement = document.createElement('div');
+        newElement.innerHTML = htmlString;
+        const newForm = newElement.firstElementChild;
+        
+        // Agregar al contenedor
+        if (formsetContainer) {
+            formsetContainer.appendChild(newForm);
+        }
+        
+        // Actualizar contador
+        formCount++;
+        if (managementForm) {
+            managementForm.value = formCount;
+        }
+        
+        // Inicializar el nuevo input
+        const newInput = newForm.querySelector('.product-autocomplete');
+        if (newInput) {
+            console.log('Inicializando autocompletado para nuevo input');
+            initAutocomplete(newInput);
+        } else {
+            console.warn('Input de autocompletado no encontrado en nuevo formulario');
+        }
+        
+        // Actualizar visualización
+        updateProductsDisplay();
+        
+        console.log('Producto agregado exitosamente. Total formularios:', formCount);
+    }
+    
+    // Función para actualizar visualización de productos
+    function updateProductsDisplay() {
+        const dynamicContainer = document.getElementById('dynamicFormsContainer');
+        const productRows = dynamicContainer ? dynamicContainer.querySelectorAll('.tablet-product-row') : [];
+        const noProductsMessage = document.getElementById('noProductsMessage');
+        const productCount = document.getElementById('productCount');
+        
+        const count = productRows.length;
+        
+        if (count === 0) {
+            if (noProductsMessage) noProductsMessage.style.display = 'block';
+        } else {
+            if (noProductsMessage) noProductsMessage.style.display = 'none';
+        }
+        
+        // Actualizar contador en el header
+        if (productCount) {
+            productCount.textContent = `${count} producto${count !== 1 ? 's' : ''}`;
+            productCount.className = count > 0 ? 'tablet-badge tablet-badge-success' : 'tablet-badge';
+        }
+        
+        console.log('Productos visibles:', count);
+    }
+    
+    // Event listener para botón principal de agregar producto
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', function(e) {
+            console.log('Botón agregar clickeado');
+            
+            // Verificar si hay proveedor seleccionado
+            if (!supplierSelect || !supplierSelect.value) {
+                alert('⚠️ Por favor selecciona un proveedor antes de agregar productos');
+                e.preventDefault();
+                return;
+            }
+            
+            e.preventDefault();
+            addNewProduct();
+        });
+        console.log('Event listener agregado al botón principal');
+    } else {
+        console.error('Botón agregar no encontrado');
+    }
+    
+    // Event listener para botón de agregar primer producto
+    const addFirstProductBtn = document.getElementById('addFirstProductBtn');
+    if (addFirstProductBtn) {
+        addFirstProductBtn.addEventListener('click', function(e) {
+            console.log('Botón agregar primer producto clickeado');
+            
+            // Verificar si el botón está deshabilitado
+            if (this.disabled) {
+                console.log('Botón deshabilitado, no se puede agregar producto');
+                alert('📦 Este botón está desactivado. Primero debes seleccionar un proveedor para poder agregar productos.');
+                e.preventDefault();
+                return;
+            }
+            
+            e.preventDefault();
+            addNewProduct();
+        });
+        console.log('Event listener agregado al botón de primer producto');
+    } else {
+        console.warn('Botón agregar primer producto no encontrado');
+    }
+    
+    // Event listener para eliminar producto
+    document.addEventListener('click', function(e) {
+        if (e.target?.closest('.remove-product')) {
+            const formRow = e.target.closest('.tablet-product-row');
+            const deleteCheckbox = formRow?.querySelector('input[name*="-DELETE"]');
+            
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                formRow.style.display = 'none';
+            } else {
+                formRow.remove();
+                formCount--;
+                if (managementForm) managementForm.value = formCount;
+            }
+            
+            // Actualizar visualización
+            updateProductsDisplay();
+            
+            console.log('Producto eliminado. Total formularios:', formCount);
+        }
+    });
+    
+    // Event listener para cambio de proveedor
+    if (supplierSelect) {
+        supplierSelect.addEventListener('change', function() {
+            const supplierId = this.value;
+            console.log('Proveedor cambiado a:', supplierId);
+            
+            // Actualizar estado del botón agregar primer producto
+            updateAddFirstProductButton();
+            
+            // Limpiar todos los inputs de productos
+            const autocompleteInputs = document.querySelectorAll('.product-autocomplete');
+            const hiddenInputs = document.querySelectorAll('.product-id-input');
+            
+            autocompleteInputs.forEach(input => {
+                input.value = '';
+            });
+            
+            hiddenInputs.forEach(input => {
+                input.value = '';
+            });
+            
+            // Ocultar información de productos
+            const productInfos = document.querySelectorAll('.selected-product-info');
+            productInfos.forEach(info => {
+                info.style.display = 'none';
+            });
+        });
+    }
+    
+    // Función para calcular totales
+    function calculateTotals() {
+        let subtotal = 0;
+        let totalDiscount = 0;
+        let totalTax = 0;
+
+        document.querySelectorAll('.tablet-product-row').forEach((productRow, index) => {
+            const quantity = parseFloat(productRow.querySelector('input[name*="quantity"]')?.value || 0);
+            const unitCost = parseFloat(productRow.querySelector('input[name*="unit_cost"]')?.value || 0);
+            const taxPercentage = parseFloat(productRow.querySelector('input[name*="tax_percentage"]')?.value || 0);
+            const discountPercentage = parseFloat(productRow.querySelector('input[name*="discount_percentage"]')?.value || 0);
+
+            const itemSubtotal = quantity * unitCost;
+            const itemDiscount = itemSubtotal * (discountPercentage / 100);
+            const itemTax = (itemSubtotal - itemDiscount) * (taxPercentage / 100);
+            const itemTotal = itemSubtotal - itemDiscount + itemTax;
+
+            subtotal += itemSubtotal;
+            totalDiscount += itemDiscount;
+            totalTax += itemTax;
+        });
+
+        const shipping = parseFloat(document.getElementById('id_shipping_cost').value || 0);
+        const total = subtotal - totalDiscount + totalTax + shipping;
+
+        // Actualizar resumen
+        document.getElementById('subtotal').textContent = '$' + subtotal.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        document.getElementById('discount').textContent = '$' + totalDiscount.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        document.getElementById('tax').textContent = '$' + totalTax.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        document.getElementById('shipping').textContent = '$' + shipping.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        document.getElementById('total').textContent = '$' + total.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    }
+    
+    // Inicializar management form
+    if (managementForm) {
+        managementForm.value = formCount;
+        console.log('Management form inicializado con valor:', formCount);
+    }
+    
+    // Inicializar
+    initAllAutocompletes();
+    
+    // Inicializar visualización de productos
+    updateProductsDisplay();
+    
+    // Inicializar estado del botón agregar primer producto
+    updateAddFirstProductButton();
+    
+    // Cargar productos
+    loadProductsFromAPI().then(() => {
+        console.log('Productos cargados:', productsCache.length);
+    });
+    
+    // Event listeners para cálculos
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input[name*="quantity"], input[name*="unit_cost"], input[name*="tax_percentage"], input[name*="discount_percentage"], input[name="shipping_cost"]')) {
+            calculateTotals();
+        }
+    });
+    
+    console.log('=== AUTOCOMPLETADO COMPRAS INICIALIZADO ===');
+    console.log('Productos disponibles:', productsCache.length);
+});
+    </script>
+{% endblock %}

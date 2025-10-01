@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1><i class="fas fa-credit-card"></i> Checkout</h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user"></i> Información de Contacto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.first_name.id_for_label }}">Nombre *</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                    <div class="text-danger">{{ form.first_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.last_name.id_for_label }}">Apellido *</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                    <div class="text-danger">{{ form.last_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}">Email *</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.phone.id_for_label }}">Teléfono *</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                    <div class="text-danger">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5><i class="fas fa-truck"></i> Información de Envío</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="{{ form.address.id_for_label }}">Dirección *</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="text-danger">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.city.id_for_label }}">Ciudad *</label>
+                                    {{ form.city }}
+                                    {% if form.city.errors %}
+                                    <div class="text-danger">{{ form.city.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.payment_method.id_for_label }}">Método de Pago *</label>
+                                    {{ form.payment_method }}
+                                    {% if form.payment_method.errors %}
+                                    <div class="text-danger">{{ form.payment_method.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.notes.id_for_label }}">Notas adicionales (opcional)</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> Información de Pago</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="payment-info">
+                            <div class="alert alert-info">
+                                <h6>Métodos de Pago Disponibles:</h6>
+                                <ul class="mb-0">
+                                    <li><strong>Contraentrega:</strong> Paga cuando recibas tu pedido</li>
+                                    <li><strong>Transferencia Bancolombia:</strong> Cuenta de ahorros 123456789</li>
+                                    <li><strong>Addi:</strong> Paga a cuotas con Addi</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check"></i> Confirmar Pedido
+                    </button>
+                    <a href="{% url 'catalog:cart' %}" class="btn btn-outline-secondary btn-lg ml-2">
+                        <i class="fas fa-arrow-left"></i> Volver al Carrito
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-shopping-cart"></i> Resumen del Pedido</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart.items.all %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <small class="font-weight-bold">{{ item.product.name }}</small>
+                            <br>
+                            <small class="text-muted">x{{ item.quantity }}</small>
+                        </div>
+                        <small class="font-weight-bold">${{ item.total|floatformat:0 }}</small>
+                    </div>
+                    {% endfor %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal ({{ cart.total_items }} productos):</span>
+                        <span>${{ cart.total_amount|floatformat:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>IVA:</span>
+                        <span>${{ cart.total_iva|floatformat:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Costo de envío:</span>
+                        <span class="text-muted">Se calculará según la ciudad</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total estimado:</strong>
+                        <strong class="text-success">${{ cart.total_with_iva|floatformat:0 }}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Info -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6><i class="fas fa-shield-alt"></i> Compra Segura</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Datos protegidos con SSL</li>
+                        <li>No almacenamos información de pago</li>
+                        <li>Garantía de satisfacción</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update payment info based on selected method
+    $('#id_payment_method').on('change', function() {
+        const method = $(this).val();
+        let info = '';
+        
+        switch(method) {
+            case 'cash_on_delivery':
+                info = '<div class="alert alert-success"><h6>Contraentrega</h6><p class="mb-0">Paga cuando recibas tu pedido. El costo de envío se incluirá en el total.</p></div>';
+                break;
+            case 'bank_transfer':
+                info = '<div class="alert alert-info"><h6>Transferencia Bancolombia</h6><p class="mb-0">Cuenta de ahorros: 123456789<br>Nombre: NaturalMede S.A.S<br>Envía el comprobante por WhatsApp</p></div>';
+                break;
+            case 'addi':
+                info = '<div class="alert alert-warning"><h6>Addi</h6><p class="mb-0">Paga a cuotas con Addi. Te redirigiremos a su plataforma para completar el pago.</p></div>';
+                break;
+        }
+        
+        $('#payment-info').html(info);
+    });
+    
+    // Trigger change on page load
+    $('#id_payment_method').trigger('change');
+</script>
+{% endblock %}
+
+
+
+
+
+
+

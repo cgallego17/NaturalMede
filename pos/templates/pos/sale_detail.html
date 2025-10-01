@@ -1,0 +1,176 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Detalle de Venta #{{ sale.sale_number }} - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2>Venta #{{ sale.sale_number }}</h2>
+        <div>
+            <a href="{% url 'pos:sale_print' sale.id %}" class="btn btn-info" target="_blank">
+                <i class="fas fa-print"></i> Imprimir
+            </a>
+            <a href="{% url 'pos:sale' %}" class="btn btn-secondary ml-2">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Información de la venta -->
+    <div class="col-md-8">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Información de la Venta</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Datos Generales</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Número:</strong> #{{ sale.sale_number }}</li>
+                            <li><strong>Sesión:</strong> #{{ sale.session.id }}</li>
+                            <li><strong>Fecha:</strong> {{ sale.created_at|date:"d/m/Y H:i" }}</li>
+                            <li><strong>Método de Pago:</strong> {{ sale.get_payment_method_display }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Cliente</h6>
+                        {% if sale.customer %}
+                        <ul class="list-unstyled">
+                            <li><strong>Nombre:</strong> {{ sale.customer.user.get_full_name|default:sale.customer.user.username }}</li>
+                            <li><strong>Email:</strong> {{ sale.customer.user.email }}</li>
+                            <li><strong>Teléfono:</strong> {{ sale.customer.phone|default:"-" }}</li>
+                        </ul>
+                        {% else %}
+                        <p class="text-muted">Cliente general</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if sale.notes %}
+                <div class="mt-3">
+                    <h6>Notas</h6>
+                    <p class="text-muted">{{ sale.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Items de la venta -->
+        <div class="card card-pos mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Productos Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>IVA %</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in sale.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ item.product.name }}</div>
+                                    <div class="text-muted small">SKU: {{ item.product.sku }}</div>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.unit_price|floatformat:0 }}</td>
+                                <td>{{ item.iva_percentage }}%</td>
+                                <td>${{ item.total|floatformat:0 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    <i class="fas fa-box fa-2x mb-2"></i>
+                                    <div>No hay productos en esta venta</div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resumen de totales -->
+    <div class="col-md-4">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Resumen de Totales</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Subtotal:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        ${{ sale.subtotal|floatformat:0 }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>IVA:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        ${{ sale.iva_amount|floatformat:0 }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Total:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        <span class="h5 text-primary">${{ sale.total|floatformat:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información de la sesión -->
+        <div class="card card-pos mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Información de la Sesión</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><strong>ID:</strong> #{{ sale.session.id }}</li>
+                    <li><strong>Bodega:</strong> {{ sale.session.warehouse.name }}</li>
+                    <li><strong>Usuario:</strong> {{ sale.session.user.get_full_name|default:sale.session.user.username }}</li>
+                    <li><strong>Abierta:</strong> {{ sale.session.opened_at|date:"d/m/Y H:i" }}</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Acciones -->
+        <div class="card card-pos mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Acciones</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'pos:sale_print' sale.id %}" class="btn btn-info" target="_blank">
+                        <i class="fas fa-print"></i> Imprimir Recibo
+                    </a>
+                    <a href="{% url 'pos:sale' %}" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Ver Todas las Ventas
+                    </a>
+                    <a href="{% url 'pos:dashboard' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

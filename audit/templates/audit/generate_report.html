@@ -1,0 +1,367 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Generar Reporte{% endblock %}
+{% block page_title_display %}Generar Reporte{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-chart-bar"></i> Dashboard
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Dashboard</a></li>
+    <li class="breadcrumb-item active">Generar Reporte</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.report-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.report-type-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.report-type-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.report-type-card.selected {
+    border-color: #007bff;
+    background: #f8f9ff;
+}
+
+.report-type-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.report-type-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.report-type-description {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Formulario de Generación de Reporte -->
+            <div class="report-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-file-alt text-primary"></i>
+                    Generar Nuevo Reporte
+                </h5>
+                
+                <form id="reportForm" method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Tipo de Reporte -->
+                    <div class="form-section">
+                        <h6 class="mb-3">Tipo de Reporte</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="report-type-card" data-type="USER_ACTIVITY">
+                                    <div class="text-center">
+                                        <div class="report-type-icon text-primary">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="report-type-title">Actividad de Usuario</div>
+                                        <div class="report-type-description">
+                                            Reporte de todas las acciones realizadas por usuarios
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="report-type-card" data-type="MODEL_CHANGES">
+                                    <div class="text-center">
+                                        <div class="report-type-icon text-success">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <div class="report-type-title">Cambios de Modelo</div>
+                                        <div class="report-type-description">
+                                            Reporte de cambios en modelos específicos
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="report-type-card" data-type="SECURITY_EVENTS">
+                                    <div class="text-center">
+                                        <div class="report-type-icon text-danger">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <div class="report-type-title">Eventos de Seguridad</div>
+                                        <div class="report-type-description">
+                                            Reporte de eventos críticos y de seguridad
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="report-type-card" data-type="SYSTEM_EVENTS">
+                                    <div class="text-center">
+                                        <div class="report-type-icon text-info">
+                                            <i class="fas fa-cogs"></i>
+                                        </div>
+                                        <div class="report-type-title">Eventos del Sistema</div>
+                                        <div class="report-type-description">
+                                            Reporte de eventos generales del sistema
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="reportType" name="report_type" required>
+                    </div>
+                    
+                    <!-- Filtros -->
+                    <div class="form-section">
+                        <h6 class="mb-3">Filtros</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date_from">Fecha Desde</label>
+                                    <input type="date" class="form-control" id="date_from" name="date_from">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="date_to">Fecha Hasta</label>
+                                    <input type="date" class="form-control" id="date_to" name="date_to">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="user">Usuario</label>
+                                    <input type="text" class="form-control" id="user" name="user" 
+                                           placeholder="Nombre de usuario...">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="action">Acción</label>
+                                    <select class="form-control" id="action" name="action">
+                                        <option value="">Todas las acciones</option>
+                                        <option value="CREATE">Crear</option>
+                                        <option value="UPDATE">Actualizar</option>
+                                        <option value="DELETE">Eliminar</option>
+                                        <option value="LOGIN">Iniciar Sesión</option>
+                                        <option value="LOGOUT">Cerrar Sesión</option>
+                                        <option value="VIEW">Ver</option>
+                                        <option value="EXPORT">Exportar</option>
+                                        <option value="IMPORT">Importar</option>
+                                        <option value="PRINT">Imprimir</option>
+                                        <option value="EMAIL">Enviar Email</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="severity">Severidad</label>
+                                    <select class="form-control" id="severity" name="severity">
+                                        <option value="">Todas las severidades</option>
+                                        <option value="LOW">Bajo</option>
+                                        <option value="MEDIUM">Medio</option>
+                                        <option value="HIGH">Alto</option>
+                                        <option value="CRITICAL">Crítico</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de Generación -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-file-download"></i>
+                            Generar Reporte
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Información -->
+            <div class="report-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-info-circle text-info"></i>
+                    Información
+                </h5>
+                
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-lightbulb"></i> Tipos de Reporte</h6>
+                    <ul class="mb-0">
+                        <li><strong>Actividad de Usuario:</strong> Todas las acciones de usuarios</li>
+                        <li><strong>Cambios de Modelo:</strong> Modificaciones en datos</li>
+                        <li><strong>Eventos de Seguridad:</strong> Eventos críticos</li>
+                        <li><strong>Eventos del Sistema:</strong> Actividad general</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-clock"></i> Tiempo de Generación</h6>
+                    <p class="mb-0">
+                        Los reportes se generan en segundo plano. 
+                        El tiempo depende del volumen de datos.
+                    </p>
+                </div>
+                
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-download"></i> Formato</h6>
+                    <p class="mb-0">
+                        Los reportes se generan en formato CSV 
+                        para fácil importación en Excel.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Carga -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h5>Generando Reporte...</h5>
+            <p class="text-muted">Por favor espera mientras se procesa tu solicitud</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Selección de tipo de reporte
+    const reportTypeCards = document.querySelectorAll('.report-type-card');
+    const reportTypeInput = document.getElementById('reportType');
+    
+    reportTypeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remover selección anterior
+            reportTypeCards.forEach(c => c.classList.remove('selected'));
+            
+            // Seleccionar actual
+            this.classList.add('selected');
+            
+            // Actualizar input
+            reportTypeInput.value = this.dataset.type;
+        });
+    });
+    
+    // Envío del formulario
+    const reportForm = document.getElementById('reportForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    reportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validar que se haya seleccionado un tipo
+        if (!reportTypeInput.value) {
+            alert('Por favor selecciona un tipo de reporte');
+            return;
+        }
+        
+        // Mostrar overlay de carga
+        loadingOverlay.style.display = 'flex';
+        
+        // Enviar formulario
+        const formData = new FormData(this);
+        
+        fetch('{% url "audit:generate_report" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingOverlay.style.display = 'none';
+            
+            if (data.success) {
+                alert('Reporte generado exitosamente. ID: ' + data.report_id);
+                // Aquí podrías redirigir a una página de reportes o mostrar un enlace de descarga
+            } else {
+                alert('Error al generar el reporte: ' + data.error);
+            }
+        })
+        .catch(error => {
+            loadingOverlay.style.display = 'none';
+            alert('Error de conexión: ' + error.message);
+        });
+    });
+    
+    // Establecer fechas por defecto (últimos 30 días)
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    
+    document.getElementById('date_to').value = today.toISOString().split('T')[0];
+    document.getElementById('date_from').value = thirtyDaysAgo.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

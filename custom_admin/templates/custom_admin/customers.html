@@ -1,0 +1,209 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Clientes - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users"></i> Gestión de Clientes</h2>
+                <a href="{% url 'custom_admin:admin_customer_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nuevo Cliente
+                </a>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Buscar clientes..." value="{{ current_search|default:'' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control" name="customer_type">
+                                <option value="">Todos los tipos</option>
+                                <option value="normal" {% if current_customer_type == 'normal' %}selected{% endif %}>Normal</option>
+                                <option value="vip" {% if current_customer_type == 'vip' %}selected{% endif %}>VIP</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control" name="is_active">
+                                <option value="">Todos</option>
+                                <option value="true" {% if current_is_active == 'true' %}selected{% endif %}>Activos</option>
+                                <option value="false" {% if current_is_active == 'false' %}selected{% endif %}>Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <a href="{% url 'custom_admin:admin_customers' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla de clientes -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Tipo</th>
+                                    <th>Canal</th>
+                                    <th>Ciudad</th>
+                                    <th>Órdenes</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in customers %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ customer.full_name }}</strong>
+                                            {% if customer.customer_type == 'vip' %}
+                                                <span class="badge badge-warning ml-1">VIP</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>{{ customer.user.email }}</td>
+                                    <td>{{ customer.phone }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if customer.customer_type == 'vip' %}warning{% else %}info{% endif %}">
+                                            {{ customer.get_customer_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if customer.channel == 'instagram' %}
+                                            <span class="badge badge-info">📸 Instagram</span>
+                                        {% elif customer.channel == 'facebook' %}
+                                            <span class="badge badge-primary">👥 Facebook</span>
+                                        {% elif customer.channel == 'whatsapp' %}
+                                            <span class="badge badge-success">💬 WhatsApp</span>
+                                        {% elif customer.channel == 'google' %}
+                                            <span class="badge badge-warning">🔍 Google</span>
+                                        {% elif customer.channel == 'referral' %}
+                                            <span class="badge badge-secondary">👤 Referido</span>
+                                        {% elif customer.channel == 'walk_in' %}
+                                            <span class="badge badge-dark">🏪 Tienda</span>
+                                        {% elif customer.channel == 'website' %}
+                                            <span class="badge badge-info">🌐 Web</span>
+                                        {% elif customer.channel == 'email' %}
+                                            <span class="badge badge-light">📧 Email</span>
+                                        {% elif customer.channel == 'phone' %}
+                                            <span class="badge badge-primary">📞 Teléfono</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">❓ Otro</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ customer.city }}</td>
+                                    <td>
+                                        <span class="badge badge-primary">{{ customer.total_orders }}</span>
+                                        <br><small class="text-muted">${{ customer.total_spent|floatformat:0 }}</small>
+                                    </td>
+                                    <td>
+                                        {% if customer.is_active %}
+                                            <span class="badge badge-success">Activo</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'custom_admin:admin_customer_detail' customer.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'custom_admin:admin_customer_edit' customer.pk %}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'custom_admin:admin_customer_orders' customer.pk %}" class="btn btn-sm btn-outline-info" title="Órdenes">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </a>
+                                            {% if customer.customer_type == 'normal' %}
+                                                <a href="{% url 'custom_admin:admin_customer_toggle_vip' customer.pk %}" class="btn btn-sm btn-outline-warning" title="Hacer VIP">
+                                                    <i class="fas fa-crown"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'custom_admin:admin_customer_toggle_vip' customer.pk %}" class="btn btn-sm btn-outline-secondary" title="Quitar VIP">
+                                                    <i class="fas fa-user"></i>
+                                                </a>
+                                            {% endif %}
+                                            {% if customer.is_active %}
+                                                <a href="{% url 'custom_admin:admin_customer_toggle_status' customer.pk %}" class="btn btn-sm btn-outline-danger" title="Desactivar">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'custom_admin:admin_customer_toggle_status' customer.pk %}" class="btn btn-sm btn-outline-success" title="Activar">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        <i class="fas fa-users fa-2x mb-2"></i><br>
+                                        No se encontraron clientes
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    {% if customers.has_other_pages %}
+                    <nav aria-label="Paginación de clientes">
+                        <ul class="pagination justify-content-center">
+                            {% if customers.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if current_search %}&search={{ current_search }}{% endif %}{% if current_customer_type %}&customer_type={{ current_customer_type }}{% endif %}{% if current_is_active %}&is_active={{ current_is_active }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_customer_type %}&customer_type={{ current_customer_type }}{% endif %}{% if current_is_active %}&is_active={{ current_is_active }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ customers.number }} de {{ customers.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if customers.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_customer_type %}&customer_type={{ current_customer_type }}{% endif %}{% if current_is_active %}&is_active={{ current_is_active }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ customers.paginator.num_pages }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_customer_type %}&customer_type={{ current_customer_type }}{% endif %}{% if current_is_active %}&is_active={{ current_is_active }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

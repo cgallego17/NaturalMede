@@ -1,0 +1,146 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Enviar Recibo por Correo - Venta #{{ sale.sale_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-envelope"></i> Enviar Recibo por Correo</h2>
+                <a href="{% url 'custom_admin:admin_pos_sale_detail' sale.id %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Venta #{{ sale.sale_number }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Información de la venta -->
+                            <div class="mb-4">
+                                <h6>Información de la Venta:</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Fecha:</strong></td>
+                                        <td>{{ sale.created_at|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cliente:</strong></td>
+                                        <td>
+                                            {% if sale.customer %}
+                                                {{ sale.customer.full_name }}
+                                                <br><small class="text-muted">{{ sale.customer.user.email }}</small>
+                                            {% else %}
+                                                <span class="text-muted">Cliente General</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total:</strong></td>
+                                        <td><strong class="currency-value" data-value="{{ sale.total }}">${{ sale.total|floatformat:0 }}</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Formulario de correo -->
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope"></i> Dirección de Correo
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email" 
+                                           required
+                                           placeholder="ejemplo@correo.com"
+                                           value="{% if sale.customer %}{{ sale.customer.user.email }}{% endif %}">
+                                    <small class="form-text text-muted">
+                                        Ingrese la dirección de correo donde desea enviar el recibo
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Vista Previa del Recibo:</label>
+                                    <div class="border p-3 bg-light">
+                                        <div class="text-center">
+                                            <strong>NATURALMEDE</strong><br>
+                                            <small class="text-muted">Farmacia Natural</small>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small><strong>Venta:</strong> #{{ sale.sale_number }}</small><br>
+                                                <small><strong>Fecha:</strong> {{ sale.created_at|date:"d/m/Y H:i" }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small><strong>Total:</strong> <span class="currency-value" data-value="{{ sale.total }}">${{ sale.total|floatformat:0 }}</span></small><br>
+                                                <small><strong>Items:</strong> {{ sale.items.count }}</small>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="text-center">
+                                            <small class="text-muted">Recibo completo será enviado por correo</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-success btn-block">
+                                        <i class="fas fa-paper-plane"></i> Enviar Recibo por Correo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h6><i class="fas fa-info-circle"></i> Información</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="fas fa-check text-success"></i> El recibo se enviará en formato HTML</li>
+                                <li><i class="fas fa-check text-success"></i> Incluye todos los detalles de la venta</li>
+                                <li><i class="fas fa-check text-success"></i> Se puede imprimir desde el correo</li>
+                                <li><i class="fas fa-check text-success"></i> Formato profesional y legible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para formatear números con separadores de miles
+function formatCurrency(value) {
+    if (value === null || value === undefined) return '$0';
+    
+    // Convertir a número
+    let num = parseFloat(value);
+    if (isNaN(num)) return '$0';
+    
+    // Formatear con separadores de miles
+    return '$' + num.toLocaleString('en-US');
+}
+
+// Formatear todos los valores de moneda cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    const currencyElements = document.querySelectorAll('.currency-value');
+    
+    currencyElements.forEach(function(element) {
+        const value = element.getAttribute('data-value');
+        if (value) {
+            element.textContent = formatCurrency(value);
+        }
+    });
+});
+</script>
+{% endblock %}

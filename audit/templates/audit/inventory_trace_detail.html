@@ -1,0 +1,416 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Detalle de Trazabilidad{% endblock %}
+{% block page_title_display %}Detalle de Trazabilidad{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:inventory_trace_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <a href="{% url 'audit:product_trace_report' trace.product.id %}" class="btn btn-info">
+        <i class="fas fa-chart-line"></i> Reporte del Producto
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Auditoría</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'audit:inventory_trace_dashboard' %}">Trazabilidad</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'audit:inventory_trace_list' %}">Lista</a></li>
+    <li class="breadcrumb-item active">Detalle</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.detail-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.movement-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.movement-header.incoming {
+    background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+}
+
+.movement-header.outgoing {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.movement-header.adjustment {
+    background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+}
+
+.movement-header.transfer {
+    background: linear-gradient(135deg, #a55eea 0%, #26de81 100%);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.info-value {
+    color: #333;
+}
+
+.quantity-display {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.quantity-positive {
+    background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+    color: white;
+}
+
+.quantity-negative {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+}
+
+.stock-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.stock-before, .stock-after {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    margin: 0 10px;
+}
+
+.stock-arrow {
+    font-size: 2rem;
+    color: #007bff;
+}
+
+.related-traces {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.trace-item {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #ddd;
+}
+
+.trace-item.incoming {
+    border-left-color: #48dbfb;
+}
+
+.trace-item.outgoing {
+    border-left-color: #ff6b6b;
+}
+
+.badge-custom {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.badge-purchase {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-sale {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-stock_transfer {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.badge-stock_transfer_receive {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.badge-stock_adjustment {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-purchase_receipt {
+    background-color: #28a745;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Header del Movimiento -->
+    <div class="movement-header {% if trace.is_incoming %}incoming{% elif trace.is_outgoing %}outgoing{% elif trace.movement_type == 'STOCK_ADJUSTMENT' %}adjustment{% elif 'TRANSFER' in trace.movement_type %}transfer{% endif %}">
+        <div class="row">
+            <div class="col-md-8">
+                <h4 class="mb-2">
+                    <i class="fas fa-route"></i>
+                    {{ trace.get_movement_type_display }}
+                </h4>
+                <p class="mb-0">
+                    <strong>{{ trace.product.name }}</strong> 
+                    <code>{{ trace.product.sku }}</code>
+                </p>
+            </div>
+            <div class="col-md-4 text-right">
+                <div class="quantity-display {% if trace.is_incoming %}quantity-positive{% else %}quantity-negative{% endif %}">
+                    {% if trace.is_incoming %}+{% else %}-{% endif %}{{ trace.quantity|floatformat:0 }}
+                </div>
+                <small>unidades</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información Principal -->
+        <div class="col-md-8">
+            <div class="detail-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-info-circle text-primary"></i>
+                    Información del Movimiento
+                </h5>
+                
+                <div class="info-row">
+                    <span class="info-label">Tipo de Movimiento:</span>
+                    <span class="info-value">
+                        <span class="badge badge-{{ trace.movement_type|lower }} badge-custom">
+                            {{ trace.get_movement_type_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value">
+                        <span class="badge badge-{{ trace.status|lower }} badge-custom">
+                            {{ trace.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Producto:</span>
+                    <span class="info-value">{{ trace.product.name }} ({{ trace.product.sku }})</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Bodega:</span>
+                    <span class="info-value">{{ trace.warehouse.name }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Cantidad:</span>
+                    <span class="info-value">
+                        <span class="{% if trace.is_incoming %}text-success{% else %}text-danger{% endif %}">
+                            {% if trace.is_incoming %}+{% else %}-{% endif %}{{ trace.quantity|floatformat:0 }} unidades
+                        </span>
+                    </span>
+                </div>
+                
+                {% if trace.unit_cost %}
+                <div class="info-row">
+                    <span class="info-label">Costo Unitario:</span>
+                    <span class="info-value">${{ trace.unit_cost|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.total_cost %}
+                <div class="info-row">
+                    <span class="info-label">Costo Total:</span>
+                    <span class="info-value">${{ trace.total_cost|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="info-row">
+                    <span class="info-label">Usuario:</span>
+                    <span class="info-value">
+                        {% if trace.user %}
+                            {{ trace.user.username }}
+                        {% else %}
+                            Sistema
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Fecha:</span>
+                    <span class="info-value">{{ trace.created_at|date:"d/m/Y H:i:s" }}</span>
+                </div>
+                
+                {% if trace.supplier %}
+                <div class="info-row">
+                    <span class="info-label">Proveedor:</span>
+                    <span class="info-value">{{ trace.supplier.name }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.batch_number %}
+                <div class="info-row">
+                    <span class="info-label">Número de Lote:</span>
+                    <span class="info-value"><code>{{ trace.batch_number }}</code></span>
+                </div>
+                {% endif %}
+                
+                {% if trace.expiration_date %}
+                <div class="info-row">
+                    <span class="info-label">Fecha de Vencimiento:</span>
+                    <span class="info-value">{{ trace.expiration_date|date:"d/m/Y" }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.notes %}
+                <div class="info-row">
+                    <span class="info-label">Notas:</span>
+                    <span class="info-value">{{ trace.notes }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Información de Stock -->
+        <div class="col-md-4">
+            <div class="detail-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-boxes text-success"></i>
+                    Información de Stock
+                </h5>
+                
+                <div class="stock-flow">
+                    <div class="stock-before">
+                        <div class="h4">{{ trace.stock_before|floatformat:0 }}</div>
+                        <small>Stock Antes</small>
+                    </div>
+                    <div class="stock-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="stock-after">
+                        <div class="h4">{{ trace.stock_after|floatformat:0 }}</div>
+                        <small>Stock Después</small>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="alert alert-info">
+                        <strong>Cambio:</strong> 
+                        <span class="{% if trace.is_incoming %}text-success{% else %}text-danger{% endif %}">
+                            {% if trace.is_incoming %}+{% else %}-{% endif %}{{ trace.quantity|floatformat:0 }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documento Origen -->
+            <div class="detail-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-file-alt text-warning"></i>
+                    Documento Origen
+                </h5>
+                
+                <div class="text-center">
+                    <div class="alert alert-light">
+                        <i class="fas fa-link fa-2x mb-2"></i>
+                        <div><strong>{{ trace.get_source_document }}</strong></div>
+                    </div>
+                </div>
+                
+                {% if trace.purchase %}
+                <div class="info-row">
+                    <span class="info-label">Compra:</span>
+                    <span class="info-value">#{{ trace.purchase.id }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.stock_transfer %}
+                <div class="info-row">
+                    <span class="info-label">Transferencia:</span>
+                    <span class="info-value">#{{ trace.stock_transfer.id }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.pos_sale %}
+                <div class="info-row">
+                    <span class="info-label">Venta POS:</span>
+                    <span class="info-value">#{{ trace.pos_sale.id }}</span>
+                </div>
+                {% endif %}
+                
+                {% if trace.order %}
+                <div class="info-row">
+                    <span class="info-label">Orden:</span>
+                    <span class="info-value">#{{ trace.order.id }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Trazas Relacionadas -->
+    {% if related_traces %}
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-history text-info"></i>
+            Historial Relacionado del Producto
+        </h5>
+        
+        <div class="related-traces">
+            {% for related_trace in related_traces %}
+                <div class="trace-item {% if related_trace.is_incoming %}incoming{% else %}outgoing{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ related_trace.get_movement_type_display }}</strong>
+                            <span class="text-muted">- {{ related_trace.created_at|date:"d/m/Y H:i" }}</span>
+                            <br>
+                            <small class="text-muted">
+                                {% if related_trace.is_incoming %}+{% else %}-{% endif %}{{ related_trace.quantity|floatformat:0 }} unidades
+                                en {{ related_trace.warehouse.name }}
+                            </small>
+                        </div>
+                        <div>
+                            <span class="badge badge-{{ related_trace.status|lower }} badge-custom">
+                                {{ related_trace.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

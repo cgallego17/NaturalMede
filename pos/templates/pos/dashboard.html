@@ -1,0 +1,207 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Dashboard POS - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Dashboard POS</h2>
+    </div>
+</div>
+
+<!-- Estadísticas del día -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <h4>${{ today_sales.total_sales|floatformat:0|default:0 }}</h4>
+                <p class="mb-0">Ventas del Día</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                <h4>{{ today_sales.total_transactions|default:0 }}</h4>
+                <p class="mb-0">Transacciones</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4>
+                    {% if active_session %}
+                        Abierta
+                    {% else %}
+                        Cerrada
+                    {% endif %}
+                </h4>
+                <p class="mb-0">Sesión</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-warehouse fa-2x mb-2"></i>
+                <h4>
+                    {% if active_session %}
+                        {{ active_session.warehouse.name }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h4>
+                <p class="mb-0">Bodega</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Acciones rápidas -->
+    <div class="col-md-6">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                {% if active_session %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'pos:quick_sale' %}" class="btn btn-pos btn-block">
+                                <i class="fas fa-bolt"></i> Venta Rápida
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'pos:sale_create' %}" class="btn btn-pos btn-block">
+                                <i class="fas fa-plus"></i> Nueva Venta
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'pos:session_close' active_session.id %}" class="btn btn-warning btn-block">
+                                <i class="fas fa-lock"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'pos:sale' %}" class="btn btn-info btn-block">
+                                <i class="fas fa-list"></i> Ver Ventas
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5>No hay sesión abierta</h5>
+                        <p class="text-muted">Debes abrir una sesión para comenzar a vender</p>
+                        <a href="{% url 'pos:session_open' %}" class="btn btn-pos">
+                            <i class="fas fa-play"></i> Abrir Sesión
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos más vendidos -->
+    <div class="col-md-6">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Productos Más Vendidos Hoy</h5>
+            </div>
+            <div class="card-body">
+                {% if top_products %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>{{ product.product__name }}</td>
+                                    <td>{{ product.total_quantity }}</td>
+                                    <td>${{ product.total_sales|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-box fa-2x mb-2"></i>
+                        <p>No hay ventas hoy</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ventas recientes -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-pos">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Ventas Recientes</h5>
+                <a href="{% url 'pos:sale' %}" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if recent_sales %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Método</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>#{{ sale.sale_number }}</td>
+                                    <td>{{ sale.created_at|time:"H:i" }}</td>
+                                    <td>
+                                        {% if sale.customer %}
+                                            {{ sale.customer.user.get_full_name|default:sale.customer.user.username }}
+                                        {% else %}
+                                            <span class="text-muted">Cliente general</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ sale.total|floatformat:0 }}</td>
+                                    <td>{{ sale.get_payment_method_display }}</td>
+                                    <td>
+                                        <a href="{% url 'pos:sale_detail' sale.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'pos:sale_print' sale.id %}" class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <p>No hay ventas recientes</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

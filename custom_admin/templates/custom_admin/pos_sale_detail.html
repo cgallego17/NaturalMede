@@ -1,0 +1,236 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Venta POS #{{ sale.sale_number }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-cash-register"></i> Venta POS #{{ sale.sale_number }}</h2>
+                <div>
+                    <a href="{% url 'custom_admin:admin_pos_sale_print' sale.id %}" class="btn btn-info" target="_blank">
+                        <i class="fas fa-print"></i> Imprimir
+                    </a>
+                    <a href="{% url 'custom_admin:admin_pos_sale_email' sale.id %}" class="btn btn-success">
+                        <i class="fas fa-envelope"></i> Enviar por Correo
+                    </a>
+                    <a href="{% url 'custom_admin:admin_orders' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a Órdenes
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Información de la venta -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información de la Venta</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Número de Venta:</strong></td>
+                                            <td>#{{ sale.sale_number }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Fecha:</strong></td>
+                                            <td>{{ sale.created_at|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tipo de Orden:</strong></td>
+                                            <td>
+                                                <span class="badge badge-{% if sale.order_type == 'principal' %}primary{% else %}secondary{% endif %}">
+                                                    {{ sale.get_order_type_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Método de Pago:</strong></td>
+                                            <td>
+                                                <span class="badge badge-{% if sale.payment_method == 'cash' %}success{% else %}info{% endif %}">
+                                                    {{ sale.get_payment_method_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Cliente:</strong></td>
+                                            <td>
+                                                {% if sale.customer %}
+                                                    {{ sale.customer.full_name }}
+                                                    <br><small class="text-muted">{{ sale.customer.user.email }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">Cliente General</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Sesión POS:</strong></td>
+                                            <td>{{ sale.session.session_id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Usuario:</strong></td>
+                                            <td>{{ sale.session.user.get_full_name }}</td>
+                                        </tr>
+                                        {% if sale.notes %}
+                                        <tr>
+                                            <td><strong>Notas:</strong></td>
+                                            <td>{{ sale.notes }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items de la venta -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Productos Vendidos</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unit.</th>
+                                            <th>Subtotal</th>
+                                            <th>IVA</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in sale.items.all %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ item.product.name }}</strong>
+                                                {% if item.product.barcode %}
+                                                    <br><small class="text-muted">Código: {{ item.product.barcode }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td class="currency-value" data-value="{{ item.unit_price }}">${{ item.unit_price|floatformat:0 }}</td>
+                                            <td class="currency-value" data-value="{{ item.subtotal }}">${{ item.subtotal|floatformat:0 }}</td>
+                                            <td class="currency-value" data-value="{{ item.iva_amount }}">${{ item.iva_amount|floatformat:0 }}</td>
+                                            <td><strong class="currency-value" data-value="{{ item.total }}">${{ item.total|floatformat:0 }}</strong></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de totales -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Resumen de Totales</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Subtotal:</strong></td>
+                                    <td class="text-right currency-value" data-value="{{ sale.subtotal }}">${{ sale.subtotal|floatformat:0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IVA:</strong></td>
+                                    <td class="text-right currency-value" data-value="{{ sale.iva_amount }}">${{ sale.iva_amount|floatformat:0 }}</td>
+                                </tr>
+                                {% if sale.discount_amount > 0 %}
+                                <tr>
+                                    <td><strong>Descuento:</strong></td>
+                                    <td class="text-right text-danger currency-value" data-value="{{ sale.discount_amount }}">-${{ sale.discount_amount|floatformat:0 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr class="table-primary">
+                                    <td><strong>Total:</strong></td>
+                                    <td class="text-right"><strong class="currency-value" data-value="{{ sale.total }}">${{ sale.total|floatformat:0 }}</strong></td>
+                                </tr>
+                            </table>
+
+                            {% if sale.amount_received %}
+                            <hr>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Monto Recibido:</strong></td>
+                                    <td class="text-right currency-value" data-value="{{ sale.amount_received }}">${{ sale.amount_received|floatformat:0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cambio:</strong></td>
+                                    <td class="text-right">
+                                        {% if sale.amount_received >= sale.total %}
+                                            <span class="text-success currency-value" data-value="{{ sale.amount_received|add:sale.total }}">${{ sale.amount_received|add:sale.total|floatformat:0 }}</span>
+                                        {% else %}
+                                            <span class="text-danger currency-value" data-value="{{ sale.total|add:sale.amount_received }}">-${{ sale.total|add:sale.amount_received|floatformat:0 }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Acciones rápidas -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Acciones</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'custom_admin:admin_pos_sale_print' sale.id %}" class="btn btn-info" target="_blank">
+                                    <i class="fas fa-print"></i> Imprimir Recibo
+                                </a>
+                                <a href="{% url 'custom_admin:admin_pos_sale_email' sale.id %}" class="btn btn-success">
+                                    <i class="fas fa-envelope"></i> Enviar por Correo
+                                </a>
+                                <a href="{% url 'custom_admin:admin_orders' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver a Órdenes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para formatear números con separadores de miles
+function formatCurrency(value) {
+    if (value === null || value === undefined) return '$0';
+    
+    // Convertir a número
+    let num = parseFloat(value);
+    if (isNaN(num)) return '$0';
+    
+    // Formatear con separadores de miles
+    return '$' + num.toLocaleString('en-US');
+}
+
+// Formatear todos los valores de moneda cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    const currencyElements = document.querySelectorAll('.currency-value');
+    
+    currencyElements.forEach(function(element) {
+        const value = element.getAttribute('data-value');
+        if (value) {
+            element.textContent = formatCurrency(value);
+        }
+    });
+});
+</script>
+{% endblock %}

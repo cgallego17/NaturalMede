@@ -1,0 +1,105 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Ajustar Stock - {{ stock.product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-edit"></i> Ajustar Stock</h2>
+                <a href="{% url 'custom_admin:admin_inventory' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información del Producto</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {% if stock.product.images.first %}
+                                        <img src="{{ stock.product.images.first.image.url }}" 
+                                             alt="{{ stock.product.name }}" 
+                                             class="img-thumbnail" 
+                                             style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                                             style="width: 100px; height: 100px;">
+                                            <i class="fas fa-image text-muted fa-2x"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <h6><strong>{{ stock.product.name }}</strong></h6>
+                                    <p class="mb-1"><strong>SKU:</strong> {{ stock.product.sku }}</p>
+                                    <p class="mb-1"><strong>Bodega:</strong> {{ stock.warehouse.name }}</p>
+                                    <p class="mb-1"><strong>Stock Actual:</strong> <span class="badge badge-info">{{ stock.quantity }}</span></p>
+                                    <p class="mb-0"><strong>Stock Mínimo:</strong> {{ stock.min_stock }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ajuste de Stock</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="form-group">
+                                    <label for="adjustment_type" class="form-label">Tipo de Ajuste</label>
+                                    <select class="form-control" id="adjustment_type" name="adjustment_type" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="add">Agregar Stock</option>
+                                        <option value="reduce">Reducir Stock</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="quantity" class="form-label">Cantidad</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" 
+                                           min="1" required placeholder="Ingrese la cantidad">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes" class="form-label">Notas (Opcional)</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Motivo del ajuste..."></textarea>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-save"></i> Ajustar Stock
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h6><i class="fas fa-info-circle"></i> Información</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="fas fa-check text-success"></i> Los ajustes se registran en el historial</li>
+                                <li><i class="fas fa-check text-success"></i> Se actualiza automáticamente el stock</li>
+                                <li><i class="fas fa-check text-success"></i> Se puede agregar o reducir stock</li>
+                                <li><i class="fas fa-check text-success"></i> Se registra el usuario que realiza el ajuste</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

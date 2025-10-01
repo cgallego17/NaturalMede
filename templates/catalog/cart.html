@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carrito de Compras - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1><i class="fas fa-shopping-cart"></i> Carrito de Compras</h1>
+            
+            {% if cart.items.exists %}
+            <div class="card">
+                <div class="card-body">
+                    {% for item in cart.items.all %}
+                    <div class="row align-items-center border-bottom py-3">
+                        <div class="col-md-2">
+                            {% if item.product.images.first %}
+                            <img src="{{ item.product.images.first.image.url }}" class="img-fluid" alt="{{ item.product.name }}" style="height: 80px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 80px;">
+                                <i class="fas fa-image fa-2x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <small class="text-muted">{{ item.product.category.name }} - {{ item.product.brand.name }}</small>
+                            <br>
+                            <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="font-weight-bold">${{ item.product.price|floatformat:0 }}</span>
+                            {% if item.product.iva_percentage > 0 %}
+                            <br><small class="text-muted">IVA {{ item.product.iva_percentage }}%</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <form method="post" action="{% url 'catalog:cart_update' item.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control" name="quantity" value="{{ item.quantity }}" min="1" max="99" style="width: 60px;">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-outline-secondary">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-1">
+                            <span class="font-weight-bold">${{ item.total|floatformat:0 }}</span>
+                        </div>
+                        <div class="col-md-1">
+                            <form method="post" action="{% url 'catalog:cart_remove' item.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                    <h4>Tu carrito está vacío</h4>
+                    <p class="text-muted">Agrega algunos productos para comenzar tu compra</p>
+                    <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">
+                        <i class="fas fa-th-large"></i> Ver Catálogo
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            {% if cart.items.exists %}
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calculator"></i> Resumen del Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal ({{ cart.total_items }} productos):</span>
+                        <span>${{ cart.total_amount|floatformat:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>IVA:</span>
+                        <span>${{ cart.total_iva|floatformat:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Costo de envío:</span>
+                        <span class="text-muted">Se calculará en el checkout</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong class="text-success">${{ cart.total_with_iva|floatformat:0 }}</strong>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'catalog:checkout' %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card"></i> Proceder al Checkout
+                        </a>
+                        <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Continuar Comprando
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- WhatsApp Order -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">Envía tu pedido directamente por WhatsApp</p>
+                    <button class="btn btn-success btn-block whatsapp-btn" onclick="sendWhatsAppOrder()">
+                        <i class="fab fa-whatsapp"></i> Enviar Pedido
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function sendWhatsAppOrder() {
+        let message = 'Hola, me gustaría hacer el siguiente pedido:\n\n';
+        
+        {% for item in cart.items.all %}
+        message += '• {{ item.product.name }} x{{ item.quantity }} = ${{ item.total|floatformat:0 }}\n';
+        {% endfor %}
+        
+        message += '\nTotal: ${{ cart.total_with_iva|floatformat:0 }}\n\n';
+        message += 'Por favor, confírmame la disponibilidad y el proceso de pago.';
+        
+        sendWhatsAppMessage(message);
+    }
+    
+    // Auto-submit quantity update forms
+    $('input[name="quantity"]').on('change', function() {
+        $(this).closest('form').submit();
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+

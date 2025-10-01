@@ -1,0 +1,151 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Transferencia{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-exchange-alt"></i> Transferencia: {{ transfer.reference }}</h2>
+                <div>
+                    {% if transfer.status == 'pending' %}
+                        <button class="btn btn-success" onclick="completeTransfer()">
+                            <i class="fas fa-check"></i> Completar
+                        </button>
+                        <button class="btn btn-danger" onclick="cancelTransfer()">
+                            <i class="fas fa-ban"></i> Cancelar
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'custom_admin:admin_transfer_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+
+            <!-- Información de la transferencia -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información General</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Referencia:</strong> {{ transfer.reference }}</p>
+                                    <p><strong>Bodega Origen:</strong> {{ transfer.from_warehouse.name }}</p>
+                                    <p><strong>Bodega Destino:</strong> {{ transfer.to_warehouse.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Estado:</strong> 
+                                        {% if transfer.status == 'pending' %}
+                                            <span class="badge badge-warning">{{ transfer.get_status_display }}</span>
+                                        {% elif transfer.status == 'in_transit' %}
+                                            <span class="badge badge-info">{{ transfer.get_status_display }}</span>
+                                        {% elif transfer.status == 'completed' %}
+                                            <span class="badge badge-success">{{ transfer.get_status_display }}</span>
+                                        {% elif transfer.status == 'cancelled' %}
+                                            <span class="badge badge-danger">{{ transfer.get_status_display }}</span>
+                                        {% endif %}
+                                    </p>
+                                    <p><strong>Creado por:</strong> {{ transfer.created_by.get_full_name|default:transfer.created_by.username }}</p>
+                                    <p><strong>Fecha:</strong> {{ transfer.created_at|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                            {% if transfer.notes %}
+                                <hr>
+                                <p><strong>Notas:</strong> {{ transfer.notes }}</p>
+                            {% endif %}
+                            {% if transfer.completed_at %}
+                                <hr>
+                                <p><strong>Completada:</strong> {{ transfer.completed_at|date:"d/m/Y H:i" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Resumen</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-12">
+                                    <h4 class="text-primary">{{ transfer.items.count }}</h4>
+                                    <small class="text-muted">Productos</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-12">
+                                    <h4 class="text-info">{{ transfer.items.count }}</h4>
+                                    <small class="text-muted">Total Items</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de productos -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Productos a Transferir</h5>
+                </div>
+                <div class="card-body">
+                    {% if transfer.items.all %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>SKU</th>
+                                        <th>Cantidad</th>
+                                        <th>Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in transfer.items.all %}
+                                    <tr>
+                                        <td>{{ item.product.name }}</td>
+                                        <td><code>{{ item.product.sku }}</code></td>
+                                        <td>
+                                            <span class="badge badge-primary">{{ item.quantity }}</span>
+                                        </td>
+                                        <td>{{ item.notes|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-box-open fa-2x mb-2"></i><br>
+                            No hay productos en esta transferencia
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function completeTransfer() {
+    if (confirm('¿Está seguro de completar esta transferencia? Esta acción no se puede deshacer.')) {
+        // Redirigir a la URL de completar transferencia
+        window.location.href = "{% url 'custom_admin:admin_complete_transfer' transfer.id %}";
+    }
+}
+
+function cancelTransfer() {
+    if (confirm('¿Está seguro de cancelar esta transferencia?')) {
+        // Aquí iría la lógica para cancelar la transferencia
+        alert('Función de cancelar transferencia pendiente de implementar');
+    }
+}
+</script>
+{% endblock %}

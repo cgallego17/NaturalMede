@@ -1,0 +1,110 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Transferir Stock - {{ stock.product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-exchange-alt"></i> Transferir Stock</h2>
+                <a href="{% url 'custom_admin:admin_inventory' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información del Producto</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {% if stock.product.images.first %}
+                                        <img src="{{ stock.product.images.first.image.url }}" 
+                                             alt="{{ stock.product.name }}" 
+                                             class="img-thumbnail" 
+                                             style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                                             style="width: 100px; height: 100px;">
+                                            <i class="fas fa-image text-muted fa-2x"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <h6><strong>{{ stock.product.name }}</strong></h6>
+                                    <p class="mb-1"><strong>SKU:</strong> {{ stock.product.sku }}</p>
+                                    <p class="mb-1"><strong>Bodega Origen:</strong> {{ stock.warehouse.name }}</p>
+                                    <p class="mb-1"><strong>Stock Disponible:</strong> <span class="badge badge-info">{{ stock.quantity }}</span></p>
+                                    <p class="mb-0"><strong>Stock Mínimo:</strong> {{ stock.min_stock }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Detalles de la Transferencia</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="form-group">
+                                    <label for="to_warehouse" class="form-label">Bodega Destino</label>
+                                    <select class="form-control" id="to_warehouse" name="to_warehouse" required>
+                                        <option value="">Seleccionar bodega destino</option>
+                                        {% for warehouse in warehouses %}
+                                            <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="quantity" class="form-label">Cantidad a Transferir</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity" 
+                                           min="1" max="{{ stock.quantity }}" required 
+                                           placeholder="Máximo: {{ stock.quantity }}">
+                                    <small class="form-text text-muted">
+                                        Stock disponible: {{ stock.quantity }} unidades
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes" class="form-label">Notas (Opcional)</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Motivo de la transferencia..."></textarea>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-exchange-alt"></i> Crear Transferencia
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h6><i class="fas fa-info-circle"></i> Información</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="fas fa-check text-success"></i> Se crea una transferencia pendiente</li>
+                                <li><i class="fas fa-check text-success"></i> El stock se reduce en la bodega origen</li>
+                                <li><i class="fas fa-check text-success"></i> Se debe confirmar la recepción</li>
+                                <li><i class="fas fa-check text-success"></i> Se registra en el historial de movimientos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

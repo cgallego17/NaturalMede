@@ -1,0 +1,183 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Cerrar Sesión POS - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-pos">
+            <div class="card-header text-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-lock"></i> Cerrar Sesión POS
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Información de la sesión -->
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> Información de la Sesión</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>ID:</strong> #{{ object.id }}</li>
+                        <li><strong>Bodega:</strong> {{ object.warehouse.name }}</li>
+                        <li><strong>Abierta:</strong> {{ object.opened_at|date:"d/m/Y H:i" }}</li>
+                        <li><strong>Efectivo Inicial:</strong> ${{ object.opening_cash|floatformat:0 }}</li>
+                    </ul>
+                </div>
+                
+                <!-- Resumen de ventas -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-primary">{{ object.total_transactions|default:0 }}</h5>
+                                <small>Ventas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-success">${{ object.total_sales|floatformat:0|default:0 }}</h5>
+                                <small>Total Ventas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.closing_cash.id_for_label }}">Efectivo Final</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" name="{{ form.closing_cash.name }}" 
+                                   id="{{ form.closing_cash.id_for_label }}" 
+                                   value="{{ form.closing_cash.value|default:'0.00' }}" 
+                                   step="0.01" min="0" required>
+                        </div>
+                        {% if form.closing_cash.errors %}
+                            <div class="text-danger">{{ form.closing_cash.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Cantidad de efectivo que tienes al final de la sesión</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmClose" required>
+                            <label class="form-check-label" for="confirmClose">
+                                Confirmo que he contado el efectivo y estoy listo para cerrar la sesión
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-lock"></i> Cerrar Sesión
+                        </button>
+                        <a href="{% url 'pos:dashboard' %}" class="btn btn-secondary btn-lg ml-2">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Cálculo de diferencia -->
+        <div class="card card-pos mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Cálculo de Diferencia</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Efectivo Inicial:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        $<span id="openingCash">{{ object.opening_cash|floatformat:0 }}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Ventas en Efectivo:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        $<span id="cashSales">{{ object.total_sales|floatformat:0|default:0 }}</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Efectivo Esperado:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        $<span id="expectedCash">0</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Diferencia:</strong>
+                    </div>
+                    <div class="col-6 text-right">
+                        $<span id="difference" class="font-weight-bold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calcular diferencia de efectivo
+function calculateDifference() {
+    const openingCash = parseFloat(document.getElementById('openingCash').textContent.replace(',', ''));
+    const cashSales = parseFloat(document.getElementById('cashSales').textContent.replace(',', ''));
+    const closingCash = parseFloat(document.getElementById('{{ form.closing_cash.id_for_label }}').value) || 0;
+    
+    const expectedCash = openingCash + cashSales;
+    const difference = closingCash - expectedCash;
+    
+    document.getElementById('expectedCash').textContent = expectedCash.toLocaleString();
+    document.getElementById('difference').textContent = difference.toLocaleString();
+    
+    // Cambiar color según la diferencia
+    const differenceElement = document.getElementById('difference');
+    if (difference > 0) {
+        differenceElement.className = 'font-weight-bold text-success';
+    } else if (difference < 0) {
+        differenceElement.className = 'font-weight-bold text-danger';
+    } else {
+        differenceElement.className = 'font-weight-bold text-primary';
+    }
+}
+
+// Calcular al cargar la página y cuando cambie el efectivo final
+document.addEventListener('DOMContentLoaded', calculateDifference);
+document.getElementById('{{ form.closing_cash.id_for_label }}').addEventListener('input', calculateDifference);
+
+// Validar formulario antes de enviar
+document.querySelector('form').addEventListener('submit', function(e) {
+    const closingCash = document.getElementById('{{ form.closing_cash.id_for_label }}').value;
+    const confirmClose = document.getElementById('confirmClose').checked;
+    
+    if (!closingCash || parseFloat(closingCash) < 0) {
+        alert('Por favor ingresa un monto de efectivo final válido');
+        e.preventDefault();
+        return;
+    }
+    
+    if (!confirmClose) {
+        alert('Por favor confirma que estás listo para cerrar la sesión');
+        e.preventDefault();
+        return;
+    }
+});
+</script>
+{% endblock %}
+
+
+
+

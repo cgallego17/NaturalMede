@@ -1,0 +1,354 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Trazabilidad de Inventario{% endblock %}
+{% block page_title_display %}Trazabilidad de Inventario{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:inventory_trace_dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-chart-bar"></i> Dashboard
+    </a>
+    <a href="{% url 'audit:inventory_trace_export' %}" class="btn btn-success">
+        <i class="fas fa-download"></i> Exportar
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'audit:dashboard' %}">Auditoría</a></li>
+    <li class="breadcrumb-item active">Trazabilidad</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.trace-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.trace-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.trace-item.incoming {
+    border-left-color: #48dbfb;
+}
+
+.trace-item.outgoing {
+    border-left-color: #ff6b6b;
+}
+
+.trace-item.adjustment {
+    border-left-color: #feca57;
+}
+
+.trace-item.transfer {
+    border-left-color: #a55eea;
+}
+
+.trace-time {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.trace-movement {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.trace-product {
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.trace-details {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.movement-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.quantity-positive {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.quantity-negative {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.stock-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Filtros -->
+    <div class="filter-card">
+        <h6 class="mb-3">
+            <i class="fas fa-filter text-primary"></i>
+            Filtros
+        </h6>
+        <form method="get" class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="product">Producto</label>
+                    <select class="form-control" id="product" name="product">
+                        <option value="">Todos los productos</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}" {% if request.GET.product == product.id|stringformat:"s" %}selected{% endif %}>
+                                {{ product.name }} ({{ product.sku }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="warehouse">Bodega</label>
+                    <select class="form-control" id="warehouse" name="warehouse">
+                        <option value="">Todas las bodegas</option>
+                        {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}" {% if request.GET.warehouse == warehouse.id|stringformat:"s" %}selected{% endif %}>
+                                {{ warehouse.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="movement_type">Tipo</label>
+                    <select class="form-control" id="movement_type" name="movement_type">
+                        <option value="">Todos los tipos</option>
+                        {% for value, label in movement_type_choices %}
+                            <option value="{{ value }}" {% if request.GET.movement_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="status">Estado</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">Todos los estados</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="date_from">Desde</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" 
+                           value="{{ request.GET.date_from }}">
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ stats.total_movements|floatformat:0 }}</h5>
+                    <p class="card-text">Total de Movimientos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">{{ stats.today_movements|floatformat:0 }}</h5>
+                    <p class="card-text">Movimientos Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-info">{{ stats.incoming_movements|floatformat:0 }}</h5>
+                    <p class="card-text">Entradas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">{{ stats.outgoing_movements|floatformat:0 }}</h5>
+                    <p class="card-text">Salidas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Trazas -->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list"></i>
+                Trazabilidad de Inventario
+                {% if request.GET.search %}
+                    <small class="text-muted">- Filtrados por: "{{ request.GET.search }}"</small>
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if traces %}
+                {% for trace in traces %}
+                    <div class="trace-item {% if trace.is_incoming %}incoming{% elif trace.is_outgoing %}outgoing{% elif trace.movement_type == 'STOCK_ADJUSTMENT' %}adjustment{% elif 'TRANSFER' in trace.movement_type %}transfer{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="trace-time">
+                                    <i class="fas fa-clock"></i> {{ trace.created_at|date:"d/m/Y H:i:s" }}
+                                </div>
+                                <div class="trace-movement">
+                                    <span class="badge badge-{{ trace.movement_type|lower }} movement-badge">
+                                        {{ trace.get_movement_type_display }}
+                                    </span>
+                                    <span class="badge badge-{{ trace.status|lower }} status-badge">
+                                        {{ trace.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="trace-product">
+                                    <strong>{{ trace.product.name }}</strong> 
+                                    <code>{{ trace.product.sku }}</code> 
+                                    en <strong>{{ trace.warehouse.name }}</strong>
+                                </div>
+                                <div class="trace-details">
+                                    <span class="{% if trace.is_incoming %}quantity-positive{% else %}quantity-negative{% endif %}">
+                                        {% if trace.is_incoming %}+{% else %}-{% endif %}{{ trace.quantity|floatformat:0 }} unidades
+                                    </span>
+                                    {% if trace.unit_cost %}
+                                        | Costo: ${{ trace.unit_cost|floatformat:2 }}
+                                    {% endif %}
+                                    {% if trace.user %}
+                                        | Usuario: {{ trace.user.username }}
+                                    {% endif %}
+                                    {% if trace.supplier %}
+                                        | Proveedor: {{ trace.supplier.name }}
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Información de stock -->
+                                <div class="stock-info">
+                                    <strong>Stock:</strong> 
+                                    {{ trace.stock_before|floatformat:0 }} → {{ trace.stock_after|floatformat:0 }}
+                                    {% if trace.batch_number %}
+                                        | <strong>Lote:</strong> {{ trace.batch_number }}
+                                    {% endif %}
+                                    {% if trace.expiration_date %}
+                                        | <strong>Vencimiento:</strong> {{ trace.expiration_date|date:"d/m/Y" }}
+                                    {% endif %}
+                                </div>
+                                
+                                {% if trace.notes %}
+                                    <div class="trace-details mt-2">
+                                        <strong>Notas:</strong> {{ trace.notes }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="text-right">
+                                <div class="mb-2">
+                                    <small class="text-muted">{{ trace.get_source_document }}</small>
+                                </div>
+                                <a href="{% url 'audit:inventory_trace_detail' trace.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Paginación -->
+                {% if is_paginated %}
+                    <nav aria-label="Paginación de trazas">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.warehouse %}&warehouse={{ request.GET.warehouse }}{% endif %}{% if request.GET.movement_type %}&movement_type={{ request.GET.movement_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.warehouse %}&warehouse={{ request.GET.warehouse }}{% endif %}{% if request.GET.movement_type %}&movement_type={{ request.GET.movement_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.warehouse %}&warehouse={{ request.GET.warehouse }}{% endif %}{% if request.GET.movement_type %}&movement_type={{ request.GET.movement_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.warehouse %}&warehouse={{ request.GET.warehouse }}{% endif %}{% if request.GET.movement_type %}&movement_type={{ request.GET.movement_type }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No se encontraron trazas</h5>
+                    <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

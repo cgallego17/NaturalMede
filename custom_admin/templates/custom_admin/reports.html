@@ -1,0 +1,914 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Reportes y Analytics - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-bar"></i> Reportes y Analytics</h2>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn btn-outline-success" onclick="exportReport('excel')">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros de fecha -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" name="start_date" 
+                                   value="{{ start_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" name="end_date" 
+                                   value="{{ end_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo de Reporte</label>
+                            <select class="form-control" name="report_type">
+                                <option value="sales" {% if report_type == 'sales' %}selected{% endif %}>Ventas</option>
+                                <option value="inventory" {% if report_type == 'inventory' %}selected{% endif %}>Inventario</option>
+                                <option value="customers" {% if report_type == 'customers' %}selected{% endif %}>Clientes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Generar Reporte
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resumen de ventas -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #2c5530; border: 2px solid #2c5530;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #2c5530; font-weight: bold;">{{ sales_report.total_orders|default:0 }}</h4>
+                                    <p class="mb-0" style="color: #2c5530;">Total Órdenes</p>
+                                    <small style="color: #2c5530;">Web: {{ sales_report.web_orders|default:0 }} | POS: {{ sales_report.pos_orders|default:0 }}</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-shopping-cart fa-2x" style="color: #2c5530;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #daa520; border: 2px solid #daa520;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #daa520; font-weight: bold;">${{ sales_report.total_sales|floatformat:0|default:0 }}</h4>
+                                    <p class="mb-0" style="color: #daa520;">Ventas Totales</p>
+                                    <small style="color: #daa520;">Web: ${{ sales_report.web_sales|floatformat:0|default:0 }} | POS: ${{ sales_report.pos_sales|floatformat:0|default:0 }}</small>
+                                    {% if growth_percentage > 0 %}
+                                        <br><small style="color: #daa520; font-weight: bold;"><i class="fas fa-arrow-up"></i> +{{ growth_percentage|floatformat:1 }}%</small>
+                                    {% elif growth_percentage < 0 %}
+                                        <br><small style="color: #daa520; font-weight: bold;"><i class="fas fa-arrow-down"></i> {{ growth_percentage|floatformat:1 }}%</small>
+                                    {% endif %}
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-dollar-sign fa-2x" style="color: #daa520;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #8b4513; border: 2px solid #8b4513;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #8b4513; font-weight: bold;">${{ sales_report.avg_order_value|floatformat:0|default:0 }}</h4>
+                                    <p class="mb-0" style="color: #8b4513;">Ticket Promedio</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x" style="color: #8b4513;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #228b22; border: 2px solid #228b22;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #228b22; font-weight: bold;">{{ daily_sales|length }}</h4>
+                                    <p class="mb-0" style="color: #228b22;">Días Analizados</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-calendar fa-2x" style="color: #228b22;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #dc143c; border: 2px solid #dc143c;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #dc143c; font-weight: bold;">{{ order_stats.paid|default:0 }}</h4>
+                                    <p class="mb-0" style="color: #dc143c;">Órdenes Pagadas</p>
+                                    <small style="color: #dc143c;">Incluye POS</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-check-circle fa-2x" style="color: #dc143c;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d4 100%); color: #6a5acd; border: 2px solid #6a5acd;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 style="color: #6a5acd; font-weight: bold;">{{ top_customers|length|default:0 }}</h4>
+                                    <p class="mb-0" style="color: #6a5acd;">Clientes Activos</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x" style="color: #6a5acd;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestañas de reportes -->
+            <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist" style="border-bottom: 2px solid #2c5530;">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="sales-tab" data-toggle="tab" href="#sales" role="tab" style="color: #2c5530; border-color: #2c5530 #2c5530 transparent; background-color: #f5f5dc;">
+                        <i class="fas fa-chart-line"></i> Ventas
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="inventory-tab" data-toggle="tab" href="#inventory" role="tab" style="color: #2c5530; border-color: transparent transparent #2c5530;">
+                        <i class="fas fa-warehouse"></i> Inventario
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="customers-tab" data-toggle="tab" href="#customers" role="tab" style="color: #2c5530; border-color: transparent transparent #2c5530;">
+                        <i class="fas fa-users"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="orders-tab" data-toggle="tab" href="#orders" role="tab" style="color: #2c5530; border-color: transparent transparent #2c5530;">
+                        <i class="fas fa-shopping-bag"></i> Órdenes
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="comparison-tab" data-toggle="tab" href="#comparison" role="tab" style="color: #2c5530; border-color: transparent transparent #2c5530;">
+                        <i class="fas fa-balance-scale"></i> Comparativo
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="trends-tab" data-toggle="tab" href="#trends" role="tab" style="color: #2c5530; border-color: transparent transparent #2c5530;">
+                        <i class="fas fa-trending-up"></i> Tendencias
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="reportTabsContent">
+                <!-- Pestaña de Ventas -->
+                <div class="tab-pane fade show active" id="sales" role="tabpanel">
+                    <div class="row">
+                        <!-- Gráfico de ventas diarias -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-line"></i> Ventas Diarias</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="dailySalesChart" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Productos más vendidos -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-trophy"></i> Productos Más Vendidos</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for product in top_products %}
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <strong>{{ product.product.name }}</strong>
+                                            <br><small class="text-muted">{{ product.total_sold|default:0 }} unidades</small>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge" style="background-color: #2c5530; color: #f5f5dc;">${{ product.total_revenue|floatformat:0|default:0 }}</span>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No hay datos disponibles</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ventas por categoría -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-tags"></i> Ventas por Categoría</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for category in category_sales %}
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <strong>{{ category.category.name }}</strong>
+                                            <br><small class="text-muted">{{ category.total_quantity|default:0 }} unidades</small>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge" style="background-color: #daa520; color: #2c5530;">${{ category.total_sales|floatformat:0|default:0 }}</span>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No hay datos disponibles</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-pie"></i> Distribución de Ventas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="categoryChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de Inventario -->
+                <div class="tab-pane fade" id="inventory" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-exclamation-triangle text-warning"></i> Stock Bajo</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for item in low_stock_products %}
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong>
+                                            <br><small class="text-muted">{{ item.product.category.name }} - {{ item.product.brand.name }}</small>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge" style="background-color: #daa520; color: #2c5530;">{{ item.quantity }} / {{ item.min_stock }}</span>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No hay productos con stock bajo</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-times-circle text-danger"></i> Sin Stock</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for item in out_of_stock_products %}
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong>
+                                            <br><small class="text-muted">{{ item.product.category.name }} - {{ item.product.brand.name }}</small>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge" style="background-color: #8b4513; color: #f5f5dc;">0 unidades</span>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted text-center">No hay productos sin stock</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de Clientes -->
+                <div class="tab-pane fade" id="customers" role="tabpanel">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-crown"></i> Clientes Top</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Cliente</th>
+                                                    <th>Tipo</th>
+                                                    <th>Total Gastado</th>
+                                                    <th>Órdenes</th>
+                                                    <th>Ticket Promedio</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for customer in top_customers %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ customer.customer.user.get_full_name|default:customer.customer.user.username }}</strong>
+                                                        <br><small class="text-muted">{{ customer.customer.user.email }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge" style="{% if customer.customer.customer_type == 'vip' %}background-color: #daa520; color: #2c5530;{% else %}background-color: #2c5530; color: #f5f5dc;{% endif %}">
+                                                            {{ customer.customer.get_customer_type_display }}
+                                                        </span>
+                                                    </td>
+                                                    <td><strong>${{ customer.total_spent|floatformat:0|default:0 }}</strong></td>
+                                                    <td>{{ customer.total_orders|default:0 }}</td>
+                                                    <td>${{ customer.avg_ticket|floatformat:0|default:0 }}</td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        <i class="fas fa-users fa-2x mb-2"></i><br>
+                                                        No hay datos de clientes para el período seleccionado
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de Órdenes -->
+                <div class="tab-pane fade" id="orders" role="tabpanel">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-bar"></i> Distribución de Órdenes por Estado</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #2c5530;">{{ order_stats.new }}</h3>
+                                                <p class="mb-0">Nuevas</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #daa520;">{{ order_stats.pending }}</h3>
+                                                <p class="mb-0">Pendientes</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #228b22;">{{ order_stats.paid }}</h3>
+                                                <p class="mb-0">Pagadas</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #8b4513;">{{ order_stats.shipped }}</h3>
+                                                <p class="mb-0">Enviadas</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #32cd32;">{{ order_stats.delivered }}</h3>
+                                                <p class="mb-0">Entregadas</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="text-center">
+                                                <h3 style="color: #dc143c;">{{ order_stats.cancelled }}</h3>
+                                                <p class="mb-0">Canceladas</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Comparativo -->
+                <div class="tab-pane fade" id="comparison" role="tabpanel">
+                    <div class="row">
+                        <!-- Comparación Web vs POS -->
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-balance-scale"></i> Web vs POS</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="webVsPosChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Métricas Comparativas -->
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-bar"></i> Métricas Comparativas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; margin-bottom: 15px;">
+                                                <h4 style="color: #1976d2;">{{ sales_report.web_orders|default:0 }}</h4>
+                                                <p class="mb-0" style="color: #1976d2;">Órdenes Web</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border-radius: 10px; margin-bottom: 15px;">
+                                                <h4 style="color: #388e3c;">{{ sales_report.pos_orders|default:0 }}</h4>
+                                                <p class="mb-0" style="color: #388e3c;">Ventas POS</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%); border-radius: 10px;">
+                                                <h4 style="color: #f57c00;">${{ sales_report.web_sales|floatformat:0|default:0 }}</h4>
+                                                <p class="mb-0" style="color: #f57c00;">Ventas Web</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%); border-radius: 10px;">
+                                                <h4 style="color: #c2185b;">${{ sales_report.pos_sales|floatformat:0|default:0 }}</h4>
+                                                <p class="mb-0" style="color: #c2185b;">Ventas POS</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Análisis de Rendimiento -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-tachometer-alt"></i> Análisis de Rendimiento</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-radius: 10px;">
+                                                <h3 style="color: #7b1fa2;">{{ sales_report.web_orders|add:sales_report.pos_orders|default:0 }}</h3>
+                                                <p class="mb-0" style="color: #7b1fa2;">Total Transacciones</p>
+                                                <small style="color: #7b1fa2;">Web + POS</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-radius: 10px;">
+                                                <h3 style="color: #00695c;">${{ sales_report.total_sales|floatformat:0|default:0 }}</h3>
+                                                <p class="mb-0" style="color: #00695c;">Ingresos Totales</p>
+                                                <small style="color: #00695c;">Período Seleccionado</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-radius: 10px;">
+                                                <h3 style="color: #ff8f00;">{{ daily_sales|length|default:0 }}</h3>
+                                                <p class="mb-0" style="color: #ff8f00;">Días Activos</p>
+                                                <small style="color: #ff8f00;">Con Ventas</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%); border-radius: 10px;">
+                                                <h3 style="color: #558b2f;">{{ top_customers|length|default:0 }}</h3>
+                                                <p class="mb-0" style="color: #558b2f;">Clientes Activos</p>
+                                                <small style="color: #558b2f;">Con Compras</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Tendencias -->
+                <div class="tab-pane fade" id="trends" role="tabpanel">
+                    <div class="row">
+                        <!-- Gráfico de Tendencias -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-trending-up"></i> Tendencias de Ventas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="trendsChart" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen de Tendencias -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-line"></i> Indicadores</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Crecimiento:</span>
+                                            <span class="{% if growth_percentage > 0 %}text-success{% elif growth_percentage < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                                {% if growth_percentage > 0 %}+{% endif %}{{ growth_percentage|floatformat:1 }}%
+                                            </span>
+                                        </div>
+                                        <div class="progress mt-1" style="height: 8px;">
+                                            <div class="progress-bar {% if growth_percentage > 0 %}bg-success{% elif growth_percentage < 0 %}bg-danger{% else %}bg-secondary{% endif %}" 
+                                                 style="width: {% if growth_percentage < 0 %}{{ growth_percentage|floatformat:1|slice:"1:" }}{% else %}{{ growth_percentage|floatformat:1 }}{% endif %}%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Promedio Diario:</span>
+                                            <span class="text-primary">${{ sales_report.avg_order_value|floatformat:0|default:0 }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Mejor Día:</span>
+                                            <span class="text-success">${{ sales_report.total_sales|floatformat:0|default:0 }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Productos Vendidos:</span>
+                                            <span class="text-info">{{ top_products|length|default:0 }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Análisis Detallado -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-calendar-week"></i> Análisis Semanal</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Día</th>
+                                                    <th>Ventas</th>
+                                                    <th>Web</th>
+                                                    <th>POS</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for day in daily_sales|slice:":7" %}
+                                                <tr>
+                                                    <td>{{ day.date|date:"D" }}</td>
+                                                    <td><strong>${{ day.total|floatformat:0 }}</strong></td>
+                                                    <td>${{ day.web_total|floatformat:0 }}</td>
+                                                    <td>${{ day.pos_total|floatformat:0 }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-star"></i> Top Performers</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border-radius: 10px; margin-bottom: 15px;">
+                                                <h4 style="color: #d32f2f;">{{ top_products.0.product.name|default:"N/A"|truncatechars:15 }}</h4>
+                                                <p class="mb-0" style="color: #d32f2f;">Producto #1</p>
+                                                <small style="color: #d32f2f;">{{ top_products.0.total_sold|default:0 }} unidades</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); border-radius: 10px; margin-bottom: 15px;">
+                                                <h4 style="color: #388e3c;">{{ top_customers.0.customer.user.get_full_name|default:"N/A"|truncatechars:15 }}</h4>
+                                                <p class="mb-0" style="color: #388e3c;">Cliente #1</p>
+                                                <small style="color: #388e3c;">${{ top_customers.0.total_spent|floatformat:0|default:0 }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px;">
+                                                <h4 style="color: #1976d2;">{{ category_sales.0.category.name|default:"N/A"|truncatechars:15 }}</h4>
+                                                <p class="mb-0" style="color: #1976d2;">Categoría #1</p>
+                                                <small style="color: #1976d2;">${{ category_sales.0.total_sales|floatformat:0|default:0 }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3" style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%); border-radius: 10px;">
+                                                <h4 style="color: #f57c00;">{{ daily_sales|length|default:0 }}</h4>
+                                                <p class="mb-0" style="color: #f57c00;">Días Activos</p>
+                                                <small style="color: #f57c00;">Período</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico de ventas diarias
+const ctx = document.getElementById('dailySalesChart');
+if (ctx) {
+    const chartCtx = ctx.getContext('2d');
+    
+    // Crear datos desde el template
+    const dailySalesData = [
+        {% for day in daily_sales %}
+        {
+            date: "{{ day.date|date:'Y-m-d' }}",
+            total: {{ day.total|floatformat:0|default:0 }},
+            web_total: {{ day.web_total|floatformat:0|default:0 }},
+            pos_total: {{ day.pos_total|floatformat:0|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const chart = new Chart(chartCtx, {
+        type: 'line',
+        data: {
+            labels: dailySalesData.map(day => day.date),
+            datasets: [{
+                label: 'Ventas Diarias',
+                data: dailySalesData.map(day => day.total),
+                borderColor: '#2c5530',
+                backgroundColor: 'rgba(44, 85, 48, 0.2)',
+                tension: 0.1,
+                pointBackgroundColor: '#daa520',
+                pointBorderColor: '#2c5530',
+                pointBorderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Ventas: $' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico de categorías
+const categoryCtx = document.getElementById('categoryChart');
+if (categoryCtx) {
+    const categoryChartCtx = categoryCtx.getContext('2d');
+    
+    // Crear datos desde el template
+    const categoryData = [
+        {% for category in category_sales %}
+        {
+            category: { name: "{{ category.category.name }}" },
+            total_sales: {{ category.total_sales|floatformat:0|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const categoryChart = new Chart(categoryChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(cat => cat.category.name),
+            datasets: [{
+                data: categoryData.map(cat => cat.total_sales),
+                backgroundColor: [
+                    '#2c5530',
+                    '#daa520',
+                    '#8b4513',
+                    '#228b22',
+                    '#32cd32',
+                    '#654321',
+                    '#b8860b',
+                    '#006400'
+                ],
+                borderColor: '#f5f5dc',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': $' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico Web vs POS
+const webVsPosCtx = document.getElementById('webVsPosChart');
+if (webVsPosCtx) {
+    const webVsPosChartCtx = webVsPosCtx.getContext('2d');
+    const webVsPosChart = new Chart(webVsPosChartCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Órdenes', 'Ventas ($)'],
+            datasets: [{
+                label: 'Web',
+                data: [{{ sales_report.web_orders|default:0 }}, {{ sales_report.web_sales|floatformat:0|default:0 }}],
+                backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                borderColor: '#1976d2',
+                borderWidth: 2
+            }, {
+                label: 'POS',
+                data: [{{ sales_report.pos_orders|default:0 }}, {{ sales_report.pos_sales|floatformat:0|default:0 }}],
+                backgroundColor: 'rgba(56, 142, 60, 0.8)',
+                borderColor: '#388e3c',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString();
+                            } else {
+                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico de Tendencias
+const trendsCtx = document.getElementById('trendsChart');
+if (trendsCtx) {
+    const trendsChartCtx = trendsCtx.getContext('2d');
+    
+    // Crear datos desde el template
+    const trendsData = [
+        {% for day in daily_sales %}
+        {
+            date: "{{ day.date|date:'Y-m-d' }}",
+            total: {{ day.total|floatformat:0|default:0 }},
+            web_total: {{ day.web_total|floatformat:0|default:0 }},
+            pos_total: {{ day.pos_total|floatformat:0|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    const trendsChart = new Chart(trendsChartCtx, {
+        type: 'line',
+        data: {
+            labels: trendsData.map(day => day.date),
+            datasets: [{
+                label: 'Ventas Totales',
+                data: trendsData.map(day => day.total),
+                borderColor: '#2c5530',
+                backgroundColor: 'rgba(44, 85, 48, 0.2)',
+                tension: 0.4,
+                pointBackgroundColor: '#daa520',
+                pointBorderColor: '#2c5530',
+                pointBorderWidth: 2,
+                fill: true
+            }, {
+                label: 'Ventas Web',
+                data: trendsData.map(day => day.web_total),
+                borderColor: '#1976d2',
+                backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                tension: 0.4,
+                pointBackgroundColor: '#1976d2',
+                pointBorderColor: '#1976d2',
+                pointBorderWidth: 2
+            }, {
+                label: 'Ventas POS',
+                data: trendsData.map(day => day.pos_total),
+                borderColor: '#388e3c',
+                backgroundColor: 'rgba(56, 142, 60, 0.1)',
+                tension: 0.4,
+                pointBackgroundColor: '#388e3c',
+                pointBorderColor: '#388e3c',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function exportReport(format) {
+    // Implementar exportación de reportes
+    alert('Función de exportación en desarrollo');
+}
+</script>
+{% endblock %}

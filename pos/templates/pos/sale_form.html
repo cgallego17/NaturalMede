@@ -1,0 +1,149 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Nueva Venta POS - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Nueva Venta POS</h2>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulario de venta -->
+    <div class="col-md-8">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Información de la Venta</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.customer.id_for_label }}">Cliente (opcional)</label>
+                                <select class="form-control" name="{{ form.customer.name }}" id="{{ form.customer.id_for_label }}">
+                                    <option value="">Cliente general</option>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}">
+                                        {{ customer.user.get_full_name|default:customer.user.username }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.customer.errors %}
+                                    <div class="text-danger">{{ form.customer.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.payment_method.id_for_label }}">Método de Pago</label>
+                                <select class="form-control" name="{{ form.payment_method.name }}" id="{{ form.payment_method.id_for_label }}" required>
+                                    {% for value, label in form.payment_method.field.choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.payment_method.errors %}
+                                    <div class="text-danger">{{ form.payment_method.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}">Notas (opcional)</label>
+                        <textarea class="form-control" name="{{ form.notes.name }}" id="{{ form.notes.id_for_label }}" rows="3"></textarea>
+                        {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group text-right">
+                        <button type="submit" class="btn btn-pos">
+                            <i class="fas fa-save"></i> Crear Venta
+                        </button>
+                        <a href="{% url 'pos:sale' %}" class="btn btn-secondary ml-2">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Información de la sesión -->
+    <div class="col-md-4">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h6 class="mb-0">Información de la Sesión</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><i class="fas fa-hashtag text-primary"></i> <strong>ID:</strong> #{{ active_session.id }}</li>
+                    <li><i class="fas fa-warehouse text-primary"></i> <strong>Bodega:</strong> {{ active_session.warehouse.name }}</li>
+                    <li><i class="fas fa-user text-primary"></i> <strong>Usuario:</strong> {{ user.get_full_name|default:user.username }}</li>
+                    <li><i class="fas fa-calendar text-primary"></i> <strong>Fecha:</strong> {% now "d/m/Y" %}</li>
+                    <li><i class="fas fa-clock text-primary"></i> <strong>Hora:</strong> {% now "H:i" %}</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Productos disponibles -->
+        <div class="card card-pos mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Productos Disponibles</h6>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="productSearch" placeholder="Buscar producto...">
+                </div>
+                <div id="productResults" style="max-height: 300px; overflow-y: auto;">
+                    {% for product in products %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <div class="fw-bold">{{ product.name }}</div>
+                            <div class="text-muted small">${{ product.price }}</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="addProduct({{ product.id }}, '{{ product.name }}', {{ product.price }})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-box fa-2x mb-2"></i>
+                        <p>No hay productos disponibles</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Búsqueda de productos
+document.getElementById('productSearch').addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    const productItems = document.querySelectorAll('#productResults > div');
+    
+    productItems.forEach(item => {
+        const productName = item.querySelector('.fw-bold').textContent.toLowerCase();
+        if (productName.includes(query)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+
+// Agregar producto (esto sería implementado con AJAX en una versión completa)
+function addProduct(productId, productName, price) {
+    alert(`Producto agregado: ${productName} - $${price}`);
+    // Aquí iría la lógica para agregar el producto a la venta
+}
+</script>
+{% endblock %}

@@ -1,0 +1,488 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Venta Rápida - NaturalMede POS{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Venta Rápida</h2>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Búsqueda de productos -->
+    <div class="col-md-4">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Buscar Producto</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="barcodeInput">Código de Barras</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="barcodeInput" placeholder="Escanear o escribir código">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="scanBarcode()">
+                                <i class="fas fa-barcode"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productSearch">Buscar por Nombre</label>
+                    <input type="text" class="form-control" id="productSearch" placeholder="Nombre del producto">
+                </div>
+                
+                <div id="productResults" class="mt-3">
+                    <!-- Los resultados se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrito de venta -->
+    <div class="col-md-8">
+        <div class="card card-pos">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Venta Actual</h5>
+                <span class="badge badge-primary">Sesión: {{ active_session.id }}</span>
+            </div>
+            <div class="card-body">
+                <div id="saleItems">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <p>No hay productos en la venta</p>
+                    </div>
+                </div>
+                
+                <!-- Totales -->
+                <div class="border-top pt-3 mt-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Subtotal:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            <span id="subtotal">$0</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>IVA:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            <span id="tax">$0</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Total:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            <span id="total" class="h4 text-primary">$0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="mt-3">
+                    <button class="btn btn-success btn-lg btn-block mb-2" onclick="processQuickSale()" disabled id="processBtn">
+                        <i class="fas fa-credit-card"></i> Procesar Venta
+                    </button>
+                    <button class="btn btn-warning btn-block" onclick="clearSale()">
+                        <i class="fas fa-trash"></i> Limpiar Venta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos más vendidos -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-pos">
+            <div class="card-header">
+                <h5 class="mb-0">Productos Más Vendidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for product in top_products %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{{ product.product__name }}</h6>
+                                <p class="text-muted">${{ product.product__price }}</p>
+                                <button class="btn btn-pos btn-sm" onclick="addQuickProduct({{ product.product__id }}, '{{ product.product__name }}', {{ product.product__price }})">
+                                    <i class="fas fa-plus"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center text-muted">
+                        <i class="fas fa-box fa-2x mb-2"></i>
+                        <p>No hay productos vendidos hoy</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de procesamiento de pago -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Procesar Pago</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Resumen de la venta -->
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-receipt"></i> Resumen de la Venta</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Subtotal:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            $<span id="modalSubtotal">0.00</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>IVA:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            $<span id="modalTax">0.00</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Total:</strong>
+                        </div>
+                        <div class="col-6 text-right">
+                            <strong>$<span id="modalTotal">0.00</span></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="form-group">
+                    <label for="paymentMethod">Método de Pago</label>
+                    <select class="form-control" id="paymentMethod" onchange="toggleCashFields()">
+                        <option value="cash">Efectivo</option>
+                        <option value="card">Tarjeta</option>
+                        <option value="transfer">Transferencia</option>
+                        <option value="mixed">Mixto</option>
+                    </select>
+                </div>
+
+                <!-- Campos para pago en efectivo -->
+                <div id="cashFields">
+                    <div class="form-group">
+                        <label for="amountReceived">Monto Recibido</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" id="amountReceived" 
+                                   value="0.00" step="0.01" min="0" 
+                                   oninput="calculateChange()" required>
+                        </div>
+                        <small class="form-text text-muted">Ingresa la cantidad recibida del cliente</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="changeAmount">Cambio</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" id="changeAmount" 
+                                   value="0.00" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos para pago mixto -->
+                <div id="mixedFields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cashAmount">Monto en Efectivo</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    <input type="number" class="form-control" id="cashAmount" 
+                                           value="0.00" step="0.01" min="0" 
+                                           oninput="calculateMixedPayment()">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cardAmount">Monto en Tarjeta</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    <input type="number" class="form-control" id="cardAmount" 
+                                           value="0.00" step="0.01" min="0" 
+                                           oninput="calculateMixedPayment()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="processPayment()">
+                    <i class="fas fa-credit-card"></i> Procesar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentSaleItems = [];
+
+// Búsqueda de productos
+document.getElementById('productSearch').addEventListener('input', function() {
+    const query = this.value;
+    if (query.length < 2) {
+        document.getElementById('productResults').innerHTML = '';
+        return;
+    }
+    
+    // Aquí iría la búsqueda AJAX
+    // Por ahora mostramos un mensaje
+    document.getElementById('productResults').innerHTML = `
+        <div class="text-center text-muted">
+            <i class="fas fa-spinner fa-spin"></i> Buscando productos...
+        </div>
+    `;
+});
+
+// Escanear código de barras
+function scanBarcode() {
+    const barcode = document.getElementById('barcodeInput').value;
+    if (barcode) {
+        // Aquí iría la búsqueda por código de barras
+        alert(`Buscando producto con código: ${barcode}`);
+    }
+}
+
+// Agregar producto rápido
+function addQuickProduct(productId, productName, price) {
+    const existingItem = currentSaleItems.find(item => item.productId === productId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        currentSaleItems.push({
+            productId: productId,
+            productName: productName,
+            price: price,
+            quantity: 1
+        });
+    }
+    
+    updateSaleDisplay();
+}
+
+// Actualizar display de venta
+function updateSaleDisplay() {
+    const container = document.getElementById('saleItems');
+    const processBtn = document.getElementById('processBtn');
+    
+    if (currentSaleItems.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <p>No hay productos en la venta</p>
+            </div>
+        `;
+        processBtn.disabled = true;
+        updateTotals();
+        return;
+    }
+    
+    let html = '';
+    let subtotal = 0;
+    
+    currentSaleItems.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        html += `
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <div class="flex-grow-1">
+                    <div class="fw-bold">${item.productName}</div>
+                    <div class="text-muted small">$${item.price.toLocaleString()} c/u</div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, ${item.quantity - 1})">-</button>
+                    <span class="mx-2">${item.quantity}</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, ${item.quantity + 1})">+</button>
+                    <button class="btn btn-sm btn-outline-danger ml-2" onclick="removeItem(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    processBtn.disabled = false;
+    updateTotals(subtotal);
+}
+
+// Actualizar cantidad
+function updateQuantity(index, newQuantity) {
+    if (newQuantity <= 0) {
+        currentSaleItems.splice(index, 1);
+    } else {
+        currentSaleItems[index].quantity = newQuantity;
+    }
+    updateSaleDisplay();
+}
+
+// Remover item
+function removeItem(index) {
+    currentSaleItems.splice(index, 1);
+    updateSaleDisplay();
+}
+
+// Actualizar totales
+function updateTotals(subtotal = 0) {
+    const tax = subtotal * 0.19; // 19% IVA
+    const total = subtotal + tax;
+    
+    document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString()}`;
+    document.getElementById('tax').textContent = `$${tax.toLocaleString()}`;
+    document.getElementById('total').textContent = `$${total.toLocaleString()}`;
+}
+
+// Procesar venta rápida
+function processQuickSale() {
+    if (currentSaleItems.length === 0) return;
+    
+    const subtotal = currentSaleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.19;
+    const total = subtotal + tax;
+    
+    // Actualizar valores en el modal
+    document.getElementById('modalSubtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('modalTax').textContent = tax.toFixed(2);
+    document.getElementById('modalTotal').textContent = total.toFixed(2);
+    
+    // Establecer el monto recibido por defecto al total
+    document.getElementById('amountReceived').value = total.toFixed(2);
+    
+    // Calcular cambio inicial
+    calculateChange();
+    
+    // Mostrar modal de pago
+    $('#paymentModal').modal('show');
+}
+
+// Alternar campos según método de pago
+function toggleCashFields() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const cashFields = document.getElementById('cashFields');
+    const mixedFields = document.getElementById('mixedFields');
+    
+    if (paymentMethod === 'cash') {
+        cashFields.style.display = 'block';
+        mixedFields.style.display = 'none';
+        document.getElementById('amountReceived').required = true;
+    } else if (paymentMethod === 'mixed') {
+        cashFields.style.display = 'none';
+        mixedFields.style.display = 'block';
+        document.getElementById('amountReceived').required = false;
+    } else {
+        cashFields.style.display = 'none';
+        mixedFields.style.display = 'none';
+        document.getElementById('amountReceived').required = false;
+    }
+}
+
+// Calcular cambio para pago en efectivo
+function calculateChange() {
+    const total = parseFloat(document.getElementById('modalTotal').textContent);
+    const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+    const change = amountReceived - total;
+    
+    document.getElementById('changeAmount').value = change.toFixed(2);
+    
+    // Cambiar color del cambio según si es positivo o negativo
+    const changeElement = document.getElementById('changeAmount');
+    if (change < 0) {
+        changeElement.style.color = 'red';
+    } else {
+        changeElement.style.color = 'green';
+    }
+}
+
+// Calcular pago mixto
+function calculateMixedPayment() {
+    const total = parseFloat(document.getElementById('modalTotal').textContent);
+    const cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0;
+    const cardAmount = parseFloat(document.getElementById('cardAmount').value) || 0;
+    const sum = cashAmount + cardAmount;
+    
+    // Validar que la suma no exceda el total
+    if (sum > total) {
+        alert('La suma de los montos no puede exceder el total de la venta');
+        document.getElementById('cardAmount').value = (total - cashAmount).toFixed(2);
+    }
+}
+
+// Procesar pago
+function processPayment() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const total = parseFloat(document.getElementById('modalTotal').textContent);
+    
+    // Validaciones según método de pago
+    if (paymentMethod === 'cash') {
+        const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+        if (amountReceived < total) {
+            alert('El monto recibido debe ser mayor o igual al total de la venta');
+            return;
+        }
+    } else if (paymentMethod === 'mixed') {
+        const cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0;
+        const cardAmount = parseFloat(document.getElementById('cardAmount').value) || 0;
+        const sum = cashAmount + cardAmount;
+        
+        if (Math.abs(sum - total) > 0.01) { // Tolerancia de 1 centavo
+            alert('La suma de los montos debe ser igual al total de la venta');
+            return;
+        }
+    }
+    
+    // Aquí iría la lógica para procesar la venta
+    alert('Pago procesado correctamente');
+    $('#paymentModal').modal('hide');
+    clearSale();
+}
+
+// Limpiar venta
+function clearSale() {
+    currentSaleItems = [];
+    updateSaleDisplay();
+}
+</script>
+{% endblock %}
+
+

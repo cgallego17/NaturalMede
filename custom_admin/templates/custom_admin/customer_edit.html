@@ -1,0 +1,223 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Editar {{ customer.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-edit"></i> Editar Cliente: {{ customer.full_name }}</h2>
+                <div class="btn-group">
+                    <a href="{% url 'custom_admin:admin_customer_detail' customer.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-eye"></i> Ver Detalle
+                    </a>
+                    <a href="{% url 'custom_admin:admin_customers' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-user-edit"></i> Información del Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <!-- Información Personal -->
+                                <h6 class="text-primary mb-3"><i class="fas fa-user"></i> Información Personal</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="first_name">Nombre *</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                                   value="{{ customer.user.first_name }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="last_name">Apellido *</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                                   value="{{ customer.user.last_name }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email">Email *</label>
+                                            <input type="email" class="form-control" id="email" name="email" 
+                                                   value="{{ customer.user.email }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="customer_type">Tipo de Cliente</label>
+                                            <select class="form-control" id="customer_type" name="customer_type">
+                                                <option value="normal" {% if customer.customer_type == 'normal' %}selected{% endif %}>Normal</option>
+                                                <option value="vip" {% if customer.customer_type == 'vip' %}selected{% endif %}>VIP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="channel">¿Cómo nos conoció?</label>
+                                            <select class="form-control" id="channel" name="channel">
+                                                <option value="instagram" {% if customer.channel == 'instagram' %}selected{% endif %}>📸 Instagram</option>
+                                                <option value="facebook" {% if customer.channel == 'facebook' %}selected{% endif %}>👥 Facebook</option>
+                                                <option value="whatsapp" {% if customer.channel == 'whatsapp' %}selected{% endif %}>💬 WhatsApp</option>
+                                                <option value="google" {% if customer.channel == 'google' %}selected{% endif %}>🔍 Google</option>
+                                                <option value="referral" {% if customer.channel == 'referral' %}selected{% endif %}>👤 Referido por cliente</option>
+                                                <option value="walk_in" {% if customer.channel == 'walk_in' %}selected{% endif %}>🏪 Cliente de tienda física</option>
+                                                <option value="website" {% if customer.channel == 'website' %}selected{% endif %}>🌐 Sitio web</option>
+                                                <option value="email" {% if customer.channel == 'email' %}selected{% endif %}>📧 Email</option>
+                                                <option value="phone" {% if customer.channel == 'phone' %}selected{% endif %}>📞 Llamada telefónica</option>
+                                                <option value="other" {% if customer.channel == 'other' %}selected{% endif %}>❓ Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="phone">Teléfono</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   value="{{ customer.phone }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información de Documento -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-id-card"></i> Documento</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="document_type">Tipo de Documento</label>
+                                            <select class="form-control" id="document_type" name="document_type">
+                                                <option value="CC" {% if customer.document_type == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
+                                                <option value="CE" {% if customer.document_type == 'CE' %}selected{% endif %}>Cédula de Extranjería</option>
+                                                <option value="TI" {% if customer.document_type == 'TI' %}selected{% endif %}>Tarjeta de Identidad</option>
+                                                <option value="PP" {% if customer.document_type == 'PP' %}selected{% endif %}>Pasaporte</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="document_number">Número de Documento</label>
+                                            <input type="text" class="form-control" id="document_number" name="document_number" 
+                                                   value="{{ customer.document_number }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información de Contacto -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-phone"></i> Información de Contacto</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="phone">Teléfono</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   value="{{ customer.phone }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="city">Ciudad</label>
+                                            <input type="text" class="form-control" id="city" name="city" 
+                                                   value="{{ customer.city }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="address">Dirección</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3">{{ customer.address }}</textarea>
+                                </div>
+
+                                <!-- Información Adicional -->
+                                <h6 class="text-primary mb-3 mt-4"><i class="fas fa-info-circle"></i> Información Adicional</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="birth_date">Fecha de Nacimiento</label>
+                                            <input type="date" class="form-control" id="birth_date" name="birth_date" 
+                                                   value="{{ customer.birth_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="is_active">Estado</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                                       {% if customer.is_active %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_active">
+                                                    Cliente Activo
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes">Notas</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Notas adicionales sobre el cliente...">{{ customer.notes }}</textarea>
+                                </div>
+
+                                <!-- Botones -->
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Guardar Cambios
+                                    </button>
+                                    <a href="{% url 'custom_admin:admin_customer_detail' customer.pk %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info"></i> Información Actual</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Cliente desde:</strong> {{ customer.created_at|date:"d/m/Y" }}</p>
+                            <p><strong>Última actualización:</strong> {{ customer.updated_at|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Total de órdenes:</strong> {{ customer.total_orders }}</p>
+                            <p><strong>Total gastado:</strong> ${{ customer.total_spent|floatformat:0 }}</p>
+                            
+                            <hr>
+                            
+                            <h6>Acciones Rápidas</h6>
+                            <div class="btn-group-vertical w-100">
+                                <a href="{% url 'custom_admin:admin_customer_orders' customer.pk %}" class="btn btn-outline-info btn-sm mb-2">
+                                    <i class="fas fa-list"></i> Ver Órdenes
+                                </a>
+                                {% if customer.customer_type == 'normal' %}
+                                    <a href="{% url 'custom_admin:admin_customer_toggle_vip' customer.pk %}" class="btn btn-outline-warning btn-sm mb-2">
+                                        <i class="fas fa-crown"></i> Hacer VIP
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'custom_admin:admin_customer_toggle_vip' customer.pk %}" class="btn btn-outline-secondary btn-sm mb-2">
+                                        <i class="fas fa-user"></i> Quitar VIP
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

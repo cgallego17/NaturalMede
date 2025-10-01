@@ -1,0 +1,254 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Reportes de Inventario{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-bar"></i> Reportes de Inventario</h2>
+                <a href="{% url 'custom_admin:admin_inventory' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Estadísticas generales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_products }}</h4>
+                                    <p class="mb-0">Productos Totales</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-boxes fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_warehouses }}</h4>
+                                    <p class="mb-0">Bodegas Activas</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-building fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ low_stock }}</h4>
+                                    <p class="mb-0">Stock Bajo</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ out_of_stock }}</h4>
+                                    <p class="mb-0">Sin Stock</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-times-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Productos con stock bajo -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning"></i> Stock Bajo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Bodega</th>
+                                            <th>Stock</th>
+                                            <th>Mínimo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in low_stock_items %}
+                                        <tr>
+                                            <td>{{ item.product.name }}</td>
+                                            <td>{{ item.warehouse.name }}</td>
+                                            <td><span class="badge badge-warning">{{ item.quantity }}</span></td>
+                                            <td>{{ item.min_stock }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                No hay productos con stock bajo
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos sin stock -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-times-circle text-danger"></i> Sin Stock</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Bodega</th>
+                                            <th>Stock</th>
+                                            <th>Mínimo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in out_of_stock_items %}
+                                        <tr>
+                                            <td>{{ item.product.name }}</td>
+                                            <td>{{ item.warehouse.name }}</td>
+                                            <td><span class="badge badge-danger">{{ item.quantity }}</span></td>
+                                            <td>{{ item.min_stock }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                No hay productos sin stock
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <!-- Movimientos recientes -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Movimientos Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Tipo</th>
+                                            <th>Cantidad</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for movement in recent_movements %}
+                                        <tr>
+                                            <td>{{ movement.product.name }}</td>
+                                            <td>
+                                                <span class="badge badge-{% if movement.movement_type == 'in' %}success{% elif movement.movement_type == 'out' %}danger{% else %}info{% endif %}">
+                                                    {{ movement.get_movement_type_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if movement.quantity > 0 %}
+                                                    <span class="text-success">+{{ movement.quantity }}</span>
+                                                {% else %}
+                                                    <span class="text-danger">{{ movement.quantity }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ movement.created_at|date:"d/m H:i" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                No hay movimientos recientes
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transferencias pendientes -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-exchange-alt"></i> Transferencias Pendientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Referencia</th>
+                                            <th>Desde</th>
+                                            <th>Hacia</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for transfer in pending_transfers %}
+                                        <tr>
+                                            <td>{{ transfer.reference }}</td>
+                                            <td>{{ transfer.from_warehouse.name }}</td>
+                                            <td>{{ transfer.to_warehouse.name }}</td>
+                                            <td>{{ transfer.created_at|date:"d/m H:i" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                No hay transferencias pendientes
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

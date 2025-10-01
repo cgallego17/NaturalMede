@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pedido Confirmado - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                    </div>
+                    
+                    <h1 class="text-success mb-3">¡Pedido Confirmado!</h1>
+                    <p class="lead">Tu pedido ha sido procesado exitosamente</p>
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Número de Orden: {{ order.order_number }}</h5>
+                        <p class="mb-0">Guarda este número para futuras consultas</p>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Resumen del Pedido</h6>
+                            <ul class="list-unstyled text-left">
+                                <li><strong>Total:</strong> ${{ order.total|floatformat:0 }}</li>
+                                <li><strong>Método de Pago:</strong> {{ order.get_payment_method_display }}</li>
+                                <li><strong>Estado:</strong> {{ order.get_status_display }}</li>
+                                <li><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Información de Envío</h6>
+                            <ul class="list-unstyled text-left">
+                                <li><strong>Dirección:</strong> {{ order.shipping_address }}</li>
+                                <li><strong>Ciudad:</strong> {{ order.shipping_city }}</li>
+                                <li><strong>Teléfono:</strong> {{ order.shipping_phone }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Próximos Pasos</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                                        <h6>Confirmación</h6>
+                                        <small>Recibirás un email de confirmación</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <i class="fas fa-truck fa-2x text-warning mb-2"></i>
+                                        <h6>Preparación</h6>
+                                        <small>Preparamos tu pedido</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <i class="fas fa-home fa-2x text-success mb-2"></i>
+                                        <h6>Entrega</h6>
+                                        <small>Te entregamos en tu domicilio</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-th-large"></i> Continuar Comprando
+                        </a>
+                        <button class="btn btn-success btn-lg ml-2" onclick="sendWhatsAppOrder()">
+                            <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function sendWhatsAppOrder() {
+        let message = `Hola, confirmo mi pedido ${'{{ order.order_number }}'} por un total de $${'{{ order.total|floatformat:0 }}'}. `;
+        message += `Método de pago: ${'{{ order.get_payment_method_display }}'}. `;
+        message += `Dirección: ${'{{ order.shipping_address }}'}, ${'{{ order.shipping_city }}'}. `;
+        message += 'Por favor, confírmame los detalles y el tiempo de entrega.';
+        
+        sendWhatsAppMessage(message);
+    }
+</script>
+{% endblock %}
+
+
+
+
+
+
+

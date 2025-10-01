@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Catálogo</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6">
+            <div id="productCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {% for image in product.images.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.alt_text|default:product.name }}" style="height: 400px; object-fit: cover;">
+                    </div>
+                    {% empty %}
+                    <div class="carousel-item active">
+                        <div class="d-block w-100 bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <i class="fas fa-image fa-5x text-muted"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if product.images.count > 1 %}
+                <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Anterior</span>
+                </a>
+                <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Siguiente</span>
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Thumbnail Images -->
+            {% if product.images.count > 1 %}
+            <div class="row mt-3">
+                {% for image in product.images.all %}
+                <div class="col-3">
+                    <img src="{{ image.image.url }}" class="img-thumbnail" alt="{{ image.alt_text|default:product.name }}" 
+                         onclick="$('#productCarousel').carousel({{ forloop.counter0 }})" style="height: 80px; object-fit: cover; cursor: pointer;">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">{{ product.name }}</h1>
+                    
+                    <div class="mb-3">
+                        <span class="badge badge-secondary">{{ product.category.name }}</span>
+                        <span class="badge badge-info">{{ product.brand.name }}</span>
+                        {% if product.is_featured %}
+                        <span class="badge badge-warning">Destacado</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h3 class="text-success">${{ product.price|floatformat:0 }}</h3>
+                        {% if product.iva_percentage > 0 %}
+                        <small class="text-muted">IVA {{ product.iva_percentage }}% incluido</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Descripción:</h6>
+                        <p class="card-text">{{ product.description|linebreaks }}</p>
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>SKU:</strong> {{ product.sku }}
+                        </div>
+                        {% if product.barcode %}
+                        <div class="col-md-6">
+                            <strong>Código de barras:</strong> {{ product.barcode }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.weight %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Peso:</strong> {{ product.weight }} kg
+                        </div>
+                        {% if product.dimensions %}
+                        <div class="col-md-6">
+                            <strong>Dimensiones:</strong> {{ product.dimensions }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Add to Cart Form -->
+                    <form method="post" action="{% url 'catalog:cart_add' product.id %}" class="mb-3">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="quantity">Cantidad:</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" 
+                                       value="1" min="1" max="99">
+                            </div>
+                            <div class="col-md-8">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- WhatsApp Button -->
+                    <div class="mb-3">
+                        <button class="btn btn-success btn-block whatsapp-btn" 
+                                onclick="sendWhatsAppMessage('Hola, me interesa el producto: {{ product.name }} - ${{ product.price|floatformat:0 }}')">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </button>
+                    </div>
+                    
+                    <!-- Product Actions -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-block">
+                                <i class="fas fa-arrow-left"></i> Volver al Catálogo
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{% url 'catalog:cart' %}" class="btn btn-primary btn-block">
+                                <i class="fas fa-shopping-cart"></i> Ver Carrito
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3><i class="fas fa-th-large"></i> Productos Relacionados</h3>
+            <div class="row">
+                {% for related_product in related_products %}
+                <div class="col-md-3 mb-3">
+                    <div class="card product-card h-100">
+                        {% if related_product.images.first %}
+                        <img src="{{ related_product.images.first.image.url }}" class="card-img-top" alt="{{ related_product.name }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">{{ related_product.name|truncatechars:30 }}</h6>
+                            <p class="card-text text-success font-weight-bold">
+                                ${{ related_product.price|floatformat:0 }}
+                            </p>
+                            <div class="mt-auto">
+                                <a href="{% url 'catalog:product_detail' related_product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add to cart with AJAX
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const productId = {{ product.id }};
+        const quantity = $('#quantity').val();
+        
+        addToCart(productId, quantity);
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard de Reportes - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1><i class="fas fa-chart-bar"></i> Dashboard de Reportes</h1>
+            <p class="text-muted">Análisis y estadísticas de tu tienda naturista</p>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Ventas Hoy</h6>
+                            <h3>${{ today_sales.total_amount|floatformat:0|default:"0" }}</h3>
+                            <small>{{ today_sales.total_orders|default:"0" }} órdenes</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Ventas del Mes</h6>
+                            <h3>${{ month_sales.total_amount|floatformat:0|default:"0" }}</h3>
+                            <small>{{ month_sales.total_orders|default:"0" }} órdenes</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Productos</h6>
+                            <h3>{{ stats.total_products|default:"0" }}</h3>
+                            <small>en catálogo</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-box fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Stock Bajo</h6>
+                            <h3>{{ stats.low_stock|default:"0" }}</h3>
+                            <small>productos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Reports -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-alt"></i> Reportes Rápidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-chart-pie fa-3x text-primary mb-3"></i>
+                                    <h6>Reporte de Ventas</h6>
+                                    <p class="text-muted small">Análisis detallado de ventas por período</p>
+                                    <a href="{% url 'reports:sales_report' %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> Ver Reporte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                                    <h6>Reporte de Inventario</h6>
+                                    <p class="text-muted small">Estado del stock y movimientos</p>
+                                    <a href="{% url 'reports:inventory_report' %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-eye"></i> Ver Reporte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                                    <h6>Productos Más Vendidos</h6>
+                                    <p class="text-muted small">Ranking de productos populares</p>
+                                    <a href="{% url 'reports:products_report' %}" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-eye"></i> Ver Reporte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-dollar-sign fa-3x text-info mb-3"></i>
+                                    <h6>Reporte Financiero</h6>
+                                    <p class="text-muted small">Análisis de ingresos y gastos</p>
+                                    <a href="{% url 'reports:financial_report' %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Ver Reporte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Analytics -->
+    <div class="row">
+        <!-- Top Products -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-trophy"></i> Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_products %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Ventas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                <tr>
+                                    <td>{{ product.product__name|truncatechars:30 }}</td>
+                                    <td>
+                                        <span class="badge badge-primary">{{ product.total_quantity }}</span>
+                                    </td>
+                                    <td class="font-weight-bold">${{ product.total_sales|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-chart-bar fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No hay datos de ventas disponibles</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Customers -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users"></i> Clientes Más Activos</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_customers %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Órdenes</th>
+                                    <th>Total Gastado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in top_customers %}
+                                <tr>
+                                    <td>{{ customer.full_name|truncatechars:20 }}</td>
+                                    <td>
+                                        <span class="badge badge-success">{{ customer.total_orders }}</span>
+                                    </td>
+                                    <td class="font-weight-bold">${{ customer.total_spent|floatformat:0 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No hay datos de clientes disponibles</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Reportes Recientes</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_reports %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo</th>
+                                    <th>Creado por</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in recent_reports %}
+                                <tr>
+                                    <td>{{ report.name }}</td>
+                                    <td>
+                                        <span class="badge badge-info">{{ report.get_report_type_display }}</span>
+                                    </td>
+                                    <td>{{ report.created_by.get_full_name }}</td>
+                                    <td>{{ report.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if report.is_active %}
+                                        <span class="badge badge-success">Activo</span>
+                                        {% else %}
+                                        <span class="badge badge-secondary">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h5>No hay reportes recientes</h5>
+                        <p class="text-muted">Los reportes generados aparecerán aquí</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh de métricas cada 30 segundos
+    setInterval(function() {
+        // Aquí iría la lógica para actualizar las métricas
+        console.log('Actualizando métricas...');
+    }, 30000);
+</script>
+{% endblock %}
+
+
+
+
+
+
+

@@ -1,0 +1,327 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-box"></i> {{ title }}</h2>
+                <a href="{% url 'custom_admin:admin_products' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Productos
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-edit"></i> Información del Producto</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                                <i class="fas fa-tag"></i> Nombre del Producto *
+                                            </label>
+                                            {{ form.name }}
+                                            {% if form.name.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.name.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.sku.id_for_label }}" class="form-label">
+                                                <i class="fas fa-barcode"></i> SKU *
+                                            </label>
+                                            {{ form.sku }}
+                                            {% if form.sku.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.sku.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.description.id_for_label }}" class="form-label">
+                                        <i class="fas fa-align-left"></i> Descripción
+                                    </label>
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.description.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.short_description.id_for_label }}" class="form-label">
+                                        <i class="fas fa-align-left"></i> Descripción Corta
+                                    </label>
+                                    {{ form.short_description }}
+                                    {% if form.short_description.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.short_description.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.main_image.id_for_label }}" class="form-label">
+                                        <i class="fas fa-image"></i> Imagen Principal
+                                    </label>
+                                    {{ form.main_image }}
+                                    {% if form.main_image.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.main_image.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 5MB
+                                    </small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.category.id_for_label }}" class="form-label">
+                                                <i class="fas fa-folder"></i> Categoría *
+                                            </label>
+                                            {{ form.category }}
+                                            {% if form.category.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.category.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.brand.id_for_label }}" class="form-label">
+                                                <i class="fas fa-star"></i> Marca *
+                                            </label>
+                                            {{ form.brand }}
+                                            {% if form.brand.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.brand.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.price.id_for_label }}" class="form-label">
+                                                <i class="fas fa-dollar-sign"></i> Precio de Venta *
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                {{ form.price }}
+                                            </div>
+                                            {% if form.price.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.price.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.cost_price.id_for_label }}" class="form-label">
+                                                <i class="fas fa-tag"></i> Precio de Costo *
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                {{ form.cost_price }}
+                                            </div>
+                                            {% if form.cost_price.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.cost_price.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.iva_percentage.id_for_label }}" class="form-label">
+                                                <i class="fas fa-percentage"></i> IVA (%)
+                                            </label>
+                                            <div class="input-group">
+                                                {{ form.iva_percentage }}
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                            {% if form.iva_percentage.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.iva_percentage.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.barcode.id_for_label }}" class="form-label">
+                                                <i class="fas fa-barcode"></i> Código de Barras
+                                            </label>
+                                            {{ form.barcode }}
+                                            {% if form.barcode.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.barcode.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.weight.id_for_label }}" class="form-label">
+                                                <i class="fas fa-weight"></i> Peso (kg)
+                                            </label>
+                                            <div class="input-group">
+                                                {{ form.weight }}
+                                                <span class="input-group-text">kg</span>
+                                            </div>
+                                            {% if form.weight.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.weight.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.dimensions.id_for_label }}" class="form-label">
+                                                <i class="fas fa-ruler"></i> Dimensiones
+                                            </label>
+                                            {{ form.dimensions }}
+                                            {% if form.dimensions.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.dimensions.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <div class="form-check">
+                                                {{ form.is_active }}
+                                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                    <i class="fas fa-check-circle"></i> Producto Activo
+                                                </label>
+                                            </div>
+                                            {% if form.is_active.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.is_active.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <div class="form-check">
+                                                {{ form.is_featured }}
+                                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                                    <i class="fas fa-star"></i> Producto Destacado
+                                                </label>
+                                            </div>
+                                            {% if form.is_featured.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.is_featured.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> 
+                                        {% if action == 'create' %}Crear Producto{% else %}Actualizar Producto{% endif %}
+                                    </button>
+                                    <a href="{% url 'custom_admin:admin_products' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> Información</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-lightbulb"></i> Consejos:</h6>
+                                <ul class="mb-0">
+                                    <li>El SKU debe ser único para cada producto</li>
+                                    <li>El precio debe incluir decimales (ej: 15000.00)</li>
+                                    <li>El IVA se calcula automáticamente</li>
+                                    <li>Las imágenes se redimensionan automáticamente</li>
+                                </ul>
+                            </div>
+                            
+                            {% if action == 'edit' and product.images.first %}
+                            <div class="mt-3">
+                                <h6>Imagen Actual:</h6>
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                                     class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

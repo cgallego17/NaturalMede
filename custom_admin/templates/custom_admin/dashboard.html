@@ -1,0 +1,746 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - NaturalMede Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-tachometer-alt text-primary"></i> Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Panel de administración de NaturalMede</p>
+                </div>
+                <div class="text-right">
+                    <small class="text-muted">{{ now|date:"d/m/Y H:i" }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stats Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Ventas Hoy
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 today-sales">
+                                ${{ today_sales|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Órdenes Hoy
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ today_orders }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Ventas Esta Semana
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 week-sales">
+                                ${{ week_sales|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Ventas Este Mes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 month-sales">
+                                ${{ month_sales|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-bar fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Stats Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Total Productos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_products }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Stock Bajo
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ low_stock_count }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Categorías
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_categories }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-folder fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Marcas
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_brands }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Sales Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line"></i> Ventas de los Últimos 7 Días
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Status Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie"></i> Órdenes por Estado
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventas Diarias Chart -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line"></i> Ventas Diarias (Últimos 7 Días)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailySalesChart" width="400" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribución de Ventas Chart -->
+    <div class="row mb-0">
+        <div class="col-xl-6 pr-1">
+            <div class="card shadow mb-1">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie"></i> Distribución de Ventas por Categoría
+                    </h6>
+                </div>
+                <div class="card-body py-2">
+                    <canvas id="distributionChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resumen de Distribución -->
+        <div class="col-xl-6 pl-1">
+            <div class="card shadow mb-1">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list"></i> Top Categorías por Ventas
+                    </h6>
+                </div>
+                <div class="card-body py-2">
+                    {% for category in category_distribution %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-left border-primary">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-tag text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-primary">{{ category.category.name }}</div>
+                            <div class="text-muted small">Total: ${{ category.total_sales|floatformat:0 }}</div>
+                            <div class="text-muted small">
+                                Web: ${{ category.web_sales|floatformat:0 }} | POS: ${{ category.pos_sales|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge badge-primary">{{ forloop.counter }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-pie fa-2x mb-2"></i><br>
+                        No hay datos de ventas por categoría disponibles
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-shopping-cart"></i> Órdenes Recientes
+                    </h6>
+                    <a href="{% url 'custom_admin:admin_orders' %}" class="btn btn-sm btn-primary">
+                        Ver Todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for order in recent_orders %}
+                    <div class="d-flex align-items-center mb-3 p-2 border-left border-primary">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-shopping-cart text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-primary">#{{ order.number }}</div>
+                            <div class="text-muted small">{{ order.customer_name }}</div>
+                            <div class="text-muted small order-total">${{ order.total|floatformat:0 }}</div>
+                            <div class="text-muted small">
+                                <span class="badge badge-info">{{ order.type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge badge-{{ order.status_color }}">{{ order.status_display }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <p>No hay órdenes recientes</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="row">
+                <!-- Categories -->
+                <div class="col-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-folder"></i> Categorías Populares
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if popular_categories %}
+                                {% for category in popular_categories %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>{{ category.category__name }}</span>
+                                    <span class="badge badge-info">{{ category.product_count }} productos</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted py-3">
+                                    <i class="fas fa-folder fa-2x mb-2"></i>
+                                    <p>No hay datos disponibles</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Sales Chart
+document.addEventListener('DOMContentLoaded', function() {
+    const salesCtx = document.getElementById('salesChart');
+    
+    if (salesCtx) {
+        const ctx = salesCtx.getContext('2d');
+        
+        // Normalizar datos para mejor visualización
+        const salesData = {{ sales_data|safe }};
+        const maxValue = Math.max(...salesData);
+        const normalizedData = salesData.map(value => value / 1000); // Convertir a miles
+        
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_labels|safe }},
+                datasets: [{
+                    label: 'Ventas (miles $)',
+                    data: normalizedData,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.1,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(75, 192, 192)',
+                    pointBorderColor: 'rgb(75, 192, 192)',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: 2,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: Math.ceil(maxValue / 1000) + 5, // Ajustar escala máxima
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString() + 'K';
+                            },
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const originalValue = context.parsed.y * 1000;
+                                return 'Ventas: $' + originalValue.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log('Gráfico de ventas principal creado exitosamente');
+    } else {
+        console.error('Canvas salesChart no encontrado');
+    }
+});
+
+// Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ status_labels|safe }},
+        datasets: [{
+            data: {{ status_data|safe }},
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#17a2b8',
+                '#dc3545',
+                '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Gráfico de Ventas Diarias
+document.addEventListener('DOMContentLoaded', function() {
+    const dailySalesCtx = document.getElementById('dailySalesChart');
+    
+    if (dailySalesCtx) {
+        const ctx = dailySalesCtx.getContext('2d');
+        
+        // Debug: Mostrar datos en consola
+        console.log('Sales Labels:', {{ sales_labels|safe }});
+        console.log('Sales Data:', {{ sales_data|safe }});
+        
+        // Normalizar datos para mejor visualización
+        const salesData = {{ sales_data|safe }};
+        const maxValue = Math.max(...salesData);
+        const normalizedData = salesData.map(value => value / 1000); // Convertir a miles
+        
+        const dailySalesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_labels|safe }},
+                datasets: [{
+                    label: 'Ventas Diarias (miles $)',
+                    data: normalizedData,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#4e73df',
+                    pointBorderColor: '#4e73df',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: 3,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: Math.ceil(maxValue / 1000) + 5, // Ajustar escala máxima
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString() + 'K';
+                            },
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const originalValue = context.parsed.y * 1000;
+                                return 'Ventas: $' + originalValue.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+        
+        console.log('Gráfico de ventas diarias creado exitosamente');
+    } else {
+        console.error('Canvas dailySalesChart no encontrado');
+    }
+});
+
+
+// Gráfico de Distribución de Ventas por Categoría
+document.addEventListener('DOMContentLoaded', function() {
+    const distributionCtx = document.getElementById('distributionChart');
+    
+    if (distributionCtx) {
+        const ctx = distributionCtx.getContext('2d');
+        
+        // Datos de categorías
+        const categoryLabels = [{% for category in category_distribution %}"{{ category.category.name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+        const categoryData = [{% for category in category_distribution %}{{ category.total_sales }}{% if not forloop.last %},{% endif %}{% endfor %}];
+        
+        // Filtrar categorías con datos válidos (mayores a 0)
+        const validCategories = [];
+        const validData = [];
+        
+        categoryLabels.forEach((label, index) => {
+            if (categoryData[index] > 0) {
+                validCategories.push(label);
+                validData.push(categoryData[index]);
+            }
+        });
+        
+        // Si no hay datos válidos, mostrar mensaje
+        if (validData.length === 0) {
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            ctx.fillText('No hay datos de ventas por categoría', ctx.canvas.width / 2, ctx.canvas.height / 2);
+            return;
+        }
+        
+        // Colores dinámicos basados en el número de categorías
+        const colors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
+            '#858796', '#5a5c69', '#6f42c1', '#fd7e14', '#20c997',
+            '#6f42c1', '#e83e8c', '#17a2b8', '#ffc107', '#28a745'
+        ];
+        
+        const distributionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: validCategories,
+                datasets: [{
+                    data: validData,
+                    backgroundColor: colors.slice(0, validCategories.length),
+                    borderColor: '#fff',
+                    borderWidth: 3,
+                    hoverBorderWidth: 4,
+                    hoverBorderColor: '#fff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: 1,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': $' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                            }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }
+                },
+                cutout: '60%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 0
+                    }
+                }
+            }
+        });
+        
+        console.log('Gráfico de distribución creado exitosamente');
+    } else {
+        console.error('Canvas distributionChart no encontrado');
+    }
+});
+
+// Función para formatear números con puntos de miles
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+// Formatear precios al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Formatear ventas del día
+    const todaySales = document.querySelector('.today-sales');
+    if (todaySales) {
+        const text = todaySales.textContent;
+        const match = text.match(/\$(\d+)/);
+        if (match) {
+            const number = parseInt(match[1]);
+            const formattedNumber = formatNumber(number);
+            todaySales.textContent = text.replace(/\$\d+/, '$' + formattedNumber);
+        }
+    }
+    
+    // Formatear ventas de la semana
+    const weekSales = document.querySelector('.week-sales');
+    if (weekSales) {
+        const text = weekSales.textContent;
+        const match = text.match(/\$(\d+)/);
+        if (match) {
+            const number = parseInt(match[1]);
+            const formattedNumber = formatNumber(number);
+            weekSales.textContent = text.replace(/\$\d+/, '$' + formattedNumber);
+        }
+    }
+    
+    // Formatear ventas del mes
+    const monthSales = document.querySelector('.month-sales');
+    if (monthSales) {
+        const text = monthSales.textContent;
+        const match = text.match(/\$(\d+)/);
+        if (match) {
+            const number = parseInt(match[1]);
+            const formattedNumber = formatNumber(number);
+            monthSales.textContent = text.replace(/\$\d+/, '$' + formattedNumber);
+        }
+    }
+    
+    // Formatear totales de órdenes
+    const orderTotals = document.querySelectorAll('.order-total');
+    orderTotals.forEach(function(element) {
+        const text = element.textContent;
+        const match = text.match(/\$(\d+)/);
+        if (match) {
+            const number = parseInt(match[1]);
+            const formattedNumber = formatNumber(number);
+            element.textContent = text.replace(/\$\d+/, '$' + formattedNumber);
+        }
+    });
+});
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.border-left-secondary {
+    border-left: 0.25rem solid #858796 !important;
+}
+</style>
+{% endblock %}

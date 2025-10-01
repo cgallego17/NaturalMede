@@ -1,0 +1,39 @@
+{% extends 'custom_admin/base.html' %}
+
+{% block title %}{% block page_title_text %}Compras{% endblock %} - NaturalMede Admin{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center">
+        <span>{% block page_title_display %}Compras{% endblock %}</span>
+        <div class="btn-group">
+            {% block page_actions %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'purchases:dashboard' %}">Compras</a></li>
+                {% block breadcrumb %}{% endblock %}
+            </ol>
+        </nav>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Page Content -->
+        {% block page_content %}{% endblock %}
+    </div>
+{% endblock %}

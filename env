@@ -1,0 +1,6 @@
+SECRET_KEY=django-insecure-naturalmede-development-key-change-in-production
+DEBUG=True
+WHATSAPP_PHONE=+573001234567
+
+
+

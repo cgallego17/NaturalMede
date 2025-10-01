@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo #{{ sale.sale_number }} - NaturalMede</title>
+    
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
+            background: white;
+        }
+        .receipt {
+            max-width: 300px;
+            margin: 0 auto;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .company-info {
+            font-size: 10px;
+            color: #666;
+        }
+        .receipt-info {
+            margin-bottom: 15px;
+        }
+        .receipt-info div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .items {
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .item {
+            margin-bottom: 8px;
+        }
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .item-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #666;
+        }
+        .totals {
+            margin-bottom: 15px;
+        }
+        .totals div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 14px;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+        }
+        .barcode {
+            text-align: center;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 10px;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .receipt {
+                border: none;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-name">NATURALMEDE</div>
+            <div class="company-info">
+                Tienda Naturista<br>
+                Carrera 15 #93-47, Bogotá<br>
+                Tel: +57 1 234 5678<br>
+                NIT: 900.123.456-7
+            </div>
+        </div>
+        
+        <!-- Información del recibo -->
+        <div class="receipt-info">
+            <div>
+                <span>Recibo:</span>
+                <span>#{{ sale.sale_number }}</span>
+            </div>
+            <div>
+                <span>Fecha:</span>
+                <span>{{ sale.created_at|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div>
+                <span>Sesión:</span>
+                <span>#{{ sale.session.id }}</span>
+            </div>
+            <div>
+                <span>Vendedor:</span>
+                <span>{{ sale.session.user.get_full_name|default:sale.session.user.username }}</span>
+            </div>
+            {% if sale.customer %}
+            <div>
+                <span>Cliente:</span>
+                <span>{{ sale.customer.user.get_full_name|default:sale.customer.user.username }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Items -->
+        <div class="items">
+            {% for item in sale.items.all %}
+            <div class="item">
+                <div class="item-name">{{ item.product.name }}</div>
+                <div class="item-details">
+                    <span>{{ item.quantity }} x ${{ item.unit_price|floatformat:0 }}</span>
+                    <span>${{ item.total|floatformat:0 }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Totales -->
+        <div class="totals">
+            <div>
+                <span>Subtotal:</span>
+                <span>${{ sale.subtotal|floatformat:0 }}</span>
+            </div>
+            <div>
+                <span>IVA (19%):</span>
+                <span>${{ sale.iva_amount|floatformat:0 }}</span>
+            </div>
+            <div class="total">
+                <span>TOTAL:</span>
+                <span>${{ sale.total|floatformat:0 }}</span>
+            </div>
+        </div>
+        
+        <!-- Método de pago -->
+        <div class="payment-method">
+            <div>
+                <span>Método de Pago:</span>
+                <span>{{ sale.get_payment_method_display }}</span>
+            </div>
+        </div>
+        
+        <!-- Código de barras -->
+        <div class="barcode">
+            *{{ sale.sale_number }}*
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>¡Gracias por su compra!</p>
+            <p>Productos 100% naturales</p>
+            <p>Conserve su recibo para garantías</p>
+            <p>www.naturalmede.com</p>
+        </div>
+    </div>
+    
+    <script>
+        // Imprimir automáticamente al cargar
+        window.onload = function() {
+            window.print();
+        };
+        
+        // Cerrar ventana después de imprimir
+        window.onafterprint = function() {
+            window.close();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+

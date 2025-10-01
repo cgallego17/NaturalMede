@@ -1,0 +1,305 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Registros de Auditoría{% endblock %}
+{% block page_title_display %}Registros de Auditoría{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-chart-bar"></i> Dashboard
+    </a>
+    <a href="{% url 'audit:export' %}" class="btn btn-success">
+        <i class="fas fa-download"></i> Exportar
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">Logs</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.log-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.log-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.log-item.critical {
+    border-left-color: #ff6b6b;
+}
+
+.log-item.high {
+    border-left-color: #feca57;
+}
+
+.log-item.medium {
+    border-left-color: #48dbfb;
+}
+
+.log-item.low {
+    border-left-color: #26de81;
+}
+
+.log-time {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.log-action {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.log-object {
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.log-user {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.severity-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.action-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #e9ecef;
+    color: #495057;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Filtros -->
+    <div class="filter-card">
+        <h6 class="mb-3">
+            <i class="fas fa-filter text-primary"></i>
+            Filtros
+        </h6>
+        <form method="get" class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="user">Usuario</label>
+                    <input type="text" class="form-control" id="user" name="user" 
+                           value="{{ request.GET.user }}" placeholder="Buscar usuario...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="action">Acción</label>
+                    <select class="form-control" id="action" name="action">
+                        <option value="">Todas</option>
+                        {% for value, label in action_choices %}
+                            <option value="{{ value }}" {% if request.GET.action == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="severity">Severidad</label>
+                    <select class="form-control" id="severity" name="severity">
+                        <option value="">Todas</option>
+                        {% for value, label in severity_choices %}
+                            <option value="{{ value }}" {% if request.GET.severity == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="date_from">Desde</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" 
+                           value="{{ request.GET.date_from }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="date_to">Hasta</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" 
+                           value="{{ request.GET.date_to }}">
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ stats.total_logs|floatformat:0 }}</h5>
+                    <p class="card-text">Total de Logs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">{{ stats.today_logs|floatformat:0 }}</h5>
+                    <p class="card-text">Logs Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">{{ stats.critical_logs|floatformat:0 }}</h5>
+                    <p class="card-text">Eventos Críticos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">{{ stats.failed_logs|floatformat:0 }}</h5>
+                    <p class="card-text">Eventos Fallidos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Logs -->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list"></i>
+                Registros de Auditoría
+                {% if request.GET.search %}
+                    <small class="text-muted">- Filtrados por: "{{ request.GET.search }}"</small>
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if audit_logs %}
+                {% for log in audit_logs %}
+                    <div class="log-item {{ log.severity|lower }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="log-time">
+                                    <i class="fas fa-clock"></i> {{ log.created_at|date:"d/m/Y H:i:s" }}
+                                </div>
+                                <div class="log-action">
+                                    <span class="action-badge">{{ log.get_action_display }}</span>
+                                    {% if log.object_repr %}
+                                        - {{ log.object_repr|truncatechars:50 }}
+                                    {% endif %}
+                                </div>
+                                {% if log.message %}
+                                    <div class="log-object">{{ log.message|truncatechars:100 }}</div>
+                                {% endif %}
+                                <div class="log-user">
+                                    <i class="fas fa-user"></i> {{ log.user.username|default:"Sistema" }}
+                                    {% if log.ip_address %}
+                                        | <i class="fas fa-globe"></i> {{ log.ip_address }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge badge-{{ log.severity|lower }} severity-badge">
+                                    {{ log.get_severity_display }}
+                                </span>
+                                <span class="badge badge-{{ log.status|lower }} status-badge">
+                                    {{ log.get_status_display }}
+                                </span>
+                                <br>
+                                <a href="{% url 'audit:log_detail' log.pk %}" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Paginación -->
+                {% if is_paginated %}
+                    <nav aria-label="Paginación de logs">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No se encontraron registros</h5>
+                    <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

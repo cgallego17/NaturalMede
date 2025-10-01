@@ -1,0 +1,259 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Inventario - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-warehouse"></i> Gestión de Inventario</h2>
+                <div>
+                    <a href="{% url 'custom_admin:admin_create_transfer' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nueva Transferencia
+                    </a>
+                    <a href="{% url 'custom_admin:admin_transfer_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i> Ver Transferencias
+                    </a>
+                    <a href="{% url 'custom_admin:admin_warehouse_management' %}" class="btn btn-info">
+                        <i class="fas fa-building"></i> Bodegas
+                    </a>
+                    <a href="{% url 'custom_admin:admin_inventory_reports' %}" class="btn btn-success">
+                        <i class="fas fa-chart-bar"></i> Reportes
+                    </a>
+                </div>
+            </div>
+
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Buscar productos..." value="{{ current_search|default:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="warehouse">
+                                <option value="">Todas las bodegas</option>
+                                {% for warehouse in warehouses %}
+                                    <option value="{{ warehouse.id }}" 
+                                            {% if warehouse.id|stringformat:"s" == current_warehouse %}selected{% endif %}>
+                                        {{ warehouse.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="low_stock" value="true" 
+                                       id="low_stock" {% if low_stock_filter %}checked{% endif %}>
+                                <label class="form-check-label" for="low_stock">
+                                    Stock bajo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-outline-primary" onclick="cleanFormParams(this.form)">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <a href="{% url 'custom_admin:admin_inventory' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla de inventario -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Bodega</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Estado</th>
+                                    <th>Última Actualización</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in stocks %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if stock.product.images.first %}
+                                                <img src="{{ stock.product.images.first.image.url }}" 
+                                                     alt="{{ stock.product.name }}" 
+                                                     class="img-thumbnail mr-3" 
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light d-flex align-items-center justify-content-center mr-3" 
+                                                     style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ stock.product.name }}</strong>
+                                                <br><small class="text-muted">{{ stock.product.sku }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ stock.warehouse.name }}</td>
+                                    <td>
+                                        <span class="h5 mb-0">{{ stock.quantity }}</span>
+                                    </td>
+                                    <td>{{ stock.min_stock }}</td>
+                                    <td>
+                                        {% if stock.quantity <= stock.min_stock %}
+                                            <span class="badge badge-danger">Stock Bajo</span>
+                                        {% elif stock.quantity <= stock.min_stock|add:stock.min_stock %}
+                                            <span class="badge badge-warning">Stock Medio</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Stock OK</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ stock.updated_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'custom_admin:admin_adjust_stock' stock.id %}" class="btn btn-sm btn-outline-primary" title="Ajustar Stock">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'custom_admin:admin_transfer_stock' stock.id %}" class="btn btn-sm btn-outline-info" title="Transferir">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                            <a href="{% url 'custom_admin:admin_stock_history' stock.id %}" class="btn btn-sm btn-outline-warning" title="Historial">
+                                                <i class="fas fa-history"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-warehouse fa-2x mb-2"></i><br>
+                                        No se encontraron registros de inventario
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    {% if stocks.has_other_pages %}
+                    <nav aria-label="Paginación de inventario">
+                        <ul class="pagination justify-content-center">
+                            {% if stocks.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if current_search %}&search={{ current_search }}{% endif %}{% if current_warehouse %}&warehouse={{ current_warehouse }}{% endif %}{% if low_stock_filter %}&low_stock={{ low_stock_filter }}{% endif %}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ stocks.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_warehouse %}&warehouse={{ current_warehouse }}{% endif %}{% if low_stock_filter %}&low_stock={{ low_stock_filter }}{% endif %}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ stocks.number }} de {{ stocks.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if stocks.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ stocks.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_warehouse %}&warehouse={{ current_warehouse }}{% endif %}{% if low_stock_filter %}&low_stock={{ low_stock_filter }}{% endif %}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ stocks.paginator.num_pages }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_warehouse %}&warehouse={{ current_warehouse }}{% endif %}{% if low_stock_filter %}&low_stock={{ low_stock_filter }}{% endif %}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mejorar la experiencia de filtrado
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit del formulario cuando cambie el select de bodega
+    const warehouseSelect = document.querySelector('select[name="warehouse"]');
+    if (warehouseSelect) {
+        warehouseSelect.addEventListener('change', function() {
+            // Limpiar parámetros vacíos antes de enviar
+            window.cleanFormParams(this.form);
+            this.form.submit();
+        });
+    }
+    
+    // Auto-submit del formulario cuando cambie el checkbox de stock bajo
+    const lowStockCheckbox = document.querySelector('input[name="low_stock"]');
+    if (lowStockCheckbox) {
+        lowStockCheckbox.addEventListener('change', function() {
+            // Limpiar parámetros vacíos antes de enviar
+            window.cleanFormParams(this.form);
+            this.form.submit();
+        });
+    }
+    
+    // Función para limpiar parámetros vacíos del formulario
+    window.cleanFormParams = function(form) {
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(function(input) {
+            if (input.type === 'text' && input.value.trim() === '') {
+                input.disabled = true;
+            } else if (input.type === 'checkbox' && !input.checked) {
+                input.disabled = true;
+            } else if (input.type === 'select-one' && input.value === '') {
+                input.disabled = true;
+            }
+        });
+    };
+    
+    // Mostrar indicador de filtros activos
+    const activeFilters = [];
+    const searchInput = document.querySelector('input[name="search"]');
+    const warehouseSelect = document.querySelector('select[name="warehouse"]');
+    const lowStockCheckbox = document.querySelector('input[name="low_stock"]');
+    
+    if (searchInput && searchInput.value && searchInput.value.trim() !== '') {
+        activeFilters.push('Búsqueda');
+    }
+    if (warehouseSelect && warehouseSelect.value && warehouseSelect.value !== '') {
+        activeFilters.push('Bodega');
+    }
+    if (lowStockCheckbox && lowStockCheckbox.checked) {
+        activeFilters.push('Stock Bajo');
+    }
+    
+    if (activeFilters.length > 0) {
+        const filterIndicator = document.createElement('div');
+        filterIndicator.className = 'alert alert-info mt-3';
+        filterIndicator.innerHTML = `
+            <i class="fas fa-filter"></i> 
+            Filtros activos: ${activeFilters.join(', ')} 
+            <a href="{% url 'custom_admin:admin_inventory' %}" class="btn btn-sm btn-outline-secondary ml-2">
+                <i class="fas fa-times"></i> Limpiar todos
+            </a>
+        `;
+        document.querySelector('.card-body').appendChild(filterIndicator);
+    }
+});
+</script>
+{% endblock %}

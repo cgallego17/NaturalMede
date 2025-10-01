@@ -1,0 +1,320 @@
+<!-- Sin filtros personalizados -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo de Venta #{{ sale.sale_number }} - NaturalMede</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
+            background: white;
+        }
+        
+        .receipt {
+            max-width: 300px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .company-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .company-info {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .sale-info {
+            margin-bottom: 15px;
+        }
+        
+        .sale-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .sale-info td {
+            padding: 2px 0;
+            border: none;
+        }
+        
+        .sale-info td:first-child {
+            font-weight: bold;
+        }
+        
+        .items {
+            margin-bottom: 15px;
+        }
+        
+        .items table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .items th {
+            border-bottom: 1px solid #333;
+            padding: 5px 0;
+            text-align: left;
+            font-size: 10px;
+        }
+        
+        .items td {
+            padding: 3px 0;
+            border: none;
+        }
+        
+        .item-name {
+            font-weight: bold;
+        }
+        
+        .item-details {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .totals {
+            border-top: 1px dashed #333;
+            padding-top: 10px;
+        }
+        
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .totals td {
+            padding: 2px 0;
+            border: none;
+        }
+        
+        .totals td:first-child {
+            font-weight: bold;
+        }
+        
+        .totals td:last-child {
+            text-align: right;
+        }
+        
+        .total-row {
+            border-top: 1px solid #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px dashed #333;
+            padding-top: 10px;
+        }
+        
+        .payment-info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #333;
+        }
+        
+        .payment-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .payment-info td {
+            padding: 2px 0;
+            border: none;
+        }
+        
+        .payment-info td:first-child {
+            font-weight: bold;
+        }
+        
+        .payment-info td:last-child {
+            text-align: right;
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            .receipt {
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-name">NATURALMEDE</div>
+            <div class="company-info">
+                Farmacia Natural<br>
+                Tel: (57) 300-123-4567<br>
+                Email: info@naturalmede.com
+            </div>
+        </div>
+        
+        <!-- Información de la venta -->
+        <div class="sale-info">
+            <table>
+                <tr>
+                    <td>Venta:</td>
+                    <td>#{{ sale.sale_number }}</td>
+                </tr>
+                <tr>
+                    <td>Fecha:</td>
+                    <td>{{ sale.created_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                <tr>
+                    <td>Tipo:</td>
+                    <td>{{ sale.get_order_type_display }}</td>
+                </tr>
+                <tr>
+                    <td>Pago:</td>
+                    <td>{{ sale.get_payment_method_display }}</td>
+                </tr>
+                {% if sale.customer %}
+                <tr>
+                    <td>Cliente:</td>
+                    <td>{{ sale.customer.full_name }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        
+        <!-- Items -->
+        <div class="items">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sale.items.all %}
+                    <tr>
+                        <td>
+                            <div class="item-name">{{ item.product.name }}</div>
+                            {% if item.product.barcode %}
+                                <div class="item-details">{{ item.product.barcode }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td class="currency-value" data-value="{{ item.unit_price }}">${{ item.unit_price|floatformat:0 }}</td>
+                        <td class="currency-value" data-value="{{ item.total }}">${{ item.total|floatformat:0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Totales -->
+        <div class="totals">
+            <table>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="currency-value" data-value="{{ sale.subtotal }}">${{ sale.subtotal|floatformat:0 }}</td>
+                </tr>
+                <tr>
+                    <td>IVA:</td>
+                    <td class="currency-value" data-value="{{ sale.iva_amount }}">${{ sale.iva_amount|floatformat:0 }}</td>
+                </tr>
+                {% if sale.discount_amount > 0 %}
+                <tr>
+                    <td>Descuento:</td>
+                    <td class="currency-value" data-value="{{ sale.discount_amount }}">-${{ sale.discount_amount|floatformat:0 }}</td>
+                </tr>
+                {% endif %}
+                <tr class="total-row">
+                    <td>TOTAL:</td>
+                    <td class="currency-value" data-value="{{ sale.total }}">${{ sale.total|floatformat:0 }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Información de pago -->
+        {% if sale.amount_received %}
+        <div class="payment-info">
+            <table>
+                <tr>
+                    <td>Recibido:</td>
+                    <td class="currency-value" data-value="{{ sale.amount_received }}">${{ sale.amount_received|floatformat:0 }}</td>
+                </tr>
+                <tr>
+                    <td>Cambio:</td>
+                    <td>
+                        {% if sale.amount_received >= sale.total %}
+                            <span class="currency-value" data-value="{{ sale.amount_received|add:sale.total }}">${{ sale.amount_received|add:sale.total|floatformat:0 }}</span>
+                        {% else %}
+                            <span class="currency-value" data-value="{{ sale.total|add:sale.amount_received }}">-${{ sale.total|add:sale.amount_received|floatformat:0 }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div>¡Gracias por su compra!</div>
+            <div>Conserve este recibo</div>
+            {% if not email_mode %}
+                <div style="margin-top: 10px;">
+                    <button onclick="window.print()" style="padding: 5px 10px; font-size: 10px;">Imprimir</button>
+                    <button onclick="window.close()" style="padding: 5px 10px; font-size: 10px; margin-left: 5px;">Cerrar</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    // Función para formatear números con separadores de miles
+    function formatCurrency(value) {
+        if (value === null || value === undefined) return '$0';
+        
+        // Convertir a número
+        let num = parseFloat(value);
+        if (isNaN(num)) return '$0';
+        
+        // Formatear con separadores de miles
+        return '$' + num.toLocaleString('en-US');
+    }
+
+    // Formatear todos los valores de moneda cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const currencyElements = document.querySelectorAll('.currency-value');
+        
+        currencyElements.forEach(function(element) {
+            const value = element.getAttribute('data-value');
+            if (value) {
+                element.textContent = formatCurrency(value);
+            }
+        });
+    });
+    </script>
+</body>
+</html>

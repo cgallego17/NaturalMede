@@ -1,0 +1,273 @@
+{% extends 'purchases/base.html' %}
+
+{% block page_title_text %}{{ supplier.name }}{% endblock %}
+{% block page_title_display %}{{ supplier.name }}{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'purchases:supplier_edit' supplier.pk %}" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Editar
+    </a>
+    <a href="{% url 'purchases:supplier_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'purchases:supplier_list' %}">Proveedores</a></li>
+    <li class="breadcrumb-item active">{{ supplier.name }}</li>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <!-- Información del Proveedor -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-info-circle"></i> Información del Proveedor
+                        </h6>
+                        {% if supplier.is_active %}
+                            <span class="badge badge-success">Activo</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Inactivo</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Nombre:</strong></td>
+                                    <td>{{ supplier.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Persona de Contacto:</strong></td>
+                                    <td>{{ supplier.contact_person|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>
+                                        {% if supplier.email %}
+                                            <a href="mailto:{{ supplier.email }}">{{ supplier.email }}</a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Teléfono:</strong></td>
+                                    <td>
+                                        {% if supplier.phone %}
+                                            <a href="tel:{{ supplier.phone }}">{{ supplier.phone }}</a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Dirección:</strong></td>
+                                    <td>{{ supplier.address|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ciudad:</strong></td>
+                                    <td>{{ supplier.city|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>NIT/RUT:</strong></td>
+                                    <td>{{ supplier.tax_id|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Términos de Pago:</strong></td>
+                                    <td>{{ supplier.payment_terms|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if supplier.notes %}
+                    <div class="mt-3">
+                        <h6><strong>Notas:</strong></h6>
+                        <p class="text-muted">{{ supplier.notes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> Creado: {{ supplier.created_at|date:"d/m/Y H:i" }}
+                            {% if supplier.updated_at != supplier.created_at %}
+                                | <i class="fas fa-edit"></i> Actualizado: {{ supplier.updated_at|date:"d/m/Y H:i" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="border-right">
+                                <h4 class="text-primary">{{ total_purchases }}</h4>
+                                <p class="text-muted mb-0">Total Compras</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border-right">
+                                <h4 class="text-success">${{ total_amount|floatformat:0 }}</h4>
+                                <p class="text-muted mb-0">Monto Total</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-info" id="average-per-purchase">
+                                {% if total_purchases > 0 %}
+                                    <span id="avg-value">{{ total_amount|floatformat:0 }}</span>
+                                {% else %}
+                                    $0
+                                {% endif %}
+                            </h4>
+                            <p class="text-muted mb-0">Promedio por Compra</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compras Recientes -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-shopping-cart"></i> Compras Recientes
+                        </h6>
+                        <a href="{% url 'purchases:purchase_list' %}?supplier={{ supplier.id }}" class="btn btn-outline-primary btn-sm">
+                            Ver Todas
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for purchase in recent_purchases %}
+                                <tr>
+                                    <td><strong>#{{ purchase.purchase_number }}</strong></td>
+                                    <td>{{ purchase.order_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if purchase.status == 'draft' %}secondary{% elif purchase.status == 'pending' %}warning{% elif purchase.status == 'received' %}success{% else %}danger{% endif %}">
+                                            {{ purchase.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td><strong>${{ purchase.total|floatformat:0 }}</strong></td>
+                                    <td>
+                                        <a href="{% url 'purchases:purchase_detail' purchase.pk %}" class="btn btn-outline-primary btn-sm" title="Ver">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                        <div>No hay compras registradas</div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="col-md-4">
+            <!-- Acciones Rápidas -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt"></i> Acciones Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'purchases:purchase_create' %}?supplier={{ supplier.id }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nueva Compra
+                        </a>
+                        <a href="{% url 'purchases:supplier_edit' supplier.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar Proveedor
+                        </a>
+                        <a href="{% url 'purchases:purchase_list' %}?supplier={{ supplier.id }}" class="btn btn-info">
+                            <i class="fas fa-list"></i> Ver Compras
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle"></i> Información Adicional
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>Estado del Proveedor</h6>
+                    <p>
+                        {% if supplier.is_active %}
+                            <span class="badge badge-success">Activo</span>
+                            <br><small class="text-muted">Puede ser seleccionado en nuevas compras</small>
+                        {% else %}
+                            <span class="badge badge-secondary">Inactivo</span>
+                            <br><small class="text-muted">No aparece en listas de selección</small>
+                        {% endif %}
+                    </p>
+                    
+                    <hr>
+                    
+                    <h6>Última Actividad</h6>
+                    <p>
+                        {% if recent_purchases %}
+                            <strong>{{ recent_purchases.0.order_date|date:"d/m/Y" }}</strong>
+                            <br><small class="text-muted">Última compra: #{{ recent_purchases.0.purchase_number }}</small>
+                        {% else %}
+                            <small class="text-muted">Sin compras registradas</small>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avgElement = document.getElementById('avg-value');
+        const totalAmount = {{ total_amount|floatformat:0 }};
+        const totalPurchases = {{ total_purchases }};
+        
+        if (avgElement && totalPurchases > 0) {
+            const average = totalAmount / totalPurchases;
+            avgElement.textContent = '$' + Math.round(average).toLocaleString();
+        }
+    });
+    </script>
+{% endblock %}

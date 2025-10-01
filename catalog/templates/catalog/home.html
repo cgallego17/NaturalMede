@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}NaturalMede - Tienda Naturista Online{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%);
+        color: white;
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+    .hero-cta {
+        background: linear-gradient(45deg, #daa520, #b8860b);
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(218,165,32,0.3);
+    }
+    .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(218,165,32,0.4);
+        background: linear-gradient(45deg, #b8860b, #daa520);
+    }
+    
+    /* Stats Section */
+    .stats-section {
+        background: #f8f9fa;
+        padding: 60px 0;
+    }
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #2c5530;
+        display: block;
+    }
+    .stat-label {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-top: 10px;
+    }
+    
+    /* Featured Products */
+    .featured-section {
+        padding: 80px 0;
+    }
+    .section-title {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    .section-title h2 {
+        font-size: 2.5rem;
+        color: #2c5530;
+        margin-bottom: 15px;
+    }
+    .section-title p {
+        font-size: 1.1rem;
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Product Cards */
+    .product-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    .product-image {
+        height: 250px;
+        object-fit: cover;
+        background: #f8f9fa;
+    }
+    .product-card-body {
+        padding: 20px;
+    }
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c5530;
+        margin-bottom: 10px;
+        height: 2.5rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    .product-price {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #daa520;
+        margin-bottom: 15px;
+    }
+    .product-btn {
+        background: linear-gradient(45deg, #2c5530, #3d6b42);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .product-btn:hover {
+        background: linear-gradient(45deg, #3d6b42, #2c5530);
+        transform: translateY(-1px);
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        background: #f8f9fa;
+        padding: 80px 0;
+    }
+    .category-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    .category-icon {
+        font-size: 3rem;
+        color: #daa520;
+        margin-bottom: 20px;
+    }
+    .category-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c5530;
+        margin-bottom: 10px;
+    }
+    .category-count {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    /* Features Section */
+    .features-section {
+        padding: 80px 0;
+    }
+    .feature-item {
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .feature-icon {
+        font-size: 3rem;
+        color: #daa520;
+        margin-bottom: 20px;
+    }
+    .feature-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c5530;
+        margin-bottom: 15px;
+    }
+    .feature-description {
+        color: #6c757d;
+        line-height: 1.6;
+    }
+    
+    /* Newsletter Section */
+    .newsletter-section {
+        background: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    .newsletter-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .newsletter-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+    }
+    .newsletter-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .newsletter-input {
+        border: none;
+        border-radius: 25px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .newsletter-btn {
+        background: linear-gradient(45deg, #daa520, #b8860b);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .newsletter-btn:hover {
+        background: linear-gradient(45deg, #b8860b, #daa520);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">Bienvenido a NaturalMede</h1>
+                    <p class="hero-subtitle">Descubre los mejores productos naturales para tu bienestar y salud. Calidad, confianza y naturaleza en cada producto.</p>
+                    <a href="{% url 'catalog:product_list' %}" class="btn hero-cta">
+                        <i class="fas fa-shopping-bag me-2"></i>Explorar Productos
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{% static 'images/logo.png' %}" alt="NaturalMede" class="img-fluid" style="max-width: 400px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);" onerror="this.style.display='none';">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_products }}</span>
+                    <span class="stat-label">Productos Naturales</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_categories }}</span>
+                    <span class="stat-label">Categorías</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_brands }}</span>
+                    <span class="stat-label">Marcas Confiables</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Productos Destacados</h2>
+            <p>Descubre nuestra selección de productos naturales más populares y mejor valorados</p>
+        </div>
+        <div class="row">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card product-card">
+                    {% if product.images.first %}
+                    <img src="{{ product.images.first.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="product-image d-flex align-items-center justify-content-center bg-light">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="product-card-body">
+                        <h5 class="product-title">{{ product.name }}</h5>
+                        <div class="product-price">${{ product.price|floatformat:0 }}</div>
+                        <a href="{% url 'catalog:product_detail' product.slug %}" class="btn product-btn">
+                            <i class="fas fa-eye me-2"></i>Ver Detalles
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No hay productos destacados disponibles en este momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-th-large me-2"></i>Ver Todos los Productos
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Nuestras Categorías</h2>
+            <p>Explora nuestra amplia gama de productos organizados por categorías</p>
+        </div>
+        <div class="row">
+            {% for category in main_categories %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="category-title">{{ category.name }}</h3>
+                    <p class="category-count">{{ category.product_count }} productos</p>
+                    <a href="{% url 'catalog:category_detail' category.slug %}" class="btn btn-outline-primary mt-3">
+                        Explorar Categoría
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No hay categorías disponibles en este momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>¿Por qué elegir NaturalMede?</h2>
+            <p>Nos comprometemos a ofrecerte la mejor experiencia en productos naturales</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="feature-title">100% Natural</h3>
+                    <p class="feature-description">Todos nuestros productos son completamente naturales, sin conservantes artificiales ni químicos dañinos.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3 class="feature-title">Envío Rápido</h3>
+                    <p class="feature-description">Entregamos tus productos naturales en tiempo récord, manteniendo su frescura y calidad.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Garantía de Calidad</h3>
+                    <p class="feature-description">Garantizamos la calidad de todos nuestros productos con certificaciones y controles rigurosos.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Atención Personalizada</h3>
+                    <p class="feature-description">Nuestro equipo de expertos te asesora para encontrar los productos perfectos para ti.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <h3 class="feature-title">Eco-Friendly</h3>
+                    <p class="feature-description">Comprometidos con el medio ambiente, usamos empaques sostenibles y procesos ecológicos.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3 class="feature-title">Soporte 24/7</h3>
+                    <p class="feature-description">Estamos disponibles para resolver tus dudas y brindarte el mejor servicio en todo momento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="newsletter-title">Mantente al día</h2>
+                <p class="newsletter-subtitle">Suscríbete a nuestro boletín y recibe ofertas exclusivas, consejos de bienestar y las últimas novedades en productos naturales.</p>
+                <form class="newsletter-form">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="email" class="form-control newsletter-input" placeholder="Tu correo electrónico" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn newsletter-btn">
+                                <i class="fas fa-paper-plane me-2"></i>Suscribirse
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Newsletter form submission
+    document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        
+        // Here you would typically send the email to your backend
+        alert('¡Gracias por suscribirte! Te mantendremos informado sobre nuestras novedades.');
+        this.reset();
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+

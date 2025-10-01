@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Catálogo de Productos - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="fas fa-th-large"></i> Catálogo de Productos</h1>
+            <p class="text-muted">Descubre nuestra amplia gama de productos naturales</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <a href="{% url 'catalog:cart' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Ver Carrito ({{ cart_items_count }})
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row">
+                        <div class="col-md-4">
+                            <label for="search">Buscar productos:</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ request.GET.search }}" placeholder="Nombre, SKU o código de barras">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="sort">Ordenar por:</label>
+                            <select class="form-control" id="sort" name="sort">
+                                <option value="">Recomendados</option>
+                                <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Nombre A-Z</option>
+                                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Más Recientes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category">Categoría:</label>
+                            <select class="form-control" id="category" name="category">
+                                <option value="">Todas las categorías</option>
+                                {% for category in categories %}
+                                <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    {% if featured_products and not request.GET.search and not request.GET.category %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3><i class="fas fa-star"></i> Productos Destacados</h3>
+            <div class="row">
+                {% for product in featured_products %}
+                <div class="col-md-2 mb-3">
+                    <div class="card product-card h-100">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">{{ product.name|truncatechars:30 }}</h6>
+                            <p class="card-text text-success font-weight-bold">
+                                ${{ product.price|floatformat:0 }}
+                            </p>
+                            <div class="mt-auto">
+                                <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Products Grid -->
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="card product-card h-100">
+                {% if product.images.first %}
+                <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="card-text text-muted small">{{ product.short_description|truncatechars:60 }}</p>
+                    
+                    <div class="mb-2">
+                        <span class="badge badge-secondary">{{ product.category.name }}</span>
+                        <span class="badge badge-info">{{ product.brand.name }}</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="text-success font-weight-bold h5">${{ product.price|floatformat:0 }}</span>
+                        {% if product.iva_percentage > 0 %}
+                        <small class="text-muted d-block">IVA {{ product.iva_percentage }}% incluido</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-sm btn-success btn-block" onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-cart-plus"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-success btn-block whatsapp-btn" 
+                                    onclick="sendWhatsAppMessage('Hola, me interesa el producto: {{ product.name }} - ${{ product.price|floatformat:0 }}')">
+                                <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4>No se encontraron productos</h4>
+                <p class="text-muted">Intenta con otros términos de búsqueda o filtros</p>
+                <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Ver todos los productos</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Paginación de productos">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Primera</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Anterior</a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Siguiente</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Última</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-submit form on filter change
+    document.getElementById('category').addEventListener('change', function() {
+        this.form.submit();
+    });
+    
+    document.getElementById('sort').addEventListener('change', function() {
+        this.form.submit();
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+

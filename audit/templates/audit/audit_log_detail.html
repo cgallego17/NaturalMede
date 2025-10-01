@@ -1,0 +1,343 @@
+{% extends 'audit/base.html' %}
+{% load static %}
+
+{% block page_title_text %}Detalle del Log{% endblock %}
+{% block page_title_display %}Detalle del Log{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'audit:log_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'audit:log_list' %}">Logs</a></li>
+    <li class="breadcrumb-item active">Detalle</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.detail-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.info-value {
+    color: #333;
+}
+
+.changes-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.change-item {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #007bff;
+}
+
+.change-item:last-child {
+    margin-bottom: 0;
+}
+
+.change-field {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.change-old {
+    color: #dc3545;
+    text-decoration: line-through;
+}
+
+.change-new {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.json-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+}
+
+.severity-critical {
+    color: #dc3545;
+}
+
+.severity-high {
+    color: #fd7e14;
+}
+
+.severity-medium {
+    color: #ffc107;
+}
+
+.severity-low {
+    color: #28a745;
+}
+
+.status-success {
+    color: #28a745;
+}
+
+.status-failed {
+    color: #dc3545;
+}
+
+.status-pending {
+    color: #ffc107;
+}
+
+.status-cancelled {
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <!-- Información Principal -->
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-info-circle text-primary"></i>
+            Información del Evento
+        </h5>
+        
+        <div class="info-row">
+            <span class="info-label">Fecha y Hora:</span>
+            <span class="info-value">{{ audit_log.created_at|date:"d/m/Y H:i:s" }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Usuario:</span>
+            <span class="info-value">
+                {% if audit_log.user %}
+                    <i class="fas fa-user"></i> {{ audit_log.user.username }}
+                    ({{ audit_log.user.get_full_name|default:audit_log.user.email }})
+                {% else %}
+                    <i class="fas fa-robot"></i> Sistema
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Acción:</span>
+            <span class="info-value">
+                <span class="badge badge-primary">{{ audit_log.get_action_display }}</span>
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Severidad:</span>
+            <span class="info-value">
+                <span class="badge badge-{{ audit_log.severity|lower }} severity-{{ audit_log.severity|lower }}">
+                    {{ audit_log.get_severity_display }}
+                </span>
+            </span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Estado:</span>
+            <span class="info-value">
+                <span class="badge badge-{{ audit_log.status|lower }} status-{{ audit_log.status|lower }}">
+                    {{ audit_log.get_status_display }}
+                </span>
+            </span>
+        </div>
+        
+        {% if audit_log.object_repr %}
+        <div class="info-row">
+            <span class="info-label">Objeto:</span>
+            <span class="info-value">{{ audit_log.object_repr }}</span>
+        </div>
+        {% endif %}
+        
+        {% if audit_log.message %}
+        <div class="info-row">
+            <span class="info-label">Mensaje:</span>
+            <span class="info-value">{{ audit_log.message }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Información de Contexto -->
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-globe text-info"></i>
+            Información de Contexto
+        </h5>
+        
+        {% if audit_log.ip_address %}
+        <div class="info-row">
+            <span class="info-label">Dirección IP:</span>
+            <span class="info-value">
+                <i class="fas fa-map-marker-alt"></i> {{ audit_log.ip_address }}
+            </span>
+        </div>
+        {% endif %}
+        
+        {% if audit_log.user_agent %}
+        <div class="info-row">
+            <span class="info-label">User Agent:</span>
+            <span class="info-value">{{ audit_log.user_agent }}</span>
+        </div>
+        {% endif %}
+        
+        {% if audit_log.session_key %}
+        <div class="info-row">
+            <span class="info-label">Sesión:</span>
+            <span class="info-value">
+                <code>{{ audit_log.session_key }}</code>
+            </span>
+        </div>
+        {% endif %}
+        
+        {% if audit_log.app_label %}
+        <div class="info-row">
+            <span class="info-label">Aplicación:</span>
+            <span class="info-value">{{ audit_log.app_label }}</span>
+        </div>
+        {% endif %}
+        
+        {% if audit_log.model_name %}
+        <div class="info-row">
+            <span class="info-label">Modelo:</span>
+            <span class="info-value">{{ audit_log.model_name }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Cambios Realizados -->
+    {% if audit_log.has_changes %}
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-exchange-alt text-warning"></i>
+            Cambios Realizados
+        </h5>
+        
+        <div class="changes-container">
+            {% if audit_log.changes_summary %}
+                <p><strong>Resumen:</strong> {{ audit_log.changes_summary }}</p>
+            {% endif %}
+            
+            {% if audit_log.old_values and audit_log.new_values %}
+                {% for field, new_value in audit_log.new_values.items %}
+                    {% if audit_log.old_values|lookup:field != new_value %}
+                        <div class="change-item">
+                            <div class="change-field">{{ field }}</div>
+                            <div>
+                                <span class="change-old">{{ audit_log.old_values|lookup:field|default:"(vacío)" }}</span>
+                                <i class="fas fa-arrow-right mx-2"></i>
+                                <span class="change-new">{{ new_value|default:"(vacío)" }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% elif audit_log.new_values %}
+                <h6>Campos Agregados:</h6>
+                {% for field, value in audit_log.new_values.items %}
+                    <div class="change-item">
+                        <div class="change-field">{{ field }}</div>
+                        <div class="change-new">{{ value|default:"(vacío)" }}</div>
+                    </div>
+                {% endfor %}
+            {% elif audit_log.old_values %}
+                <h6>Campos Eliminados:</h6>
+                {% for field, value in audit_log.old_values.items %}
+                    <div class="change-item">
+                        <div class="change-field">{{ field }}</div>
+                        <div class="change-old">{{ value|default:"(vacío)" }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Datos Extra -->
+    {% if audit_log.extra_data %}
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-database text-secondary"></i>
+            Datos Adicionales
+        </h5>
+        
+        <div class="json-container">
+            <pre>{{ audit_log.extra_data|pprint }}</pre>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Objeto Relacionado -->
+    {% if related_object %}
+    <div class="detail-card">
+        <h5 class="mb-3">
+            <i class="fas fa-link text-success"></i>
+            Objeto Relacionado
+        </h5>
+        
+        <div class="alert alert-info">
+            <strong>Tipo:</strong> {{ related_object._meta.verbose_name }}<br>
+            <strong>ID:</strong> {{ related_object.pk }}<br>
+            <strong>Representación:</strong> {{ related_object }}
+        </div>
+        
+        {% if related_object.get_absolute_url %}
+        <a href="{{ related_object.get_absolute_url }}" class="btn btn-primary">
+            <i class="fas fa-external-link-alt"></i> Ver Objeto
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Función para formatear JSON
+function formatJSON(obj) {
+    return JSON.stringify(obj, null, 2);
+}
+
+// Aplicar formato a los contenedores JSON
+document.addEventListener('DOMContentLoaded', function() {
+    const jsonContainers = document.querySelectorAll('.json-container pre');
+    jsonContainers.forEach(container => {
+        try {
+            const data = JSON.parse(container.textContent);
+            container.textContent = formatJSON(data);
+        } catch (e) {
+            // Si no es JSON válido, mantener el texto original
+        }
+    });
+});
+</script>
+{% endblock %}
