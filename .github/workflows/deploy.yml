@@ -24,7 +24,10 @@ jobs:
     
     - name: Run tests before deploy
       run: |
-        python manage.py test
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-django pytest-cov
+        python manage.py test --settings=naturalmede.test_settings
       env:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}

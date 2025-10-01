@@ -45,6 +45,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-django pytest-cov
+        pip install psycopg2-binary
     
     - name: Run migrations
       run: |
@@ -55,7 +56,7 @@ jobs:
     
     - name: Run tests
       run: |
-        pytest --cov=. --cov-report=xml -v
+        pytest --cov=. --cov-report=xml -v --ds=naturalmede.test_settings
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
         SECRET_KEY: test-secret-key-for-ci
