@@ -120,7 +120,8 @@ class PurchaseItemForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '1',
-                'step': '1'
+                'step': '1',
+                'value': '1'
             }),
             'unit_cost': forms.NumberInput(attrs={
                 'class': 'form-control',

@@ -12,14 +12,185 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <style>
-        .navbar-brand {
-            font-weight: bold;
-            color: #2c5530 !important;
-        }
+        /* Modern Navbar Styles */
         .navbar {
-            background-color: #f5f5dc !important; /* Cream background */
-            border-bottom: 2px solid #daa520; /* Golden brown border */
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(218, 165, 32, 0.1);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: #2c5530 !important;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            color: #daa520 !important;
+            transform: translateY(-1px);
+        }
+        
+        .nav-link {
+            color: #2c5530 !important;
+            font-weight: 500;
+            padding: 10px 15px !important;
+            margin: 0 5px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #daa520 !important;
+            background: rgba(218, 165, 32, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link i {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            padding: 10px 0;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dropdown-item {
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 2px 10px;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(218, 165, 32, 0.1);
+            color: #2c5530;
+            transform: translateX(5px);
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #daa520;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .navbar-toggler {
+            border: none;
+            padding: 4px 8px;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2844, 85, 48, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        
+        /* Logo Styles */
+        .logo-image-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .logo-circle-small {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2c5530 0%, #daa520 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(44, 85, 48, 0.3);
+        }
+        
+        .logo-icon-small {
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .brand-name {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #2c5530;
+            line-height: 1.2;
+        }
+        
+        .brand-subtitle {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+        
+        /* Responsive Navbar */
+        @media (max-width: 991px) {
+            .navbar {
+                padding: 10px 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .nav-link {
+                padding: 8px 12px !important;
+                margin: 2px 0;
+            }
+            
+            .dropdown-menu {
+                margin-top: 5px;
+                border-radius: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .brand-name {
+                font-size: 1.1rem;
+            }
+            
+            .brand-subtitle {
+                font-size: 0.7rem;
+            }
+            
+            .logo-image-small,
+            .logo-circle-small {
+                width: 35px;
+                height: 35px;
+            }
+        }
+        
+        /* Body padding for fixed navbar */
+        body {
+            padding-top: 80px;
+        }
+        
         .btn-primary {
             background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%); /* Forest green gradient */
             border: none;
@@ -168,7 +339,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'catalog:home' %}">
                 <img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" class="logo-image-small me-3" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -200,9 +371,13 @@
                             <i class="fas fa-th-large"></i> Catálogo
                         </a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url 'catalog:product_list' %}">Todos los productos</a>
+                            <a class="dropdown-item" href="{% url 'catalog:product_list' %}">
+                                <i class="fas fa-box"></i> Todos los productos
+                            </a>
                             {% for category in categories %}
-                            <a class="dropdown-item" href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a>
+                            <a class="dropdown-item" href="{% url 'catalog:category_detail' category.slug %}">
+                                <i class="fas fa-tag"></i> {{ category.name }}
+                            </a>
                             {% endfor %}
                         </div>
                     </li>
@@ -254,7 +429,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
                             <i class="fas fa-user"></i> {{ user.get_full_name|default:user.username }}
                         </a>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" href="{% url 'admin:index' %}">
                                 <i class="fas fa-cog"></i> Administración
                             </a>

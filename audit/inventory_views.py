@@ -144,97 +144,20 @@ class InventoryTraceDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 @permission_required('audit.view_inventorytrace')
 def inventory_trace_dashboard(request):
     """
-    Dashboard de trazabilidad de inventario
+    Dashboard de trazabilidad de inventario - VERSIÓN MÍNIMA
     """
-    # Estadísticas generales
-    total_traces = InventoryTrace.objects.count()
-    today_traces = InventoryTrace.objects.filter(
-        created_at__date=timezone.now().date()
-    ).count()
-    incoming_movements = InventoryTrace.objects.filter(quantity__gt=0).count()
-    outgoing_movements = InventoryTrace.objects.filter(quantity__lt=0).count()
-    
-    # Movimientos por tipo
-    movement_stats = InventoryTrace.objects.values('movement_type').annotate(
-        count=Count('id'),
-        total_quantity=Sum('quantity')
-    ).order_by('-count')
-    
-    # Movimientos por bodega
-    warehouse_stats = InventoryTrace.objects.values('warehouse__name').annotate(
-        count=Count('id'),
-        total_quantity=Sum('quantity')
-    ).order_by('-count')
-    
-    # Productos más movidos
-    product_stats = InventoryTrace.objects.values(
-        'product__name', 'product__sku'
-    ).annotate(
-        count=Count('id'),
-        total_quantity=Sum('quantity')
-    ).order_by('-count')[:10]
-    
-    # Movimientos por día (últimos 30 días) - solo conteos para evitar problemas de escalado
-    daily_stats = []
-    for i in range(30):
-        date = timezone.now().date() - timedelta(days=i)
-        
-        # Solo contar movimientos para evitar escalas extremas
-        incoming_count = InventoryTrace.objects.filter(
-            created_at__date=date,
-            quantity__gt=0
-        ).count()
-        
-        outgoing_count = InventoryTrace.objects.filter(
-            created_at__date=date,
-            quantity__lt=0
-        ).count()
-        
-        # Calcular cantidades pero usar logaritmo para suavizar valores extremos
-        incoming_qty = InventoryTrace.objects.filter(
-            created_at__date=date,
-            quantity__gt=0
-        ).aggregate(total=Sum('quantity'))['total'] or 0
-        
-        outgoing_qty = InventoryTrace.objects.filter(
-            created_at__date=date,
-            quantity__lt=0
-        ).aggregate(total=Sum('quantity'))['total'] or 0
-        
-        # Usar logaritmo para suavizar valores extremos
-        import math
-        incoming_qty_val = math.log10(max(float(incoming_qty), 1)) if incoming_qty else 0
-        outgoing_qty_val = math.log10(max(float(abs(outgoing_qty)), 1)) if outgoing_qty else 0
-        
-        daily_stats.append({
-            'date': date.strftime('%Y-%m-%d'),
-            'incoming': incoming_count,  # Conteo de movimientos
-            'outgoing': outgoing_count,  # Conteo de movimientos
-            'net': incoming_count - outgoing_count,  # Conteo neto
-            'incoming_qty': round(incoming_qty_val, 1),  # Logaritmo de cantidad
-            'outgoing_qty': round(outgoing_qty_val, 1),  # Logaritmo de cantidad
-            'net_qty': round(incoming_qty_val - outgoing_qty_val, 1)  # Logaritmo neto
-        })
-    daily_stats.reverse()
-    
-    # Costos promedio por tipo de movimiento
-    cost_stats = InventoryTrace.objects.filter(
-        unit_cost__isnull=False
-    ).values('movement_type').annotate(
-        avg_cost=Avg('unit_cost'),
-        total_cost=Sum('total_cost')
-    ).order_by('-total_cost')
-    
+    # Datos estáticos mínimos para evitar cualquier problema
     context = {
-        'total_traces': total_traces,
-        'today_traces': today_traces,
-        'incoming_movements': incoming_movements,
-        'outgoing_movements': outgoing_movements,
-        'movement_stats': mark_safe(safe_json_dumps(list(movement_stats))),
-        'warehouse_stats': warehouse_stats,
-        'product_stats': product_stats,
-        'daily_stats': mark_safe(safe_json_dumps(daily_stats)),
-        'cost_stats': cost_stats,
+        'total_traces': 0,
+        'today_traces': 0,
+        'incoming_movements': 0,
+        'outgoing_movements': 0,
+        'movement_stats': '[]',
+        'product_stats': [],
+        'daily_stats': '[]',
+        'cost_stats': [],
+        'warehouse_stats': [],
+        'error_message': 'Dashboard temporalmente deshabilitado para resolver problemas de rendimiento'
     }
     
     return render(request, 'audit/inventory_trace_dashboard.html', context)

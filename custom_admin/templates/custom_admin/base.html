@@ -493,10 +493,10 @@
                 
                 <!-- Auditoría -->
                 <div class="nav-section">
-                    <a class="nav-link {% if 'audit' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'audit:dashboard' %}">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'audit:dashboard' %}active{% endif %}" href="{% url 'audit:dashboard' %}">
                         <i class="fas fa-shield-alt"></i> Auditoría
                     </a>
-                    <a class="nav-link {% if 'audit:inventory_trace' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'audit:inventory_trace_dashboard' %}">
+                    <a class="nav-link {% if 'inventory_trace' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'audit:inventory_trace_dashboard' %}">
                         <i class="fas fa-route"></i> Trazabilidad
                     </a>
                 </div>

@@ -1,0 +1,44 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c5530;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3d6b42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a7c59;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#daa520;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#b8860b;stop-opacity:0.4" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <!-- Large leaf on the left -->
+  <ellipse cx="200" cy="150" rx="80" ry="120" fill="url(#leafGradient)" transform="rotate(-30 200 150)"/>
+  
+  <!-- Medium leaf -->
+  <ellipse cx="1000" cy="200" rx="60" ry="90" fill="url(#leafGradient)" transform="rotate(45 1000 200)"/>
+  
+  <!-- Small leaves scattered -->
+  <ellipse cx="300" cy="400" rx="30" ry="45" fill="url(#leafGradient)" transform="rotate(-60 300 400)"/>
+  <ellipse cx="900" cy="450" rx="25" ry="35" fill="url(#leafGradient)" transform="rotate(75 900 450)"/>
+  <ellipse cx="150" cy="500" rx="20" ry="30" fill="url(#leafGradient)" transform="rotate(-45 150 500)"/>
+  
+  <!-- Central decorative circle -->
+  <circle cx="600" cy="300" r="150" fill="none" stroke="rgba(218,165,32,0.3)" stroke-width="2"/>
+  <circle cx="600" cy="300" r="100" fill="none" stroke="rgba(218,165,32,0.4)" stroke-width="1"/>
+  
+  <!-- Natural elements -->
+  <!-- Herbs/plants silhouette -->
+  <path d="M 100 100 Q 120 80 140 100 Q 160 120 180 100 Q 200 80 220 100" stroke="rgba(218,165,32,0.5)" stroke-width="3" fill="none"/>
+  <path d="M 100 120 Q 120 100 140 120 Q 160 140 180 120 Q 200 100 220 120" stroke="rgba(218,165,32,0.4)" stroke-width="2" fill="none"/>
+  
+  <!-- Right side herbs -->
+  <path d="M 1000 100 Q 1020 80 1040 100 Q 1060 120 1080 100 Q 1100 80 1120 100" stroke="rgba(218,165,32,0.5)" stroke-width="3" fill="none"/>
+  <path d="M 1000 120 Q 1020 100 1040 120 Q 1060 140 1080 120 Q 1100 100 1120 120" stroke="rgba(218,165,32,0.4)" stroke-width="2" fill="none"/>
+  
+  <!-- Bottom decorative line -->
+  <path d="M 0 550 Q 300 530 600 550 Q 900 570 1200 550" stroke="rgba(218,165,32,0.3)" stroke-width="4" fill="none"/>
+</svg>

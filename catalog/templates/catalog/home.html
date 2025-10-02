@@ -5,14 +5,59 @@
 
 {% block extra_css %}
 <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    
+    /* Root Variables */
+    :root {
+        --primary-color: #2c5530;
+        --secondary-color: #daa520;
+        --accent-color: #f5f5dc;
+        --text-dark: #2c3e50;
+        --text-light: #6c757d;
+        --gradient-primary: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%);
+        --gradient-secondary: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+        --gradient-accent: linear-gradient(135deg, #f5f5dc 0%, #e6e6d1 100%);
+        --shadow-light: 0 5px 15px rgba(0,0,0,0.08);
+        --shadow-medium: 0 10px 30px rgba(0,0,0,0.15);
+        --shadow-heavy: 0 20px 40px rgba(0,0,0,0.2);
+        --border-radius: 20px;
+        --transition: all 0.3s ease;
+    }
+    
+    /* Global Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+    }
+    
     /* Hero Section */
     .hero-section {
-        background: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%);
-        color: white;
-        padding: 80px 0;
+        background: var(--gradient-primary);
+        min-height: 500px;
+        display: flex;
+        align-items: center;
         position: relative;
         overflow: hidden;
+        padding: 80px 0;
     }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('{% static "images/banner-home.svg" %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.8;
+        z-index: 0;
+    }
+    
     .hero-section::before {
         content: '';
         position: absolute;
@@ -20,233 +65,799 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        opacity: 0.3;
+        background: rgba(44, 85, 48, 0.5);
+        z-index: 1;
     }
+    
     .hero-content {
         position: relative;
         z-index: 2;
+        color: white;
     }
+    
+    .hero-badge {
+        display: inline-block;
+        background: rgba(218,165,32,0.15);
+        color: var(--accent-color);
+        padding: 6px 16px;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+        border: 1px solid rgba(218,165,32,0.2);
+        backdrop-filter: blur(10px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
     .hero-title {
-        font-size: 3.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 20px;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        line-height: 1.2;
+        letter-spacing: -0.5px;
     }
+    
     .hero-subtitle {
-        font-size: 1.3rem;
-        margin-bottom: 2rem;
-        opacity: 0.9;
-    }
-    .hero-cta {
-        background: linear-gradient(45deg, #daa520, #b8860b);
-        border: none;
-        padding: 15px 30px;
         font-size: 1.1rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+        font-weight: 400;
+        max-width: 500px;
+        line-height: 1.6;
+    }
+    
+    .hero-cta {
+        background: var(--gradient-secondary);
+        border: none;
+        padding: 15px 35px;
+        font-size: 1rem;
         font-weight: 600;
         border-radius: 50px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(218,165,32,0.3);
+        transition: var(--transition);
+        box-shadow: var(--shadow-medium);
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
+    
     .hero-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(218,165,32,0.4);
-        background: linear-gradient(45deg, #b8860b, #daa520);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-heavy);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Floating Animation */
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+    
+    .hero-visual {
+        position: relative;
+        height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .floating-elements {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Decorative shapes like Suxnix */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(44, 85, 48, 0.4);
+        z-index: 1;
+    }
+    
+    .hero-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .shape-1 {
+        position: absolute;
+        top: 10%;
+        right: 10%;
+        width: 100px;
+        height: 100px;
+        background: rgba(218,165,32,0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .shape-2 {
+        position: absolute;
+        bottom: 20%;
+        left: 5%;
+        width: 60px;
+        height: 60px;
+        background: rgba(218,165,32,0.15);
+        border-radius: 50%;
+        animation: float 4s ease-in-out infinite 2s;
+    }
+    
+    .shape-3 {
+        position: absolute;
+        top: 30%;
+        left: 15%;
+        width: 40px;
+        height: 40px;
+        background: rgba(218,165,32,0.2);
+        border-radius: 50%;
+        animation: float 5s ease-in-out infinite 1s;
+    }
+    
+    .hero-image {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-image img {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-heavy);
+        transition: var(--transition);
+    }
+    
+    .hero-image:hover img {
+        transform: scale(1.05);
     }
     
     /* Stats Section */
     .stats-section {
-        background: #f8f9fa;
-        padding: 60px 0;
-    }
-    .stat-item {
-        text-align: center;
-        padding: 20px;
-    }
-    .stat-number {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #2c5530;
-        display: block;
-    }
-    .stat-label {
-        font-size: 1.1rem;
-        color: #6c757d;
-        margin-top: 10px;
+        background: var(--gradient-accent);
+        padding: 80px 0;
+        position: relative;
     }
     
-    /* Featured Products */
-    .featured-section {
-        padding: 80px 0;
+    .stats-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(44,85,48,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        opacity: 0.5;
     }
-    .section-title {
+    
+    .stat-item {
         text-align: center;
-        margin-bottom: 50px;
+        padding: 30px 20px;
+        position: relative;
+        z-index: 2;
     }
-    .section-title h2 {
-        font-size: 2.5rem;
-        color: #2c5530;
-        margin-bottom: 15px;
+    
+    .stat-number {
+        font-size: 4rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        display: block;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
-    .section-title p {
-        font-size: 1.1rem;
-        color: #6c757d;
+    
+    .stat-label {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+    
+    /* Featured Products Section */
+    .featured-section {
+        padding: 100px 0;
+        background: white;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 80px;
+    }
+    
+    .section-badge {
+        display: inline-block;
+        background: var(--gradient-secondary);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+    
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-light);
         max-width: 600px;
         margin: 0 auto;
+        font-weight: 400;
     }
     
     /* Product Cards */
     .product-card {
-        border: none;
-        border-radius: 15px;
+        background: white;
+        border-radius: var(--border-radius);
         overflow: hidden;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: var(--transition);
+        box-shadow: var(--shadow-light);
         height: 100%;
+        border: none;
+        position: relative;
     }
+    
+    .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: 1;
+    }
+    
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-heavy);
     }
+    
+    .product-card:hover::before {
+        opacity: 0.05;
+    }
+    
+    .product-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 280px;
+    }
+    
     .product-image {
-        height: 250px;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        background: #f8f9fa;
+        transition: var(--transition);
     }
-    .product-card-body {
-        padding: 20px;
+    
+    .product-card:hover .product-image {
+        transform: scale(1.1);
     }
-    .product-title {
-        font-size: 1.1rem;
+    
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--gradient-secondary);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #2c5530;
-        margin-bottom: 10px;
-        height: 2.5rem;
+        z-index: 2;
+    }
+    
+    .product-card-body {
+        padding: 25px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .product-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        line-height: 1.4;
+        height: 2.8rem;
         overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
-    .product-price {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: #daa520;
-        margin-bottom: 15px;
-    }
-    .product-btn {
-        background: linear-gradient(45deg, #2c5530, #3d6b42);
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 25px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-    .product-btn:hover {
-        background: linear-gradient(45deg, #3d6b42, #2c5530);
-        transform: translateY(-1px);
-    }
     
-    /* Categories Section */
-    .categories-section {
-        background: #f8f9fa;
-        padding: 80px 0;
-    }
-    .category-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        height: 100%;
-    }
-    .category-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-    }
-    .category-icon {
-        font-size: 3rem;
-        color: #daa520;
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--secondary-color);
         margin-bottom: 20px;
     }
-    .category-title {
-        font-size: 1.3rem;
+    
+    .product-btn {
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 25px;
         font-weight: 600;
-        color: #2c5530;
-        margin-bottom: 10px;
+        transition: var(--transition);
+        width: 100%;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
-    .category-count {
-        color: #6c757d;
-        font-size: 0.9rem;
+    
+    .product-btn:hover {
+        background: var(--gradient-secondary);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
     }
     
     /* Features Section */
     .features-section {
-        padding: 80px 0;
+        padding: 100px 0;
+        background: var(--gradient-accent);
+        position: relative;
     }
+    
     .feature-item {
         text-align: center;
-        padding: 30px 20px;
+        padding: 40px 20px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-light);
+        transition: var(--transition);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
     }
+    
+    .feature-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-secondary);
+        transform: scaleX(0);
+        transition: var(--transition);
+    }
+    
+    .feature-item:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .feature-item:hover::before {
+        transform: scaleX(1);
+    }
+    
     .feature-icon {
-        font-size: 3rem;
-        color: #daa520;
-        margin-bottom: 20px;
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 2rem;
+        color: white;
+        transition: var(--transition);
     }
+    
+    .feature-item:hover .feature-icon {
+        transform: scale(1.1);
+    }
+    
     .feature-title {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 600;
-        color: #2c5530;
+        color: var(--primary-color);
         margin-bottom: 15px;
     }
+    
     .feature-description {
-        color: #6c757d;
+        color: var(--text-light);
         line-height: 1.6;
+        font-weight: 400;
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        padding: 100px 0;
+        background: white;
+    }
+    
+    .category-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 40px 30px;
+        text-align: center;
+        transition: var(--transition);
+        box-shadow: var(--shadow-light);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid transparent;
+    }
+    
+    .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: 1;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-heavy);
+        border-color: var(--secondary-color);
+    }
+    
+    .category-card:hover::before {
+        opacity: 0.05;
+    }
+    
+    .category-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--gradient-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 2.5rem;
+        color: white;
+        transition: var(--transition);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .category-card:hover .category-icon {
+        transform: scale(1.1);
+    }
+    
+    .category-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .category-count {
+        color: var(--text-light);
+        font-size: 1rem;
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .category-btn {
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .category-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
     }
     
     /* Newsletter Section */
     .newsletter-section {
-        background: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%);
-        color: white;
-        padding: 60px 0;
+        background: var(--gradient-primary);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
     }
+    
+    .newsletter-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="newsletter" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23newsletter)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .newsletter-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: white;
+    }
+    
     .newsletter-title {
-        font-size: 2rem;
-        font-weight: bold;
-        margin-bottom: 15px;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
+    
     .newsletter-subtitle {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         opacity: 0.9;
-        margin-bottom: 30px;
+        margin-bottom: 40px;
+        font-weight: 400;
     }
+    
     .newsletter-form {
-        max-width: 500px;
+        max-width: 600px;
         margin: 0 auto;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
     }
+    
     .newsletter-input {
+        flex: 1;
+        min-width: 300px;
         border: none;
-        border-radius: 25px;
-        padding: 15px 20px;
+        border-radius: 50px;
+        padding: 18px 25px;
         font-size: 1rem;
-        width: 100%;
-        margin-bottom: 15px;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(10px);
+        transition: var(--transition);
     }
+    
+    .newsletter-input:focus {
+        outline: none;
+        background: white;
+        box-shadow: var(--shadow-medium);
+    }
+    
     .newsletter-btn {
-        background: linear-gradient(45deg, #daa520, #b8860b);
+        background: var(--gradient-secondary);
         border: none;
         color: white;
-        padding: 15px 30px;
-        border-radius: 25px;
+        padding: 18px 35px;
+        border-radius: 50px;
         font-weight: 600;
-        transition: all 0.3s ease;
-        width: 100%;
+        transition: var(--transition);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
+    
     .newsletter-btn:hover {
-        background: linear-gradient(45deg, #b8860b, #daa520);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .newsletter-form {
+            flex-direction: column;
+        }
+        
+        .newsletter-input {
+            min-width: auto;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+        }
+    }
+    
+    /* Animation Classes */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+    
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .slide-in-left {
+        opacity: 0;
+        transform: translateX(-50px);
+        transition: all 0.6s ease;
+    }
+    
+    .slide-in-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .slide-in-right {
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.6s ease;
+    }
+    
+    .slide-in-right.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* Floating Animation */
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px) rotate(45deg);
+        }
+        50% {
+            transform: translateY(-10px) rotate(45deg);
+        }
+    }
+    
+    /* Two Column Features Styles */
+    .two-column-features {
+        position: relative;
+    }
+    
+    .feature-item-two-col {
+        transition: var(--transition);
+    }
+    
+    .feature-item-two-col:hover {
+        transform: translateX(10px);
+    }
+    
+    .feature-icon-two-col {
+        transition: var(--transition);
+    }
+    
+    .feature-item-two-col:hover .feature-icon-two-col {
+        transform: scale(1.1);
+    }
+    
+    .product-showcase {
+        transition: var(--transition);
+    }
+    
+    .product-showcase:hover {
+        transform: scale(1.05);
+    }
+    
+    .product-bowl {
+        transition: var(--transition);
+    }
+    
+    .product-bowl:hover {
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    }
+    
+    /* Responsive Banner Styles */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 400px;
+            padding: 50px 0;
+        }
+        
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .hero-cta {
+            padding: 12px 25px;
+            font-size: 0.85rem;
+        }
+        
+        .hero-visual {
+            height: 280px;
+        }
+        
+        .shape-1, .shape-2, .shape-3 {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-section {
+            min-height: 350px;
+            padding: 40px 0;
+        }
+        
+        .hero-title {
+            font-size: 1.8rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 0.9rem;
+        }
+        
+        .hero-cta {
+            padding: 10px 20px;
+            font-size: 0.8rem;
+        }
+        
+        .hero-visual {
+            height: 220px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hero-section {
+            min-height: 300px;
+            padding: 30px 0;
+        }
+        
+        .hero-title {
+            font-size: 1.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 0.85rem;
+        }
+        
+        .hero-visual {
+            height: 180px;
+        }
+        
+        .floating-leaf i {
+            font-size: 1.5rem !important;
+        }
     }
 </style>
 {% endblock %}
@@ -254,20 +865,43 @@
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
+    <!-- Decorative shapes -->
+    <div class="hero-shapes">
+        <div class="shape-1"></div>
+        <div class="shape-2"></div>
+        <div class="shape-3"></div>
+    </div>
+    
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <div class="hero-content">
-                    <h1 class="hero-title">Bienvenido a NaturalMede</h1>
-                    <p class="hero-subtitle">Descubre los mejores productos naturales para tu bienestar y salud. Calidad, confianza y naturaleza en cada producto.</p>
-                    <a href="{% url 'catalog:product_list' %}" class="btn hero-cta">
-                        <i class="fas fa-shopping-bag me-2"></i>Explorar Productos
+                <div class="hero-content slide-in-left">
+                    <div class="hero-badge">
+                        <i class="fas fa-leaf me-2"></i>100% Natural y Orgánico
+                    </div>
+                    <h1 class="hero-title">Tu bienestar natural comienza aquí</h1>
+                    <p class="hero-subtitle">Descubre productos naturales de la más alta calidad para cuidar tu salud. Suplementos, vitaminas y productos orgánicos certificados.</p>
+                    <a href="{% url 'catalog:product_list' %}" class="hero-cta">
+                        <i class="fas fa-shopping-bag"></i>
+                        Comprar Ahora
                     </a>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="text-center">
-                    <img src="{% static 'images/logo.png' %}" alt="NaturalMede" class="img-fluid" style="max-width: 400px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);" onerror="this.style.display='none';">
+                <div class="hero-image slide-in-right">
+                    <div class="hero-visual">
+                        <div class="floating-elements">
+                            <div class="floating-leaf" style="position: absolute; top: 20%; left: 10%; animation: float 3s ease-in-out infinite;">
+                                <i class="fas fa-leaf" style="font-size: 2.5rem; color: var(--secondary-color); opacity: 0.8;"></i>
+                            </div>
+                            <div class="floating-leaf" style="position: absolute; top: 60%; right: 15%; animation: float 3s ease-in-out infinite 1.5s;">
+                                <i class="fas fa-seedling" style="font-size: 2rem; color: var(--secondary-color); opacity: 0.7;"></i>
+                            </div>
+                            <div class="floating-leaf" style="position: absolute; bottom: 30%; left: 20%; animation: float 3s ease-in-out infinite 2s;">
+                                <i class="fas fa-leaf" style="font-size: 2.2rem; color: var(--secondary-color); opacity: 0.6;"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -279,19 +913,19 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <div class="stat-item">
+                <div class="stat-item fade-in">
                     <span class="stat-number">{{ total_products }}</span>
                     <span class="stat-label">Productos Naturales</span>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="stat-item">
+                <div class="stat-item fade-in">
                     <span class="stat-number">{{ total_categories }}</span>
                     <span class="stat-label">Categorías</span>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="stat-item">
+                <div class="stat-item fade-in">
                     <span class="stat-number">{{ total_brands }}</span>
                     <span class="stat-label">Marcas Confiables</span>
                 </div>
@@ -303,26 +937,31 @@
 <!-- Featured Products Section -->
 <section class="featured-section">
     <div class="container">
-        <div class="section-title">
-            <h2>Productos Destacados</h2>
-            <p>Descubre nuestra selección de productos naturales más populares y mejor valorados</p>
+        <div class="section-header fade-in">
+            <div class="section-badge">Productos Destacados</div>
+            <h2 class="section-title">Productos Naturales Premium</h2>
+            <p class="section-subtitle">Descubre nuestra selección de productos naturales más populares y mejor valorados por nuestros clientes</p>
         </div>
         <div class="row">
             {% for product in featured_products %}
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card product-card">
-                    {% if product.images.first %}
-                    <img src="{{ product.images.first.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
-                    {% else %}
-                    <div class="product-image d-flex align-items-center justify-content-center bg-light">
-                        <i class="fas fa-image fa-3x text-muted"></i>
+                <div class="product-card fade-in">
+                    <div class="product-image-container">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" class="product-image" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="product-image d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="product-badge">-15%</div>
                     </div>
-                    {% endif %}
                     <div class="product-card-body">
                         <h5 class="product-title">{{ product.name }}</h5>
                         <div class="product-price">${{ product.price|floatformat:0 }}</div>
-                        <a href="{% url 'catalog:product_detail' product.slug %}" class="btn product-btn">
-                            <i class="fas fa-eye me-2"></i>Ver Detalles
+                        <a href="{% url 'catalog:product_detail' product.slug %}" class="product-btn">
+                            <i class="fas fa-shopping-cart"></i>
+                            Comprar Ahora
                         </a>
                     </div>
                 </div>
@@ -333,10 +972,159 @@
             </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-4">
-            <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-primary btn-lg">
+        <div class="text-center mt-5">
+            <a href="{% url 'catalog:product_list' %}" class="hero-cta">
                 <i class="fas fa-th-large me-2"></i>Ver Todos los Productos
             </a>
+        </div>
+    </div>
+</section>
+
+<!-- Two Column Features Section -->
+<section class="two-column-features" style="background: var(--gradient-primary); padding: 100px 0; position: relative; overflow: hidden;">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Left Column - Features -->
+            <div class="col-lg-6">
+                <div class="features-content slide-in-left">
+                    <div class="feature-item-two-col" style="display: flex; align-items: flex-start; margin-bottom: 40px;">
+                        <div class="feature-icon-two-col" style="width: 60px; height: 60px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 25px; flex-shrink: 0;">
+                            <i class="fas fa-apple-alt" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <div class="feature-content-two-col">
+                            <h3 style="color: #f5f5dc; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">SABOR MULTI-FRUTAS</h3>
+                            <p style="color: rgba(245,245,220,0.9); font-size: 1rem; line-height: 1.6; margin: 0;">Una cosa agregada a algo más para completar o mejorar su sabor natural.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item-two-col" style="display: flex; align-items: flex-start; margin-bottom: 40px;">
+                        <div class="feature-icon-two-col" style="width: 60px; height: 60px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 25px; flex-shrink: 0;">
+                            <i class="fas fa-flask" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <div class="feature-content-two-col">
+                            <h3 style="color: #f5f5dc; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">FÓRMULA FLORAL</h3>
+                            <p style="color: rgba(245,245,220,0.9); font-size: 1rem; line-height: 1.6; margin: 0;">Una cosa agregada a algo más para completar o mejorar su composición natural.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item-two-col" style="display: flex; align-items: flex-start; margin-bottom: 40px;">
+                        <div class="feature-icon-two-col" style="width: 60px; height: 60px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 25px; flex-shrink: 0;">
+                            <i class="fas fa-dumbbell" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <div class="feature-content-two-col">
+                            <h3 style="color: #f5f5dc; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">DIAGRAMA DE ESPINA DE PEZ</h3>
+                            <p style="color: rgba(245,245,220,0.9); font-size: 1rem; line-height: 1.6; margin: 0;">Una cosa agregada a algo más para completar o mejorar su estructura.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item-two-col" style="display: flex; align-items: flex-start; margin-bottom: 40px;">
+                        <div class="feature-icon-two-col" style="width: 60px; height: 60px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 25px; flex-shrink: 0;">
+                            <i class="fas fa-fire" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <div class="feature-content-two-col">
+                            <h3 style="color: #f5f5dc; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">100% QUEMA GRASA</h3>
+                            <p style="color: rgba(245,245,220,0.9); font-size: 1rem; line-height: 1.6; margin: 0;">Una cosa agregada a algo más para completar o mejorar su efectividad.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Image -->
+            <div class="col-lg-6">
+                <div class="feature-image-container slide-in-right" style="text-align: center; position: relative;">
+                    <div class="product-showcase" style="position: relative; display: inline-block;">
+                        <div class="product-bowl" style="width: 300px; height: 300px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-heavy); margin: 0 auto; position: relative; overflow: hidden;">
+                            <div class="product-powder" style="width: 200px; height: 200px; background: linear-gradient(135deg, #2c5530 0%, #3d6b42 100%); border-radius: 50%; position: relative;">
+                                <div class="leaf-decoration" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--gradient-secondary); border-radius: 50% 0; transform: translateX(-50%) rotate(45deg);"></div>
+                            </div>
+                        </div>
+                        <div class="floating-elements" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
+                            <div class="floating-leaf" style="position: absolute; top: 20%; left: 10%; width: 20px; height: 20px; background: var(--gradient-secondary); border-radius: 50% 0; transform: rotate(45deg); animation: float 3s ease-in-out infinite;"></div>
+                            <div class="floating-leaf" style="position: absolute; top: 60%; right: 15%; width: 15px; height: 15px; background: var(--gradient-secondary); border-radius: 50% 0; transform: rotate(45deg); animation: float 3s ease-in-out infinite 1.5s;"></div>
+                            <div class="floating-leaf" style="position: absolute; bottom: 30%; left: 20%; width: 18px; height: 18px; background: var(--gradient-secondary); border-radius: 50% 0; transform: rotate(45deg); animation: float 3s ease-in-out infinite 0.8s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"leaves\" width=\"50\" height=\"50\" patternUnits=\"userSpaceOnUse\"><path d=\"M25,10 Q30,5 35,10 Q30,15 25,10\" fill=\"rgba(255,255,255,0.1)\"/><path d=\"M15,30 Q20,25 25,30 Q20,35 15,30\" fill=\"rgba(255,255,255,0.1)\"/><path d=\"M35,40 Q40,35 45,40 Q40,45 35,40\" fill=\"rgba(255,255,255,0.1)\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23leaves)\"/></svg>'); opacity: 0.3; pointer-events: none;"></div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="section-badge">¿Por qué elegirnos?</div>
+            <h2 class="section-title">¿Por qué elegir NaturalMede?</h2>
+            <p class="section-subtitle">Nos comprometemos a ofrecerte la mejor experiencia en productos naturales con ingredientes de calidad premium</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="feature-title">100% Natural</h3>
+                    <p class="feature-description">Todos nuestros productos son completamente naturales, sin conservantes artificiales ni químicos dañinos.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3 class="feature-title">Envío Rápido</h3>
+                    <p class="feature-description">Entregamos tus productos naturales en tiempo récord, manteniendo su frescura y calidad.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Garantía de Calidad</h3>
+                    <p class="feature-description">Garantizamos la calidad de todos nuestros productos con certificaciones y controles rigurosos.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Atención Personalizada</h3>
+                    <p class="feature-description">Nuestro equipo de expertos te asesora para encontrar los productos perfectos para ti.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <h3 class="feature-title">Eco-Friendly</h3>
+                    <p class="feature-description">Comprometidos con el medio ambiente, usamos empaques sostenibles y procesos ecológicos.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3 class="feature-title">Soporte 24/7</h3>
+                    <p class="feature-description">Estamos disponibles para resolver tus dudas y brindarte el mejor servicio en todo momento.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h3 class="feature-title">Certificaciones</h3>
+                    <p class="feature-description">Todos nuestros productos cuentan con certificaciones de calidad y pureza garantizada.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -344,20 +1132,22 @@
 <!-- Categories Section -->
 <section class="categories-section">
     <div class="container">
-        <div class="section-title">
-            <h2>Nuestras Categorías</h2>
-            <p>Explora nuestra amplia gama de productos organizados por categorías</p>
+        <div class="section-header fade-in">
+            <div class="section-badge">Nuestras Categorías</div>
+            <h2 class="section-title">Explora por Categorías</h2>
+            <p class="section-subtitle">Encuentra exactamente lo que necesitas organizado por tipo de producto y beneficio</p>
         </div>
         <div class="row">
             {% for category in main_categories %}
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="category-card">
+                <div class="category-card fade-in">
                     <div class="category-icon">
                         <i class="fas fa-leaf"></i>
                     </div>
                     <h3 class="category-title">{{ category.name }}</h3>
                     <p class="category-count">{{ category.product_count }} productos</p>
-                    <a href="{% url 'catalog:category_detail' category.slug %}" class="btn btn-outline-primary mt-3">
+                    <a href="{% url 'catalog:category_detail' category.slug %}" class="category-btn">
+                        <i class="fas fa-arrow-right"></i>
                         Explorar Categoría
                     </a>
                 </div>
@@ -371,66 +1161,49 @@
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="features-section">
+<!-- Testimonials Section -->
+<section class="testimonials-section" style="background: var(--gradient-accent); padding: 100px 0;">
     <div class="container">
-        <div class="section-title">
-            <h2>¿Por qué elegir NaturalMede?</h2>
-            <p>Nos comprometemos a ofrecerte la mejor experiencia en productos naturales</p>
+        <div class="section-header fade-in">
+            <div class="section-badge">Testimonios</div>
+            <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+            <p class="section-subtitle">Descubre las experiencias reales de nuestros clientes satisfechos</p>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-leaf"></i>
+                <div class="testimonial-card fade-in" style="background: white; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow-light); text-align: center; height: 100%;">
+                    <div class="testimonial-avatar" style="width: 80px; height: 80px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: white;">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <h3 class="feature-title">100% Natural</h3>
-                    <p class="feature-description">Todos nuestros productos son completamente naturales, sin conservantes artificiales ni químicos dañinos.</p>
+                    <p class="testimonial-text" style="font-style: italic; color: var(--text-light); margin-bottom: 20px; line-height: 1.6;">
+                        "Los productos de NaturalMede han cambiado mi vida. La calidad es excepcional y el servicio al cliente es increíble."
+                    </p>
+                    <h5 class="testimonial-author" style="color: var(--primary-color); font-weight: 600;">María González</h5>
+                    <p class="testimonial-role" style="color: var(--text-light); font-size: 0.9rem;">Cliente desde 2023</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-shipping-fast"></i>
+                <div class="testimonial-card fade-in" style="background: white; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow-light); text-align: center; height: 100%;">
+                    <div class="testimonial-avatar" style="width: 80px; height: 80px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: white;">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <h3 class="feature-title">Envío Rápido</h3>
-                    <p class="feature-description">Entregamos tus productos naturales en tiempo récord, manteniendo su frescura y calidad.</p>
+                    <p class="testimonial-text" style="font-style: italic; color: var(--text-light); margin-bottom: 20px; line-height: 1.6;">
+                        "Excelente atención y productos de primera calidad. Siempre encuentro lo que necesito para mi bienestar."
+                    </p>
+                    <h5 class="testimonial-author" style="color: var(--primary-color); font-weight: 600;">Carlos Rodríguez</h5>
+                    <p class="testimonial-role" style="color: var(--text-light); font-size: 0.9rem;">Cliente desde 2022</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+                <div class="testimonial-card fade-in" style="background: white; padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow-light); text-align: center; height: 100%;">
+                    <div class="testimonial-avatar" style="width: 80px; height: 80px; background: var(--gradient-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: white;">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <h3 class="feature-title">Garantía de Calidad</h3>
-                    <p class="feature-description">Garantizamos la calidad de todos nuestros productos con certificaciones y controles rigurosos.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <h3 class="feature-title">Atención Personalizada</h3>
-                    <p class="feature-description">Nuestro equipo de expertos te asesora para encontrar los productos perfectos para ti.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-recycle"></i>
-                    </div>
-                    <h3 class="feature-title">Eco-Friendly</h3>
-                    <p class="feature-description">Comprometidos con el medio ambiente, usamos empaques sostenibles y procesos ecológicos.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <h3 class="feature-title">Soporte 24/7</h3>
-                    <p class="feature-description">Estamos disponibles para resolver tus dudas y brindarte el mejor servicio en todo momento.</p>
+                    <p class="testimonial-text" style="font-style: italic; color: var(--text-light); margin-bottom: 20px; line-height: 1.6;">
+                        "La entrega es súper rápida y los productos llegan en perfecto estado. Definitivamente recomiendo NaturalMede."
+                    </p>
+                    <h5 class="testimonial-author" style="color: var(--primary-color); font-weight: 600;">Ana Martínez</h5>
+                    <p class="testimonial-role" style="color: var(--text-light); font-size: 0.9rem;">Cliente desde 2024</p>
                 </div>
             </div>
         </div>
@@ -441,21 +1214,18 @@
 <section class="newsletter-section">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="newsletter-title">Mantente al día</h2>
-                <p class="newsletter-subtitle">Suscríbete a nuestro boletín y recibe ofertas exclusivas, consejos de bienestar y las últimas novedades en productos naturales.</p>
-                <form class="newsletter-form">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <input type="email" class="form-control newsletter-input" placeholder="Tu correo electrónico" required>
-                        </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn newsletter-btn">
-                                <i class="fas fa-paper-plane me-2"></i>Suscribirse
-                            </button>
-                        </div>
-                    </div>
-                </form>
+            <div class="col-lg-8 mx-auto">
+                <div class="newsletter-content fade-in">
+                    <h2 class="newsletter-title">Mantente Informado</h2>
+                    <p class="newsletter-subtitle">Suscríbete a nuestro boletín y recibe ofertas exclusivas, consejos de bienestar y las últimas novedades en productos naturales.</p>
+                    <form class="newsletter-form">
+                        <input type="email" class="newsletter-input" placeholder="Tu dirección de correo electrónico" required>
+                        <button type="submit" class="newsletter-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Suscribirse
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -474,6 +1244,25 @@
         this.reset();
     });
     
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all animated elements
+    document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+        observer.observe(el);
+    });
+    
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -487,10 +1276,40 @@
             }
         });
     });
+    
+    // Counter animation for stats
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent);
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(current);
+            }, 16);
+        });
+    }
+    
+    // Trigger counter animation when stats section is visible
+    const statsObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        statsObserver.observe(statsSection);
+    }
 </script>
 {% endblock %}
-
-
-
-
-
