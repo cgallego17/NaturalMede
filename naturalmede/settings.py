@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-naturalmede-developme
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',  # Para filtros como intcomma
     'rest_framework',
     'corsheaders',
     # Local apps
@@ -77,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'catalog.context_processors.cart',
+                'catalog.context_processors.categories',
             ],
         },
     },
@@ -182,8 +184,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # WhatsApp settings
 WHATSAPP_PHONE = os.environ.get('WHATSAPP_PHONE', '+573001234567')
 
+# Wompi settings
+WOMPI_PUBLIC_KEY = os.environ.get('WOMPI_PUBLIC_KEY', '')
+WOMPI_PRIVATE_KEY = os.environ.get('WOMPI_PRIVATE_KEY', '')
+WOMPI_INTEGRITY_SECRET = os.environ.get('WOMPI_INTEGRITY_SECRET', '')
+WOMPI_ENVIRONMENT = os.environ.get('WOMPI_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+WOMPI_BASE_URL = 'https://production.wompi.co/v1' if WOMPI_ENVIRONMENT == 'production' else 'https://sandbox.wompi.co/v1'
+
 # Authentication settings
-LOGIN_URL = '/login/home-login/'
+LOGIN_URL = '/admin-custom/home-login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 

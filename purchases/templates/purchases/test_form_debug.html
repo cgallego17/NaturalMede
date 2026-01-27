@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Form Debug</title>
+</head>
+<body>
+    <h1>Test Form Debug</h1>
+    
+    <form method="post" action="/purchases/purchases/create/">
+        {% csrf_token %}
+        
+        <h2>Datos Principales</h2>
+        <input type="hidden" name="supplier" value="1">
+        <input type="hidden" name="order_date" value="2025-10-02">
+        <input type="hidden" name="status" value="pending">
+        <input type="hidden" name="payment_status" value="pending">
+        <input type="hidden" name="shipping_cost" value="0.00">
+        <input type="hidden" name="notes" value="">
+        
+        <h2>Formset Management</h2>
+        <input type="hidden" name="items-TOTAL_FORMS" value="1">
+        <input type="hidden" name="items-INITIAL_FORMS" value="0">
+        <input type="hidden" name="items-MIN_NUM_FORMS" value="0">
+        <input type="hidden" name="items-MAX_NUM_FORMS" value="1000">
+        
+        <h2>Item 0</h2>
+        <input type="hidden" name="items-0-product" value="14">
+        <input type="hidden" name="items-0-quantity" value="10">
+        <input type="hidden" name="items-0-unit_cost" value="100.00">
+        <input type="hidden" name="items-0-tax_percentage" value="19.00">
+        <input type="hidden" name="items-0-discount_percentage" value="0.00">
+        
+        <button type="submit">Crear Compra</button>
+    </form>
+    
+    <script>
+        console.log('=== TEST FORM DEBUG CARGADO ===');
+        
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('=== FORMULARIO ENVIADO ===');
+            console.log('Datos del formulario:', new FormData(this));
+        });
+    </script>
+</body>
+</html>

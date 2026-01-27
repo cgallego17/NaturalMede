@@ -1,183 +1,341 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}{{ product.name }} - NaturalMede{% endblock %}
 
+{% block extra_css %}
+<!-- Suxnix CSS adicionales para esta página -->
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/animate.min.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/magnific-popup.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/jquery-ui.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/odometer.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/slick.css' %}">
+
+<style>
+    /* Aumentar tamaño de imágenes en productos relacionados */
+    .related-products-area .home-shop-thumb {
+        max-width: 280px;
+        margin: 0 auto 45px;
+    }
+    
+    .related-products-area .home-shop-thumb > a {
+        min-height: 250px;
+        margin: -106px auto 0;
+    }
+    
+    .related-products-area .home-shop-thumb img {
+        height: 250px;
+        max-width: 200px;
+        width: auto;
+        object-fit: contain;
+    }
+    
+    .related-products-area .home-shop-item {
+        padding: 0 30px 40px;
+    }
+    
+    /* Responsive para productos relacionados */
+    @media (max-width: 1200px) {
+        .related-products-area .home-shop-thumb {
+            max-width: 240px;
+        }
+        
+        .related-products-area .home-shop-thumb > a {
+            min-height: 220px;
+        }
+        
+        .related-products-area .home-shop-thumb img {
+            height: 220px;
+            max-width: 180px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .related-products-area .home-shop-thumb {
+            max-width: 200px;
+        }
+        
+        .related-products-area .home-shop-thumb > a {
+            min-height: 200px;
+        }
+        
+        .related-products-area .home-shop-thumb img {
+            height: 200px;
+            max-width: 160px;
+        }
+    }
+    
+    @media (max-width: 767px) {
+        .related-products-area .home-shop-thumb {
+            max-width: 180px;
+        }
+        
+        .related-products-area .home-shop-thumb > a {
+            min-height: 180px;
+        }
+        
+        .related-products-area .home-shop-thumb img {
+            height: 180px;
+            max-width: 140px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Catálogo</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active">{{ product.name }}</li>
-        </ol>
-    </nav>
-
-    <div class="row">
-        <!-- Product Images -->
-        <div class="col-md-6">
-            <div id="productCarousel" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-                    {% for image in product.images.all %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                        <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.alt_text|default:product.name }}" style="height: 400px; object-fit: cover;">
-                    </div>
-                    {% empty %}
-                    <div class="carousel-item active">
-                        <div class="d-block w-100 bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                            <i class="fas fa-image fa-5x text-muted"></i>
-                        </div>
-                    </div>
-                    {% endfor %}
+<!-- breadcrumb-area -->
+<section class="breadcrumb-area breadcrumb-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="breadcrumb-content text-center">
+                    <h2 class="title">Detalle del Producto</h2>
+                    <nav aria-label="Breadcrumbs" class="breadcrumb-trail">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item trail-item trail-begin">
+                                <a href="{% url 'catalog:home' %}"><span>Inicio</span></a>
+                            </li>
+                            <li class="breadcrumb-item trail-item">
+                                <a href="{% url 'catalog:product_list' %}"><span>Catálogo</span></a>
+                            </li>
+                            {% if product.category %}
+                            <li class="breadcrumb-item trail-item">
+                                <a href="{% url 'catalog:category_detail' product.category.slug %}"><span>{{ product.category.name }}</span></a>
+                            </li>
+                            {% endif %}
+                            <li class="breadcrumb-item trail-item trail-end"><span>{{ product.name }}</span></li>
+                        </ul>
+                    </nav>
                 </div>
-                
-                {% if product.images.count > 1 %}
-                <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Anterior</span>
-                </a>
-                <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Siguiente</span>
-                </a>
-                {% endif %}
             </div>
-            
-            <!-- Thumbnail Images -->
-            {% if product.images.count > 1 %}
-            <div class="row mt-3">
-                {% for image in product.images.all %}
-                <div class="col-3">
-                    <img src="{{ image.image.url }}" class="img-thumbnail" alt="{{ image.alt_text|default:product.name }}" 
-                         onclick="$('#productCarousel').carousel({{ forloop.counter0 }})" style="height: 80px; object-fit: cover; cursor: pointer;">
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
         </div>
+    </div>
+    <div class="video-shape one"><img src="{% static 'suxnix/assets/img/others/video_shape01.png' %}" alt="shape"></div>
+    <div class="video-shape two"><img src="{% static 'suxnix/assets/img/others/video_shape02.png' %}" alt="shape"></div>
+</section>
+<!-- breadcrumb-area-end -->
 
-        <!-- Product Info -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h1 class="card-title">{{ product.name }}</h1>
-                    
-                    <div class="mb-3">
-                        <span class="badge badge-secondary">{{ product.category.name }}</span>
-                        <span class="badge badge-info">{{ product.brand.name }}</span>
-                        {% if product.is_featured %}
-                        <span class="badge badge-warning">Destacado</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h3 class="text-success">${{ product.price|floatformat:0 }}</h3>
-                        {% if product.iva_percentage > 0 %}
-                        <small class="text-muted">IVA {{ product.iva_percentage }}% incluido</small>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6>Descripción:</h6>
-                        <p class="card-text">{{ product.description|linebreaks }}</p>
-                    </div>
-                    
-                    <!-- Product Details -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>SKU:</strong> {{ product.sku }}
+<!-- shop-details-area -->
+<section class="inner-shop-details-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="inner-shop-details-flex-wrap">
+                    <div class="inner-shop-details-img-wrap">
+                        <div class="tab-content" id="myTabContent">
+                            {% for image in product.images.all %}
+                            <div class="tab-pane {% if forloop.first %}show active{% endif %}" id="item-{{ forloop.counter }}" role="tabpanel" aria-labelledby="item-{{ forloop.counter }}-tab">
+                                <div class="inner-shop-details-img">
+                                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="tab-pane show active" id="item-one" role="tabpanel" aria-labelledby="item-one-tab">
+                                <div class="inner-shop-details-img">
+                                    <img src="{% static 'suxnix/assets/img/products/shop-details-thumb01.png' %}" alt="{{ product.name }}">
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% if product.barcode %}
-                        <div class="col-md-6">
-                            <strong>Código de barras:</strong> {{ product.barcode }}
-                        </div>
-                        {% endif %}
                     </div>
-                    
-                    {% if product.weight %}
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <strong>Peso:</strong> {{ product.weight }} kg
-                        </div>
-                        {% if product.dimensions %}
-                        <div class="col-md-6">
-                            <strong>Dimensiones:</strong> {{ product.dimensions }}
-                        </div>
-                        {% endif %}
+                    {% if product.images.count > 1 %}
+                    <div class="inner-shop-details-nav-wrap">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            {% for image in product.images.all %}
+                            <li class="nav-item" role="presentation">
+                                <a href="#" class="nav-link {% if forloop.first %}active{% endif %}" 
+                                   id="item-{{ forloop.counter }}-tab" 
+                                   data-bs-toggle="tab" 
+                                   data-bs-target="#item-{{ forloop.counter }}" 
+                                   role="tab" 
+                                   aria-controls="item-{{ forloop.counter }}" 
+                                   aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                     {% endif %}
-                    
-                    <!-- Add to Cart Form -->
-                    <form method="post" action="{% url 'catalog:cart_add' product.id %}" class="mb-3">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="quantity">Cantidad:</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" 
-                                       value="1" min="1" max="99">
-                            </div>
-                            <div class="col-md-8">
-                                <label>&nbsp;</label>
-                                <button type="submit" class="btn btn-success btn-block">
-                                    <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    <!-- WhatsApp Button -->
-                    <div class="mb-3">
-                        <button class="btn btn-success btn-block whatsapp-btn" 
-                                onclick="sendWhatsAppMessage('Hola, me interesa el producto: {{ product.name }} - ${{ product.price|floatformat:0 }}')">
-                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
-                        </button>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="inner-shop-details-content">
+                    <h4 class="title">{{ product.name }}</h4>
+                    <div class="inner-shop-details-meta">
+                        <ul class="list-wrap">
+                            <li>Marca : <a href="{% url 'catalog:brand_detail' product.brand.slug %}">{{ product.brand.name }}</a></li>
+                            <li class="inner-shop-details-review">
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span>(4.5)</span>
+                            </li>
+                            <li>SKU : <span>{{ product.sku }}</span></li>
+                            {% if product.barcode %}
+                            <li>Código : <span>{{ product.barcode }}</span></li>
+                            {% endif %}
+                        </ul>
                     </div>
-                    
-                    <!-- Product Actions -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-block">
-                                <i class="fas fa-arrow-left"></i> Volver al Catálogo
-                            </a>
+                    <div class="inner-shop-details-price">
+                        <h2 class="price">${{ product.price|floatformat:0|intcomma }}</h2>
+                        <h5 class="stock-status">- En Stock</h5>
+                    </div>
+                    {% if product.short_description %}
+                    <p>{{ product.short_description }}</p>
+                    {% else %}
+                    <p>{{ product.description|truncatewords:30 }}</p>
+                    {% endif %}
+                    <div class="inner-shop-details-list">
+                        <ul class="list-wrap">
+                            <li>Categoría : <span>{{ product.category.name }}</span></li>
+                            {% if product.weight %}
+                            <li>Peso : <span>{{ product.weight }} kg</span></li>
+                            {% endif %}
+                            {% if product.dimensions %}
+                            <li>Dimensiones : <span>{{ product.dimensions }}</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="inner-shop-perched-info">
+                        <form method="post" action="{% url 'catalog:cart_add' product.id %}" id="addToCartForm">
+                            {% csrf_token %}
+                            <div class="sd-cart-wrap">
+                                <div class="quickview-cart-plus-minus">
+                                    <input type="text" name="quantity" value="1" min="1" max="99">
+                                </div>
+                            </div>
+                            <button type="submit" class="cart-btn">Agregar al carrito</button>
+                            <a href="#" class="wishlist-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Lista de deseos"><i class="far fa-heart"></i></a>
+                        </form>
+                    </div>
+                    <div class="inner-shop-details-bottom">
+                        <span><span>Etiquetas : <a href="#">{{ product.category.name }}</a></span></span>
+                        <span>
+                            <span>Categorías :
+                            <a href="{% url 'catalog:category_detail' product.category.slug %}">{{ product.category.name }}</a>
+                            {% if product.brand %}
+                            <a href="{% url 'catalog:brand_detail' product.brand.slug %}">{{ product.brand.name }}</a>
+                            {% endif %}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="product-desc-wrap">
+                    <ul class="nav nav-tabs" id="myTabTwo" role="tablist">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" role="tab" aria-controls="description" aria-selected="true">Descripción</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" id="information-tab" data-bs-toggle="tab" data-bs-target="#information" role="tab" aria-controls="information" aria-selected="false">Información adicional</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContentTwo">
+                        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                            <div class="product-desc-content">
+                                <h4 class="title">Descripción del producto:</h4>
+                                <p>{{ product.description|linebreaks }}</p>
+                                {% if product.short_description %}
+                                <h4 class="title">Características principales:</h4>
+                                <p>{{ product.short_description }}</p>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <a href="{% url 'catalog:cart' %}" class="btn btn-primary btn-block">
-                                <i class="fas fa-shopping-cart"></i> Ver Carrito
-                            </a>
+                        <div class="tab-pane fade" id="information" role="tabpanel" aria-labelledby="information-tab">
+                            <div class="product-desc-content">
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">SKU</th>
+                                            <td>{{ product.sku }}</td>
+                                        </tr>
+                                        {% if product.barcode %}
+                                        <tr>
+                                            <th scope="row">Código de barras</th>
+                                            <td>{{ product.barcode }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <th scope="row">Categoría</th>
+                                            <td>{{ product.category.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Marca</th>
+                                            <td>{{ product.brand.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Precio</th>
+                                            <td>${{ product.price|floatformat:0|intcomma }}</td>
+                                        </tr>
+                                        {% if product.weight %}
+                                        <tr>
+                                            <th scope="row">Peso</th>
+                                            <td>{{ product.weight }} kg</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if product.dimensions %}
+                                        <tr>
+                                            <th scope="row">Dimensiones</th>
+                                            <td>{{ product.dimensions }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <th scope="row">Estado</th>
+                                            <td>{% if product.is_active %}Activo{% else %}Inactivo{% endif %}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
+<!-- shop-details-area-end -->
 
-    <!-- Related Products -->
-    {% if related_products %}
-    <div class="row mt-5">
-        <div class="col-md-12">
-            <h3><i class="fas fa-th-large"></i> Productos Relacionados</h3>
-            <div class="row">
+<!-- related-products -->
+{% if related_products %}
+<div class="related-products-area pb-120">
+    <div class="container">
+        <div class="related-products-wrap">
+            <h2 class="title">Productos Relacionados</h2>
+            <div class="related-product-active">
                 {% for related_product in related_products %}
-                <div class="col-md-3 mb-3">
-                    <div class="card product-card h-100">
-                        {% if related_product.images.first %}
-                        <img src="{{ related_product.images.first.image.url }}" class="card-img-top" alt="{{ related_product.name }}" style="height: 150px; object-fit: cover;">
-                        {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-image fa-3x text-muted"></i>
+                <div class="home-shop-item">
+                    <div class="home-shop-thumb">
+                        <a href="{% url 'catalog:product_detail' related_product.slug %}">
+                            {% if related_product.images.first %}
+                            <img src="{{ related_product.images.first.image.url }}" alt="{{ related_product.name }}">
+                            {% else %}
+                            <img src="{% static 'suxnix/assets/img/products/home_shop_thumb01.png' %}" alt="{{ related_product.name }}">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="home-shop-content">
+                        <h4 class="title"><a href="{% url 'catalog:product_detail' related_product.slug %}">{{ related_product.name|truncatechars:30 }}</a></h4>
+                        <span class="home-shop-price">${{ related_product.price|floatformat:0|intcomma }}</span>
+                        <div class="home-shop-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="total-rating">(30)</span>
                         </div>
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title">{{ related_product.name|truncatechars:30 }}</h6>
-                            <p class="card-text text-success font-weight-bold">
-                                ${{ related_product.price|floatformat:0 }}
-                            </p>
-                            <div class="mt-auto">
-                                <a href="{% url 'catalog:product_detail' related_product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
-                                    Ver Detalles
-                                </a>
-                            </div>
+                        <div class="shop-content-bottom">
+                            <a href="{% url 'catalog:cart_add' related_product.id %}" class="cart"><i class="flaticon-shopping-cart-1"></i></a>
+                            <a href="{% url 'catalog:product_detail' related_product.slug %}" class="btn btn-two">Ver Detalles</a>
                         </div>
                     </div>
                 </div>
@@ -185,32 +343,288 @@
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
+{% endif %}
+<!-- related-products-end -->
 {% endblock %}
 
 {% block extra_js %}
+<!-- Suxnix JS -->
+<script src="{% static 'suxnix/assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/isotope.pkgd.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/imagesloaded.pkgd.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.magnific-popup.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.odometer.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.appear.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.paroller.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.easypiechart.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.inview.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery.easing.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/svg-inject.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jarallax.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/slick.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/validator.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/ajax-form.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/wow.min.js' %}"></script>
+<!-- Cargar main.js solo después de verificar que slick esté disponible -->
 <script>
-    // Add to cart with AJAX
-    $('form').on('submit', function(e) {
-        e.preventDefault();
+    // Esperar a que slick esté disponible antes de cargar main.js
+    (function() {
+        function loadMainJS() {
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.slick !== 'undefined') {
+                var script = document.createElement('script');
+                script.src = '{% static "suxnix/assets/js/main.js" %}';
+                script.onerror = function() {
+                    console.warn('Error loading main.js');
+                };
+                document.body.appendChild(script);
+            } else {
+                setTimeout(loadMainJS, 100);
+            }
+        }
+        // Esperar a que jQuery y slick estén disponibles
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).ready(loadMainJS);
+        } else {
+            window.addEventListener('load', function() {
+                setTimeout(loadMainJS, 300);
+            });
+        }
+    })();
+</script>
+
+<script>
+    // Wait for Suxnix main.js to initialize quantity buttons and sliders
+    $(document).ready(function() {
+        // Initialize related products slider after a short delay to ensure Suxnix scripts are loaded
+        // Function to initialize slider with retry logic
+        function initRelatedProductsSlider() {
+            if ($('.related-product-active').length) {
+                if (typeof $.fn.slick !== 'undefined') {
+                    // Destroy existing slider if it exists
+                    if ($('.related-product-active').hasClass('slick-initialized')) {
+                        try {
+                            $('.related-product-active').slick('unslick');
+                        } catch(e) {
+                            console.log('Error destroying slider:', e);
+                        }
+                    }
+                    // Initialize slider
+                    try {
+                        $('.related-product-active').slick({
+                            dots: true,
+                            infinite: true,
+                            speed: 1000,
+                            autoplay: true,
+                            arrows: true,
+                            slidesToShow: 4,
+                            prevArrow: '<button type="button" class="slick-prev"><i class="flaticon-left-arrow"></i></button>',
+                            nextArrow: '<button type="button" class="slick-next"><i class="flaticon-right-arrow"></i></button>',
+                            slidesToScroll: 1,
+                            responsive: [
+                                {
+                                    breakpoint: 1500,
+                                    settings: {
+                                        slidesToShow: 3,
+                                        slidesToScroll: 1,
+                                        infinite: true,
+                                    }
+                                },
+                                {
+                                    breakpoint: 1200,
+                                    settings: {
+                                        slidesToShow: 3,
+                                        slidesToScroll: 1,
+                                        infinite: true,
+                                    }
+                                },
+                                {
+                                    breakpoint: 992,
+                                    settings: {
+                                        slidesToShow: 2,
+                                        slidesToScroll: 1
+                                    }
+                                },
+                                {
+                                    breakpoint: 767,
+                                    settings: {
+                                        slidesToShow: 1,
+                                        slidesToScroll: 1,
+                                        arrows: true,
+                                    }
+                                },
+                                {
+                                    breakpoint: 575,
+                                    settings: {
+                                        slidesToShow: 1,
+                                        slidesToScroll: 1,
+                                        arrows: false,
+                                    }
+                                },
+                            ]
+                        });
+                    } catch(e) {
+                        console.error('Error initializing slider:', e);
+                    }
+                } else {
+                    // Retry if slick is not loaded yet
+                    console.log('Slick not loaded yet, retrying in 300ms...');
+                    setTimeout(initRelatedProductsSlider, 300);
+                }
+            }
+        }
         
-        const form = $(this);
-        const productId = {{ product.id }};
-        const quantity = $('#quantity').val();
+        // Initialize slider after ensuring slick is loaded
+        setTimeout(initRelatedProductsSlider, 500);
+        // Ensure quantity doesn't go below 1
+        $(document).on('click', '.qtybutton', function() {
+            setTimeout(function() {
+                var $input = $('.quickview-cart-plus-minus input');
+                var currentVal = parseInt($input.val());
+                if (currentVal < 1) {
+                    $input.val(1);
+                }
+            }, 10);
+        });
+
+        // Add to cart with AJAX
+        $('#addToCartForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const form = $(this);
+            const productId = {{ product.id }};
+            const quantity = parseInt(form.find('input[name="quantity"]').val()) || 1;
+            
+            // Get CSRF token
+            let csrftoken = form.find('[name=csrfmiddlewaretoken]').val();
+            if (!csrftoken) {
+                csrftoken = $('[name=csrfmiddlewaretoken]').val();
+            }
+            if (!csrftoken) {
+                csrftoken = getCookie('csrftoken');
+            }
+            
+            // Disable button to prevent double submission
+            const submitBtn = form.find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Agregando...');
+            
+            // Send as JSON for proper handling - usar URL de Django
+            const cartAddUrl = '{% url "catalog:cart_add" 999 %}'.replace('999', productId);
+            fetch(cartAddUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    quantity: quantity
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                } else {
+                    // If redirect, just show success message
+                    return { success: true, message: 'Producto agregado al carrito' };
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update cart badge in navbar (mini-cart-count)
+                    if (data.cart_items_count !== undefined && data.cart_items_count !== null) {
+                        // Update mini-cart-count in navbar
+                        const miniCartCount = document.querySelector('.mini-cart-count');
+                        if (miniCartCount) {
+                            miniCartCount.textContent = data.cart_items_count;
+                            miniCartCount.style.display = data.cart_items_count > 0 ? 'inline-block' : 'none';
+                        } else {
+                            // Create badge if it doesn't exist
+                            const cartLink = document.querySelector('.cart-count');
+                            if (cartLink && data.cart_items_count > 0) {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'mini-cart-count';
+                                newBadge.textContent = data.cart_items_count;
+                                cartLink.appendChild(newBadge);
+                            }
+                        }
+                        
+                        // Also update any other cart badges
+                        const cartBadges = document.querySelectorAll('.cart-badge');
+                        cartBadges.forEach(badge => {
+                            badge.textContent = data.cart_items_count;
+                            badge.style.display = data.cart_items_count > 0 ? 'flex' : 'none';
+                        });
+                    }
+                    
+                    // Open cart sidebar
+                    if (typeof openCartSidebar === 'function') {
+                        openCartSidebar();
+                    }
+                    
+                    // Show success message
+                    showAlert(data.message || 'Producto agregado al carrito', 'success');
+                    
+                    // Re-enable button
+                    submitBtn.prop('disabled', false).text(originalText);
+                } else {
+                    showAlert(data.message || 'Error al agregar producto', 'danger');
+                    submitBtn.prop('disabled', false).text(originalText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error al agregar producto. Por favor, intenta de nuevo.', 'danger');
+                submitBtn.prop('disabled', false).text(originalText);
+            });
+        });
         
-        addToCart(productId, quantity);
+        // Helper function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     });
+
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '100px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }
 </script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-

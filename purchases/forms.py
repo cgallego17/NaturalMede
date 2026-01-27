@@ -155,8 +155,8 @@ PurchaseItemFormSet = inlineformset_factory(
     form=PurchaseItemForm,
     extra=1,
     can_delete=True,
-    min_num=1,
-    validate_min=True
+    min_num=0,  # Cambiado de 1 a 0 para permitir formularios vacíos
+    validate_min=False  # Cambiado a False para no validar mínimo
 )
 
 

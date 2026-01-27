@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Dashboard de Reportes - NaturalMede{% endblock %}
 
@@ -20,7 +21,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6>Ventas Hoy</h6>
-                            <h3>${{ today_sales.total_amount|floatformat:0|default:"0" }}</h3>
+                            <h3>${{ today_sales.total_amount|default:0|floatformat:0|intcomma }}</h3>
                             <small>{{ today_sales.total_orders|default:"0" }} órdenes</small>
                         </div>
                         <div class="align-self-center">
@@ -36,7 +37,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6>Ventas del Mes</h6>
-                            <h3>${{ month_sales.total_amount|floatformat:0|default:"0" }}</h3>
+                            <h3>${{ month_sales.total_amount|default:0|floatformat:0|intcomma }}</h3>
                             <small>{{ month_sales.total_orders|default:"0" }} órdenes</small>
                         </div>
                         <div class="align-self-center">
@@ -169,7 +170,7 @@
                                     <td>
                                         <span class="badge badge-primary">{{ product.total_quantity }}</span>
                                     </td>
-                                    <td class="font-weight-bold">${{ product.total_sales|floatformat:0 }}</td>
+                                    <td class="font-weight-bold">${{ product.total_sales|floatformat:0|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -209,7 +210,7 @@
                                     <td>
                                         <span class="badge badge-success">{{ customer.total_orders }}</span>
                                     </td>
-                                    <td class="font-weight-bold">${{ customer.total_spent|floatformat:0 }}</td>
+                                    <td class="font-weight-bold">${{ customer.total_spent|floatformat:0|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -299,6 +300,8 @@
     }, 30000);
 </script>
 {% endblock %}
+
+
 
 
 

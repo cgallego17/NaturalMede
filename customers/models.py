@@ -86,3 +86,55 @@ class CustomerAddress(models.Model):
             # Solo puede haber una dirección por defecto por cliente
             CustomerAddress.objects.filter(customer=self.customer, is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+
+class Country(models.Model):
+    external_id = models.PositiveIntegerField(unique=True, verbose_name="ID Externo")
+    name = models.CharField(max_length=100, unique=True, verbose_name="País")
+    iso2 = models.CharField(max_length=2, blank=True, null=True, verbose_name="ISO2")
+    iso3 = models.CharField(max_length=3, blank=True, null=True, verbose_name="ISO3")
+
+    class Meta:
+        verbose_name = "País"
+        verbose_name_plural = "Países"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class Department(models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='departments', verbose_name="País")
+    external_id = models.PositiveIntegerField(verbose_name="ID Externo")
+    name = models.CharField(max_length=150, verbose_name="Departamento")
+    iso2 = models.CharField(max_length=10, blank=True, null=True, verbose_name="ISO2")
+
+    class Meta:
+        verbose_name = "Departamento"
+        verbose_name_plural = "Departamentos"
+        ordering = ['country__name', 'name']
+        constraints = [
+            models.UniqueConstraint(fields=['country', 'external_id'], name='uniq_department_external_id'),
+            models.UniqueConstraint(fields=['country', 'name'], name='uniq_department_name'),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.country.name})"
+
+
+class City(models.Model):
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='cities', verbose_name="Departamento")
+    external_id = models.PositiveIntegerField(verbose_name="ID Externo")
+    name = models.CharField(max_length=150, verbose_name="Ciudad")
+
+    class Meta:
+        verbose_name = "Ciudad"
+        verbose_name_plural = "Ciudades"
+        ordering = ['department__country__name', 'department__name', 'name']
+        constraints = [
+            models.UniqueConstraint(fields=['department', 'external_id'], name='uniq_city_external_id'),
+            models.UniqueConstraint(fields=['department', 'name'], name='uniq_city_name'),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.department.name})"

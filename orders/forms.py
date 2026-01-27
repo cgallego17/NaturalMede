@@ -55,3 +55,5 @@ class ShippingRateForm(forms.ModelForm):
 
 
 
+
+

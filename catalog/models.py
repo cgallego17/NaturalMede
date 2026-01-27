@@ -134,11 +134,11 @@ class Cart(models.Model):
 
     @property
     def total_iva(self):
-        return sum(item.iva_amount for item in self.items.all())
+        return Decimal('0.00')
 
     @property
     def total_with_iva(self):
-        return self.total_amount + self.total_iva
+        return self.total_amount
 
 
 class CartItem(models.Model):
@@ -162,11 +162,13 @@ class CartItem(models.Model):
 
     @property
     def iva_amount(self):
-        return self.total * (self.product.iva_percentage / 100)
+        return Decimal('0.00')
 
     @property
     def total_with_iva(self):
-        return self.total + self.iva_amount
+        return self.total
+
+
 
 
 

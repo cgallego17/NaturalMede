@@ -186,10 +186,7 @@
             }
         }
         
-        /* Body padding for fixed navbar */
-        body {
-            padding-top: 80px;
-        }
+        /* Body padding - Suxnix maneja esto con su propio CSS */
         
         .btn-primary {
             background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%); /* Forest green gradient */
@@ -208,12 +205,7 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
         }
-        .footer {
-            background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%); /* Forest green gradient */
-            color: #f5f5dc; /* Cream text */
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
+        /* Footer eliminado para plantilla */
         .product-card {
             transition: transform 0.2s;
         }
@@ -335,121 +327,18 @@
             line-height: 1;
         }
     </style>
+    <!-- Suxnix CSS for navbar -->
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/default.css' %}">
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'suxnix/assets/css/responsive.css' %}">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'catalog:home' %}">
-                <img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" class="logo-image-small me-3" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="logo-fallback-small me-3" style="display: none;">
-                    <div class="logo-circle-small">
-                        <i class="fas fa-leaf logo-icon-small"></i>
-                    </div>
-                </div>
-                <div>
-                    <div class="brand-name">NaturalMede</div>
-                    <small class="brand-subtitle">Tienda Naturista</small>
-                </div>
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <!-- Navegación Pública -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'catalog:home' %}">
-                            <i class="fas fa-home"></i> Inicio
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="catalogDropdown" role="button" data-toggle="dropdown">
-                            <i class="fas fa-th-large"></i> Catálogo
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url 'catalog:product_list' %}">
-                                <i class="fas fa-box"></i> Todos los productos
-                            </a>
-                            {% for category in categories %}
-                            <a class="dropdown-item" href="{% url 'catalog:category_detail' category.slug %}">
-                                <i class="fas fa-tag"></i> {{ category.name }}
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </li>
-                    
-                    <!-- Navegación para Usuarios Autenticados -->
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-toggle="dropdown">
-                            <i class="fas fa-cogs"></i> Gestión
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{% url 'inventory:dashboard' %}">
-                                <i class="fas fa-boxes"></i> Inventario
-                            </a>
-                            <a class="dropdown-item" href="{% url 'orders:order_list' %}">
-                                <i class="fas fa-shopping-bag"></i> Órdenes
-                            </a>
-                            <a class="dropdown-item" href="{% url 'customers:customer_list' %}">
-                                <i class="fas fa-users"></i> Clientes
-                            </a>
-                            <a class="dropdown-item" href="{% url 'reports:dashboard' %}">
-                                <i class="fas fa-chart-bar"></i> Reportes
-                            </a>
-                        </div>
-                    </li>
-                    {% endif %}
-                    
-                    <!-- Enlace al Admin para Staff -->
-                    {% if user.is_staff %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'custom_admin:admin_dashboard' %}">
-                            <i class="fas fa-tachometer-alt"></i> Admin
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'catalog:cart' %}">
-                            <i class="fas fa-shopping-cart"></i> Carrito
-                            {% if cart_items_count > 0 %}
-                            <span class="cart-badge">{{ cart_items_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-                            <i class="fas fa-user"></i> {{ user.get_full_name|default:user.username }}
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="{% url 'admin:index' %}">
-                                <i class="fas fa-cog"></i> Administración
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url 'admin:logout' %}">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                            </a>
-                        </div>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'custom_admin:home_login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% include 'catalog/includes/navbar.html' %}
 
     <!-- Messages -->
     {% if messages %}
@@ -470,43 +359,40 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="fas fa-leaf"></i> NaturalMede</h5>
-                    <p>Tu tienda naturista de confianza. Productos naturales para una vida saludable.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Enlaces Rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'catalog:home' %}" class="text-light">Inicio</a></li>
-                        <li><a href="{% url 'catalog:product_list' %}" class="text-light">Catálogo</a></li>
-                        <li><a href="{% url 'catalog:cart' %}" class="text-light">Carrito</a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url 'reports:dashboard' %}" class="text-light">Reportes</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contacto</h5>
-                    <p><i class="fas fa-phone"></i> +57 300 123 4567</p>
-                    <p><i class="fas fa-envelope"></i> info@naturalmede.com</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Bogotá, Colombia</p>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <p>&copy; 2024 NaturalMede. Todos los derechos reservados.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer eliminado para plantilla -->
 
-    <!-- Bootstrap 4.5.2 JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Suxnix JS for navbar -->
+    <script src="{% static 'suxnix/assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'suxnix/assets/js/bootstrap.min.js' %}"></script>
+    <!-- Ocultar preloader en todas las páginas -->
+    <script>
+        // Ocultar preloader cuando la página carga
+        (function() {
+            function hidePreloader() {
+                var preloader = document.getElementById('preloader');
+                if (preloader) {
+                    preloader.style.display = 'none';
+                }
+            }
+            // Intentar ocultar inmediatamente
+            hidePreloader();
+            // También cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hidePreloader);
+            }
+            // Y cuando la ventana cargue completamente
+            window.addEventListener('load', function() {
+                hidePreloader();
+                // También usar jQuery si está disponible
+                if (typeof jQuery !== 'undefined') {
+                    jQuery('#preloader').fadeOut(0);
+                }
+            });
+        })();
+    </script>
+    <!-- Note: main.js se carga en las páginas que lo necesitan, no aquí para evitar conflictos -->
+    
+    <!-- Bootstrap 4.5.2 JS (fallback) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
@@ -580,6 +466,410 @@
         }
     </script>
     
+    <!-- Cart Sidebar Overlay -->
+    <div class="cart-sidebar-overlay" id="cartSidebarOverlay"></div>
+    
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-sidebar-content">
+            <div class="cart-sidebar-header">
+                <h3>Carrito de Compras</h3>
+                <button class="cart-sidebar-close" id="closeCartSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="cart-sidebar-body" id="cartSidebarBody">
+                <div class="cart-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                </div>
+            </div>
+            <div class="cart-sidebar-footer">
+                <div class="cart-total">
+                    <strong>Total: <span id="cartSidebarTotal">$0</span></strong>
+                </div>
+                <div class="cart-sidebar-buttons">
+                    <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-continue">
+                        Seguir Comprando
+                    </a>
+                    <a href="{% url 'catalog:cart' %}" class="btn btn-primary btn-checkout">
+                        Pagar Ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Cart Sidebar Styles */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            background: #fff;
+            z-index: 9999;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .cart-sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .cart-sidebar-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #fff;
+        }
+        
+        .cart-sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+        
+        .cart-sidebar-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c5530;
+        }
+        
+        .cart-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+        
+        .cart-sidebar-close:hover {
+            color: #2c5530;
+        }
+        
+        .cart-sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .cart-sidebar-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-sidebar-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-sidebar-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        
+        .cart-sidebar-item-info {
+            flex: 1;
+        }
+        
+        .cart-sidebar-item-name {
+            font-weight: 600;
+            color: #2c5530;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .cart-sidebar-item-price {
+            color: #94be26;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .cart-sidebar-item-quantity {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .cart-sidebar-item-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+        
+        .cart-sidebar-item-remove:hover {
+            color: #c82333;
+        }
+        
+        .cart-sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+        }
+        
+        .cart-total {
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        
+        .cart-total strong {
+            color: #2c5530;
+        }
+        
+        .cart-total span {
+            color: #94be26;
+            font-size: 24px;
+        }
+        
+        .cart-sidebar-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .cart-sidebar-buttons .btn {
+            flex: 1;
+            padding: 12px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-continue {
+            background: #fff;
+            color: #2c5530;
+            border: 2px solid #2c5530;
+        }
+        
+        .btn-continue:hover {
+            background: #2c5530;
+            color: #fff;
+        }
+        
+        .btn-checkout {
+            background: #94be26;
+            color: #fff;
+            border: 2px solid #94be26;
+        }
+        
+        .btn-checkout:hover {
+            background: #7da020;
+            border-color: #7da020;
+        }
+        
+        .cart-loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .cart-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .cart-empty i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+
+    <script>
+        // Cart Sidebar Functions
+        function openCartSidebar() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartSidebarOverlay');
+            if (sidebar && overlay) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                loadCartSidebarContent();
+            }
+        }
+        
+        function closeCartSidebar() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartSidebarOverlay');
+            if (sidebar && overlay) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function loadCartSidebarContent() {
+            const body = document.getElementById('cartSidebarBody');
+            if (!body) {
+                console.error('cartSidebarBody not found');
+                return;
+            }
+            
+            body.innerHTML = '<div class="cart-loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+            
+            fetch('{% url "catalog:cart" %}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Cart response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error('Network response was not ok: ' + response.status);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Cart data received:', data);
+                
+                if (!data || !data.success) {
+                    body.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Error al cargar el carrito</p></div>';
+                    return;
+                }
+                
+                if (!data.cart_items || data.cart_items.length === 0) {
+                    body.innerHTML = '<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Tu carrito está vacío</p></div>';
+                    const totalElement = document.getElementById('cartSidebarTotal');
+                    if (totalElement) {
+                        totalElement.textContent = '$0';
+                    }
+                    return;
+                }
+                
+                console.log('Rendering', data.cart_items.length, 'items');
+                let itemsHtml = '';
+                
+                data.cart_items.forEach(item => {
+                    console.log('Processing item:', item);
+                    
+                    // Handle relative URLs - if image_url doesn't start with http, prepend current origin
+                    let image = item.product_image || '';
+                    if (!image || image === '') {
+                        image = '{% static "images/no-image.png" %}';
+                    } else if (!image.startsWith('http') && !image.startsWith('/')) {
+                        image = '/' + image;
+                    }
+                    
+                    const name = item.product_name || 'Producto';
+                    const price = new Intl.NumberFormat('es-CO', {
+                        style: 'currency',
+                        currency: 'COP',
+                        minimumFractionDigits: 0
+                    }).format(item.price || 0);
+                    const quantity = item.quantity || 1;
+                    const itemId = item.id;
+                    
+                    itemsHtml += `
+                        <div class="cart-sidebar-item" data-item-id="${itemId}">
+                            <img src="${image}" alt="${name}" class="cart-sidebar-item-image" onerror="this.src='{% static "images/no-image.png" %}'">
+                            <div class="cart-sidebar-item-info">
+                                <div class="cart-sidebar-item-name">${name}</div>
+                                <div class="cart-sidebar-item-price">${price}</div>
+                                <div class="cart-sidebar-item-quantity">Cantidad: ${quantity}</div>
+                            </div>
+                            <button class="cart-sidebar-item-remove" onclick="removeCartItem(${itemId})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                body.innerHTML = itemsHtml;
+                console.log('Items HTML set, length:', itemsHtml.length);
+                
+                // Update total
+                const totalElement = document.getElementById('cartSidebarTotal');
+                if (totalElement && data.cart_total !== undefined) {
+                    totalElement.textContent = new Intl.NumberFormat('es-CO', {
+                        style: 'currency',
+                        currency: 'COP',
+                        minimumFractionDigits: 0
+                    }).format(data.cart_total);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading cart:', error);
+                body.innerHTML = '<div class="cart-empty"><p>Error al cargar el carrito: ' + error.message + '</p></div>';
+            });
+        }
+        
+        function removeCartItem(itemId) {
+            // Implement remove functionality
+            console.log('Remove item:', itemId);
+        }
+        
+        // Close sidebar on overlay click
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeBtn = document.getElementById('closeCartSidebar');
+            const overlay = document.getElementById('cartSidebarOverlay');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeCartSidebar);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeCartSidebar);
+            }
+        });
+        
+        // Make functions globally available
+        window.openCartSidebar = openCartSidebar;
+        window.closeCartSidebar = closeCartSidebar;
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

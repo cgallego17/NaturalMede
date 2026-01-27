@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .models import Product, Category, Brand, Cart, CartItem
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
+from customers.models import City, Country, Department
 
 
 class ProductListAPIView(generics.ListAPIView):
@@ -78,6 +79,41 @@ def product_list_api(request):
         })
     
     return Response(data)
+
+
+@api_view(['GET'])
+def location_countries_api(request):
+    countries = Country.objects.all().order_by('name')
+    return Response([
+        {'id': c.id, 'name': c.name}
+        for c in countries
+    ])
+
+
+@api_view(['GET'])
+def location_departments_api(request):
+    country_id = request.GET.get('country_id')
+    if not country_id:
+        return Response([], status=status.HTTP_200_OK)
+
+    departments = Department.objects.filter(country_id=country_id).order_by('name')
+    return Response([
+        {'id': d.id, 'name': d.name}
+        for d in departments
+    ])
+
+
+@api_view(['GET'])
+def location_cities_api(request):
+    department_id = request.GET.get('department_id')
+    if not department_id:
+        return Response([], status=status.HTTP_200_OK)
+
+    cities = City.objects.filter(department_id=department_id).order_by('name')
+    return Response([
+        {'id': c.id, 'name': c.name}
+        for c in cities
+    ])
 
 
 # ViewSets

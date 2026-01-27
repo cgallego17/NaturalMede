@@ -10,9 +10,10 @@ from decimal import Decimal
 import json
 
 from catalog.models import Product, Category, Brand, Cart
+from catalog.models import CartItem
 from inventory.models import Stock, Warehouse, StockMovement, StockTransfer, StockTransferItem
 from customers.models import Customer
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, WompiConfig
 from pos.models import POSSale, POSSaleItem, POSSession
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -48,6 +49,8 @@ def home_login(request):
         else:
             # Si es usuario normal, redirigir al home
             return redirect('/')
+
+    next_url = request.GET.get('next') or request.POST.get('next') or '/'
     
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -55,6 +58,27 @@ def home_login(request):
         
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if not request.session.session_key:
+                request.session.create()
+
+            session_cart = Cart.objects.filter(session_key=request.session.session_key).first()
+            user_cart, _ = Cart.objects.get_or_create(user=user)
+            if session_cart and session_cart.items.exists():
+                for item in session_cart.items.select_related('product').all():
+                    existing = CartItem.objects.filter(cart=user_cart, product=item.product).first()
+                    if existing:
+                        existing.quantity += item.quantity
+                        existing.save()
+                    else:
+                        item.cart = user_cart
+                        item.save()
+
+                CartItem.objects.filter(cart=session_cart).delete()
+                try:
+                    session_cart.delete()
+                except Exception:
+                    pass
+
             login(request, user)
             messages.success(request, f'¡Bienvenido, {user.get_full_name() or user.username}!')
             
@@ -62,7 +86,7 @@ def home_login(request):
             if user.is_staff:
                 return redirect('custom_admin:admin_dashboard')
             else:
-                return redirect('/')
+                return redirect(next_url)
         else:
             messages.error(request, 'Usuario o contraseña incorrectos.')
     
@@ -2410,4 +2434,48 @@ def admin_inventory_reports(request):
     }
     
     return render(request, 'custom_admin/inventory_reports.html', context)
+
+
+@login_required
+def admin_wompi_config(request):
+    """Configuración de Wompi"""
+    config = WompiConfig.get_config()
+    
+    if request.method == 'POST':
+        try:
+            config.public_key = request.POST.get('public_key', '').strip()
+            config.private_key = request.POST.get('private_key', '').strip()
+            config.events_secret = request.POST.get('events_secret', '').strip()
+            config.integrity_secret = request.POST.get('integrity_secret', '').strip()
+            config.environment = request.POST.get('environment', 'sandbox')
+            config.is_active = request.POST.get('is_active') == 'on'
+            config.save()
+            
+            messages.success(request, 'Configuración de Wompi actualizada exitosamente.')
+            return redirect('custom_admin:admin_wompi_config')
+        except Exception as e:
+            messages.error(request, f'Error al actualizar la configuración: {str(e)}')
+    
+    context = {
+        'config': config,
+    }
+    
+    return render(request, 'custom_admin/wompi_config.html', context)
+
+
+# --------- Detalle de Orden ---------
+@login_required
+def admin_order_detail(request, pk):
+    """Muestra el detalle de una orden web"""
+    from orders.models import Order
+    try:
+        order = Order.objects.select_related('customer__user').prefetch_related('items__product').get(pk=pk)
+    except Order.DoesNotExist:
+        messages.error(request, 'Orden no encontrada.')
+        return redirect('custom_admin:admin_orders')
+
+    context = {
+        'order': order,
+    }
+    return render(request, 'custom_admin/order_detail.html', context)
 

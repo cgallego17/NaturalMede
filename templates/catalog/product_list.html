@@ -1,219 +1,633 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
-{% block title %}Catálogo de Productos - NaturalMede{% endblock %}
+{% block title %}Tienda - NaturalMede{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/jquery-ui.css' %}">
+<style>
+    /* Mejoras del filtro de precio */
+    .price_filter {
+        margin-bottom: 20px;
+    }
+    
+    .price_slider_amount {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .price_slider_amount > span {
+        font-weight: 600;
+        color: #2F5B3A;
+        min-width: 60px;
+    }
+    
+    .price_slider_amount > input[type="text"] {
+        flex: 1;
+        min-width: 150px;
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-weight: 600;
+        color: #2F5B3A;
+        background: #f8f9fa;
+    }
+    
+    .price_slider_amount form {
+        display: flex;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .price_slider_amount form input[type="submit"],
+    .price_slider_amount form button[type="submit"] {
+        width: 100%;
+        padding: 10px 20px;
+        background: #94be26;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .price_slider_amount form input[type="submit"]:hover,
+    .price_slider_amount form button[type="submit"]:hover {
+        background: #7aa020;
+    }
+    
+    /* Mejoras del sidebar */
+    .shop-sidebar {
+        background: #fff;
+        padding: 30px 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .shop-sidebar .widget {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #e8e8e8;
+    }
+    
+    .shop-sidebar .widget:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .sidebar-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2F5B3A;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #94be26;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Categorías */
+    .categories-list li {
+        margin-bottom: 5px;
+    }
+    
+    .categories-list li a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        color: #555;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+    
+    .categories-list li a:hover,
+    .categories-list li a.active {
+        background: #f0f7e8;
+        color: #2F5B3A;
+        padding-left: 20px;
+    }
+    
+    .categories-list li a i:last-child {
+        color: #94be26;
+    }
+    
+    /* Productos recientes */
+    .lp-post-item li {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .lp-post-item li:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .lp-post-thumb {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+    }
+    
+    .lp-post-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .lp-post-content .title {
+        font-size: 14px;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .lp-post-content .title a {
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+    
+    .lp-post-content .title a:hover {
+        color: #94be26;
+    }
+    
+    .lp-post-content .price {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2F5B3A;
+    }
+    
+    .lp-post-rating {
+        margin-bottom: 5px;
+    }
+    
+    .lp-post-rating i {
+        color: #ffc107;
+        font-size: 12px;
+    }
+    
+    /* Tags de marcas */
+    .Product-tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .Product-tag-list li a {
+        display: inline-block;
+        padding: 8px 15px;
+        background: #f8f9fa;
+        color: #555;
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 13px;
+        transition: all 0.3s;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .Product-tag-list li a:hover,
+    .Product-tag-list li a.active {
+        background: #94be26;
+        color: white;
+        border-color: #94be26;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1><i class="fas fa-th-large"></i> Catálogo de Productos</h1>
-            <p class="text-muted">Descubre nuestra amplia gama de productos naturales</p>
-        </div>
-        <div class="col-md-4 text-right">
-            <a href="{% url 'catalog:cart' %}" class="btn btn-primary">
-                <i class="fas fa-shopping-cart"></i> Ver Carrito ({{ cart_items_count }})
-            </a>
+<!-- breadcrumb-area -->
+<section class="breadcrumb-area breadcrumb-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="breadcrumb-content text-center">
+                    <h2 class="title">Nuestra Tienda</h2>
+                    <nav aria-label="Breadcrumbs" class="breadcrumb-trail">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item trail-item trail-begin">
+                                <a href="{% url 'catalog:home' %}"><span>Inicio</span></a>
+                            </li>
+                            <li class="breadcrumb-item trail-item trail-end"><span>Tienda</span></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="video-shape one"><img src="{% static 'suxnix/assets/img/others/video_shape01.png' %}" alt="shape"></div>
+    <div class="video-shape two"><img src="{% static 'suxnix/assets/img/others/video_shape02.png' %}" alt="shape"></div>
+</section>
+<!-- breadcrumb-area-end -->
 
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="get" class="row">
-                        <div class="col-md-4">
-                            <label for="search">Buscar productos:</label>
-                            <input type="text" class="form-control" id="search" name="search" 
-                                   value="{{ request.GET.search }}" placeholder="Nombre, SKU o código de barras">
+<div class="inner-shop-area">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Sidebar -->
+            <div class="col-xl-3 col-lg-4 col-md-8 col-sm-8">
+                <aside class="shop-sidebar">
+                    <!-- Filtro por Precio -->
+                    <div class="widget">
+                        <h4 class="sidebar-title">Filtrar por Precio</h4>
+                        <div class="price_filter">
+                            <div id="slider-range"></div>
+                            <div class="price_slider_amount">
+                                <span>Precio :</span>
+                                <input type="text" id="amount" name="price" placeholder="Agregar Precio" readonly />
+                                <form method="get" id="priceFilterForm">
+                                    <input type="hidden" id="price_min" name="price_min" value="">
+                                    <input type="hidden" id="price_max" name="price_max" value="">
+                                    {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}">{% endif %}
+                                    {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
+                                    {% if request.GET.brand %}<input type="hidden" name="brand" value="{{ request.GET.brand }}">{% endif %}
+                                    {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+                                    <input type="submit" class="btn" value="Filtrar">
+                                </form>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="sort">Ordenar por:</label>
-                            <select class="form-control" id="sort" name="sort">
-                                <option value="">Recomendados</option>
-                                <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Nombre A-Z</option>
-                                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Más Recientes</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="category">Categoría:</label>
-                            <select class="form-control" id="category" name="category">
-                                <option value="">Todas las categorías</option>
-                                {% for category in categories %}
-                                <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
-                                    {{ category.name }}
-                                </option>
+                    </div>
+                    
+                    <!-- Categorías -->
+                    <div class="widget">
+                        <h4 class="sidebar-title">CATEGORÍAS</h4>
+                        <ul class="categories-list list-wrap">
+                            <li>
+                                <a href="{% url 'catalog:product_list' %}" {% if not selected_category %}class="active"{% endif %}>
+                                    Todas las Categorías <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% for category in categories %}
+                            {% if category.slug %}
+                            <li>
+                                <a href="{% url 'catalog:product_list' %}?category={{ category.slug }}" 
+                                   {% if selected_category and selected_category.id == category.id %}class="active"{% endif %}>
+                                    {{ category.name|upper }} <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Últimos Productos -->
+                    {% if latest_products %}
+                    <div class="widget">
+                        <h4 class="sidebar-title">PRODUCTOS RECIENTES</h4>
+                        <div class="lp-post-list">
+                            <ul class="lp-post-item list-wrap">
+                                {% for product in latest_products %}
+                                <li>
+                                    <div class="lp-post-thumb">
+                                        <a href="{% url 'catalog:product_detail' product.slug %}">
+                                            {% if product.images.all %}
+                                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                            {% else %}
+                                                <img src="{% static 'images/no-image.png' %}" alt="{{ product.name }}">
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                    <div class="lp-post-content">
+                                        <ul class="lp-post-rating list-wrap">
+                                            <li>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </li>
+                                        </ul>
+                                        <h4 class="title">
+                                            <a href="{% url 'catalog:product_detail' product.slug %}">
+                                                {{ product.name|truncatechars:30 }}
+                                            </a>
+                                        </h4>
+                                        <span class="price">${{ product.price|floatformat:0|intcomma }}</span>
+                                    </div>
+                                </li>
                                 {% endfor %}
-                            </select>
+                            </ul>
                         </div>
-                        <div class="col-md-2">
-                            <label>&nbsp;</label>
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-search"></i> Filtrar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Featured Products -->
-    {% if featured_products and not request.GET.search and not request.GET.category %}
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h3><i class="fas fa-star"></i> Productos Destacados</h3>
-            <div class="row">
-                {% for product in featured_products %}
-                <div class="col-md-2 mb-3">
-                    <div class="card product-card h-100">
-                        {% if product.images.first %}
-                        <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 150px; object-fit: cover;">
-                        {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-image fa-3x text-muted"></i>
-                        </div>
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title">{{ product.name|truncatechars:30 }}</h6>
-                            <p class="card-text text-success font-weight-bold">
-                                ${{ product.price|floatformat:0 }}
-                            </p>
-                            <div class="mt-auto">
-                                <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
-                                    Ver Detalles
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Marcas/Tags -->
+                    {% if brands %}
+                    <div class="widget">
+                        <h4 class="sidebar-title">MARCAS</h4>
+                        <ul class="Product-tag-list list-wrap">
+                            {% for brand in brands|slice:":12" %}
+                            <li>
+                                <a href="{% url 'catalog:product_list' %}?brand={{ brand.slug }}" 
+                                   {% if selected_brand and selected_brand.id == brand.id %}class="active"{% endif %}>
+                                    {{ brand.name }}
                                 </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </aside>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-xl-9 col-lg-8 col-md-12 col-sm-8 shop-sidebar-pad order-first">
+                <!-- Filtros Superiores -->
+                <div class="shop-top-wrap">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="shop-top-left">
+                                <p class="woocommerce-result-count shop-show-result">
+                                    Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ paginator.count }} resultados
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="shop-top-right selection">
+                                <form class="woocommerce-ordering mb-0" method="get" id="sortForm">
+                                    {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}">{% endif %}
+                                    {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
+                                    {% if request.GET.brand %}<input type="hidden" name="brand" value="{{ request.GET.brand }}">{% endif %}
+                                    {% if request.GET.price_min %}<input type="hidden" name="price_min" value="{{ request.GET.price_min }}">{% endif %}
+                                    {% if request.GET.price_max %}<input type="hidden" name="price_max" value="{{ request.GET.price_max }}">{% endif %}
+                                    <select id="shortBy" name="sort" class="orderby form-select" aria-label="Ordenar tienda">
+                                        <option value="" {% if not request.GET.sort %}selected="selected"{% endif %}>Orden por defecto</option>
+                                        <option value="popularity" {% if request.GET.sort == 'popularity' %}selected{% endif %}>Ordenar por popularidad</option>
+                                        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Ordenar por más recientes</option>
+                                        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Ordenar por precio: menor a mayor</option>
+                                        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Ordenar por precio: mayor a menor</option>
+                                        <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Ordenar por nombre</option>
+                                    </select>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Products Grid -->
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-3 mb-4">
-            <div class="card product-card h-100">
-                {% if product.images.first %}
-                <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="fas fa-image fa-3x text-muted"></i>
-                </div>
-                {% endif %}
                 
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">{{ product.name }}</h6>
-                    <p class="card-text text-muted small">{{ product.short_description|truncatechars:60 }}</p>
-                    
-                    <div class="mb-2">
-                        <span class="badge badge-secondary">{{ product.category.name }}</span>
-                        <span class="badge badge-info">{{ product.brand.name }}</span>
+                <!-- Grid de Productos -->
+                <div class="suxnix-shop-product-main">
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <div class="home-shop-item inner-shop-item">
+                                <div class="home-shop-thumb">
+                                    <a href="{% url 'catalog:product_detail' product.slug %}">
+                                        {% if product.images.all %}
+                                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'images/no-image.png' %}" alt="{{ product.name }}">
+                                        {% endif %}
+                                        {% if product.is_featured %}
+                                        <span class="discount">Destacado</span>
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <div class="home-shop-content">
+                                    <div class="shop-item-cat">
+                                        <a href="{% url 'catalog:product_list' %}?category={{ product.category.slug }}">
+                                            {{ product.category.name }}
+                                        </a>
+                                    </div>
+                                    <h4 class="title">
+                                        <a href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a>
+                                    </h4>
+                                    <span class="home-shop-price">${{ product.price|floatformat:0|intcomma }}</span>
+                                    <div class="home-shop-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <div class="shop-content-bottom">
+                                        <form method="post" action="{% url 'catalog:cart_add' product.id %}" class="add-to-cart-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="cart" title="Agregar al carrito">
+                                                <i class="flaticon-shopping-cart-1"></i>
+                                            </button>
+                                        </form>
+                                        <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-two">Ver Detalles</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h4>No se encontraron productos</h4>
+                                <p class="text-muted">Intenta con otros términos de búsqueda o filtros</p>
+                                <a href="{% url 'catalog:product_list' %}" class="btn btn-two">Ver todos los productos</a>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                     
-                    <div class="mb-2">
-                        <span class="text-success font-weight-bold h5">${{ product.price|floatformat:0 }}</span>
-                        {% if product.iva_percentage > 0 %}
-                        <small class="text-muted d-block">IVA {{ product.iva_percentage }}% incluido</small>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mt-auto">
-                        <div class="row">
-                            <div class="col-6">
-                                <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-sm btn-outline-primary btn-block">
-                                    <i class="fas fa-eye"></i> Ver
+                    <!-- Paginación -->
+                    {% if is_paginated %}
+                    <div class="pagination-wrap">
+                        <ul class="list-wrap">
+                            {% if page_obj.has_previous %}
+                            <li class="prv-next">
+                                <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
                                 </a>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-sm btn-success btn-block" onclick="addToCart({{ product.id }})">
-                                    <i class="fas fa-cart-plus"></i> Agregar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-outline-success btn-block whatsapp-btn" 
-                                    onclick="sendWhatsAppMessage('Hola, me interesa el producto: {{ product.name }} - ${{ product.price|floatformat:0 }}')">
-                                <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
-                            </button>
-                        </div>
+                            </li>
+                            <li class="prv-next">
+                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                <li><a href="#" class="current">{{ num }}</a></li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li>
+                                    <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                            <li class="prv-right">
+                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="prv-right">
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.price_min %}&price_min={{ request.GET.price_min }}{% endif %}{% if request.GET.price_max %}&price_max={{ request.GET.price_max }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-md-12">
-            <div class="text-center py-5">
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h4>No se encontraron productos</h4>
-                <p class="text-muted">Intenta con otros términos de búsqueda o filtros</p>
-                <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Ver todos los productos</a>
-            </div>
-        </div>
-        {% endfor %}
     </div>
-
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <nav aria-label="Paginación de productos">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Primera</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Anterior</a>
-            </li>
-            {% endif %}
-            
-            <li class="page-item active">
-                <span class="page-link">
-                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                </span>
-            </li>
-            
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Siguiente</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Última</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'suxnix/assets/js/jquery-ui.min.js' %}"></script>
 <script>
-    // Auto-submit form on filter change
-    document.getElementById('category').addEventListener('change', function() {
-        this.form.submit();
+$(document).ready(function() {
+    // Esperar a que jQuery UI esté cargado
+    if (typeof $.fn.slider === 'undefined') {
+        console.error('jQuery UI Slider no está cargado');
+        return;
+    }
+    
+    // Inicializar slider de precio
+    var minPrice = {{ min_price }};
+    var maxPrice = {{ max_price }};
+    
+    // Obtener valores actuales de los parámetros GET o usar valores por defecto
+    var currentMin = {% if request.GET.price_min %}{{ request.GET.price_min }}{% else %}minPrice{% endif %};
+    var currentMax = {% if request.GET.price_max %}{{ request.GET.price_max }}{% else %}maxPrice{% endif %};
+    
+    // Asegurar que los valores estén dentro del rango y sean válidos
+    if (isNaN(currentMin) || currentMin < minPrice) currentMin = minPrice;
+    if (isNaN(currentMax) || currentMax > maxPrice) currentMax = maxPrice;
+    if (currentMin > currentMax) {
+        currentMin = minPrice;
+        currentMax = maxPrice;
+    }
+    
+    // Inicializar el slider
+    $("#slider-range").slider({
+        range: true,
+        min: minPrice,
+        max: maxPrice,
+        values: [currentMin, currentMax],
+        slide: function(event, ui) {
+            updatePriceDisplay(ui.values[0], ui.values[1]);
+            $("#price_min").val(ui.values[0]);
+            $("#price_max").val(ui.values[1]);
+        },
+        change: function(event, ui) {
+            updatePriceDisplay(ui.values[0], ui.values[1]);
+            $("#price_min").val(ui.values[0]);
+            $("#price_max").val(ui.values[1]);
+        }
     });
     
-    document.getElementById('sort').addEventListener('change', function() {
-        this.form.submit();
+    // Función para actualizar el display del precio
+    function updatePriceDisplay(min, max) {
+        // Formatear números sin símbolo de moneda para evitar problemas
+        var formattedMin = Math.round(min).toLocaleString('es-CO');
+        var formattedMax = Math.round(max).toLocaleString('es-CO');
+        
+        $("#amount").val("$" + formattedMin + " - $" + formattedMax);
+    }
+    
+    // Establecer valores iniciales
+    var initialMin = $("#slider-range").slider("values", 0);
+    var initialMax = $("#slider-range").slider("values", 1);
+    updatePriceDisplay(initialMin, initialMax);
+    $("#price_min").val(initialMin);
+    $("#price_max").val(initialMax);
+    
+    // Manejar el submit del formulario de precio
+    $("#priceFilterForm").on('submit', function(e) {
+        // Asegurar que los valores estén actualizados antes de enviar
+        var currentValues = $("#slider-range").slider("values");
+        $("#price_min").val(currentValues[0]);
+        $("#price_max").val(currentValues[1]);
+        // Permitir que el formulario se envíe normalmente
     });
+    
+    // Auto-submit en cambio de ordenamiento
+    $("#shortBy").on('change', function() {
+        $("#sortForm").submit();
+    });
+    
+    // Manejar formularios de agregar al carrito
+    $('.add-to-cart-form').on('submit', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const productId = form.attr('action').match(/\/(\d+)\//)[1];
+        const quantity = form.find('input[name="quantity"]').val() || 1;
+        
+        let csrftoken = form.find('[name=csrfmiddlewaretoken]').val();
+        if (!csrftoken) {
+            csrftoken = getCookie('csrftoken');
+        }
+        
+        const submitBtn = form.find('button[type="submit"]');
+        const originalHtml = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+        
+        const cartAddUrl = '{% url "catalog:cart_add" 999 %}'.replace('999', productId);
+        fetch(cartAddUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                quantity: parseInt(quantity)
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Actualizar contador del carrito
+                if (data.cart_items_count !== undefined && data.cart_items_count !== null) {
+                    const miniCartCount = document.querySelector('.mini-cart-count');
+                    if (miniCartCount) {
+                        miniCartCount.textContent = data.cart_items_count;
+                        miniCartCount.style.display = data.cart_items_count > 0 ? 'inline-block' : 'none';
+                    }
+                    const cartBadges = document.querySelectorAll('.cart-badge');
+                    cartBadges.forEach(badge => {
+                        badge.textContent = data.cart_items_count;
+                        badge.style.display = data.cart_items_count > 0 ? 'flex' : 'none';
+                    });
+                }
+                showAlert(data.message || 'Producto agregado al carrito', 'success');
+                openCartSidebar();
+                submitBtn.prop('disabled', false).html(originalHtml);
+            } else {
+                showAlert(data.message || 'Error al agregar producto', 'danger');
+                submitBtn.prop('disabled', false).html(originalHtml);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error al agregar producto. Por favor, intenta de nuevo.', 'danger');
+            submitBtn.prop('disabled', false).html(originalHtml);
+        });
+    });
+});
 </script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-

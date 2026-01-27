@@ -31,6 +31,7 @@ urlpatterns = [
     
     path('inventory/', views.admin_inventory, name='admin_inventory'),
     path('orders/', views.admin_orders, name='admin_orders'),
+    path('orders/<int:pk>/', views.admin_order_detail, name='admin_order_detail'),
     path('customers/', views.admin_customers, name='admin_customers'),
     path('customers/create/', views.admin_customer_create, name='admin_customer_create'),
     path('customers/<int:pk>/', views.admin_customer_detail, name='admin_customer_detail'),
@@ -63,4 +64,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/products-with-stock/', views.api_products_with_stock, name='api_products_with_stock'),
+    
+    # Configuración Wompi
+    path('wompi-config/', views.admin_wompi_config, name='admin_wompi_config'),
 ]

@@ -1,0 +1,152 @@
+{% load static %}
+<style>
+    /* Estilos para el logo de texto de NaturalMede */
+    .logo img,
+    .nav-logo img {
+        max-width: 200px !important;
+        height: auto !important;
+        width: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+        background: transparent !important;
+        padding: 0 !important;
+        transition: opacity 0.3s ease;
+    }
+    .logo img:hover,
+    .nav-logo img:hover {
+        opacity: 0.8;
+    }
+    /* Ajuste para el footer */
+    .footer-logo img {
+        max-width: 180px !important;
+        height: auto !important;
+        width: auto !important;
+        display: block !important;
+        background: transparent !important;
+        padding: 0 !important;
+    }
+    /* Ajuste para mobile menu */
+    .mobile-menu .nav-logo img {
+        max-width: 150px !important;
+        height: auto !important;
+        display: block !important;
+        background: transparent !important;
+    }
+</style>
+<!-- Pre-loader-start -->
+<div id="preloader">
+    <div class="tg-cube-grid">
+        <div class="tg-cube tg-cube1"></div>
+        <div class="tg-cube tg-cube2"></div>
+        <div class="tg-cube tg-cube3"></div>
+        <div class="tg-cube tg-cube4"></div>
+        <div class="tg-cube tg-cube5"></div>
+        <div class="tg-cube tg-cube6"></div>
+        <div class="tg-cube tg-cube7"></div>
+        <div class="tg-cube tg-cube8"></div>
+        <div class="tg-cube tg-cube9"></div>
+    </div>
+</div>
+<!-- Pre-loader-end -->
+
+<!-- Scroll-top -->
+<button class="scroll-top scroll-to-target scroll-top-two" data-target="html">
+    <i class="fas fa-angle-up"></i>
+</button>
+<!-- Scroll-top-end-->
+
+<!-- header-area -->
+<header id="home">
+    <div id="header-fixed-height"></div>
+    <div id="sticky-header" class="tg-menu-area menu-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mobile-nav-toggler"><i class="flaticon-layout"></i></div>
+                    <div class="menu-wrap">
+                        <nav class="menu-nav">
+                            <div class="logo">
+                                <a href="{% url 'catalog:home' %}">
+                                    <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo" style="max-width: 95px !important; height: auto; display: block;">
+                                </a>
+                            </div>
+                            <div class="navbar-wrap main-menu d-none d-xl-flex">
+                                <ul class="navigation">
+                                    <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                                        <a href="{% url 'catalog:home' %}">Inicio</a>
+                                    </li>
+                                    <li class="menu-item-has-children {% if 'product' in request.resolver_match.url_name or 'category' in request.resolver_match.url_name or 'brand' in request.resolver_match.url_name %}active{% endif %}">
+                                        <a href="{% url 'catalog:product_list' %}">Tienda</a>
+                                        <ul class="sub-menu">
+                                            <li><a href="{% url 'catalog:product_list' %}">Todos los Productos</a></li>
+                                            {% for category in categories|slice:":5" %}
+                                            {% if category.slug %}
+                                            <li><a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a></li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li class="{% if 'cart' in request.resolver_match.url_name %}active{% endif %}">
+                                        <a href="{% url 'catalog:cart' %}">Carrito</a>
+                                    </li>
+                                    {% if user.is_authenticated %}
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Mi Cuenta</a>
+                                        <ul class="sub-menu">
+                                            <li><a href="{% url 'catalog:cart' %}">Mi Carrito</a></li>
+                                            {% if user.is_staff %}
+                                            <li><a href="{% url 'custom_admin:admin_dashboard' %}">Panel Admin</a></li>
+                                            {% endif %}
+                                            <li><a href="{% url 'catalog:logout' %}">Cerrar Sesión</a></li>
+                                        </ul>
+                                    </li>
+                                    {% else %}
+                                    <li><a href="{% url 'catalog:login' %}">Iniciar Sesión</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="header-action d-none d-sm-block">
+                                <ul>
+                                    <li class="header-shop-cart">
+                                        <a href="{% url 'catalog:cart' %}" class="cart-count">
+                                            <i class="flaticon-shopping-cart"></i>
+                                            {% if cart_items_count and cart_items_count > 0 %}
+                                            <span class="mini-cart-count">{{ cart_items_count }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- header-area-end -->
+
+<!-- Mobile Menu  -->
+<div class="mobile-menu">
+    <nav class="menu-box">
+        <div class="close-btn"><i class="fas fa-times"></i></div>
+        <div class="nav-logo">
+            <a href="{% url 'catalog:home' %}"><img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo" style="max-width: 95px !important; height: auto; display: block;"></a>
+        </div>
+        <div class="menu-outer">
+            <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+        </div>
+        <div class="social-links">
+            <ul class="clearfix">
+                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+            </ul>
+        </div>
+    </nav>
+</div>
+<div class="menu-backdrop"></div>
+<!-- End Mobile Menu -->
+

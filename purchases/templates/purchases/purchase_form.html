@@ -145,97 +145,12 @@
                         <!-- Contenedor para formularios dinámicos -->
                         <div id="dynamicFormsContainer" class="products-list"></div>
                         
+                        <!-- Los formularios Django originales están ocultos y se manejan por JavaScript -->
                         {% for form in formset %}
-                            <div class="tablet-product-row" data-form-index="{{ forloop.counter0 }}" style="display: none;">
-                                <div class="tablet-product-content">
-                                    <div class="flex-grow-1">
-                                        <div class="form-group">
-                                            <label class="form-label">Producto *</label>
-                                            <div class="autocomplete-container">
-                                                <input type="text" class="form-control product-autocomplete" 
-                                                       placeholder="Buscar por nombre o referencia..." autocomplete="off">
-                                                <input type="hidden" name="{{ form.product.name }}" class="product-id-input">
-                                                <div class="autocomplete-suggestions"></div>
-                                            </div>
-                                            {% if form.product.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.product.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="flex-shrink-0" style="width: 120px;">
-                                        <div class="form-group">
-                                            <label class="form-label">Cantidad *</label>
-                                            {{ form.quantity }}
-                                            {% if form.quantity.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.quantity.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="flex-shrink-0" style="width: 120px;">
-                                        <div class="form-group">
-                                            <label class="form-label">Costo Unit. *</label>
-                                            {{ form.unit_cost }}
-                                            {% if form.unit_cost.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.unit_cost.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="flex-shrink-0" style="width: 100px;">
-                                        <div class="form-group">
-                                            <label class="form-label">IVA %</label>
-                                            {{ form.tax_percentage }}
-                                            {% if form.tax_percentage.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.tax_percentage.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="flex-shrink-0" style="width: 100px;">
-                                        <div class="form-group">
-                                            <label class="form-label">Desc. %</label>
-                                            {{ form.discount_percentage }}
-                                            {% if form.discount_percentage.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.discount_percentage.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="tablet-action">
-                                        <button type="button" class="tablet-btn tablet-btn-danger remove-product" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        {% if form.DELETE %}
-                                            {{ form.DELETE }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                <!-- Información del producto seleccionado -->
-                                <div class="selected-product-info mt-2" style="display: none;">
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle"></i> 
-                                        Producto seleccionado: <span class="selected-product-name">-</span>
-                                    </small>
-                                </div>
-                            </div>
+                            <!-- Campos ocultos para el formset management -->
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
                         {% endfor %}
                         
                         {% if formset.non_form_errors %}
@@ -307,7 +222,7 @@
                         <div class="autocomplete-container">
                             <input type="text" class="form-control product-autocomplete" 
                                    placeholder="Buscar por nombre o referencia..." autocomplete="off">
-                            <input type="hidden" name="formset-__prefix__-product" class="product-id-input">
+                            <input type="hidden" name="items-__prefix__-product" class="product-id-input">
                             <div class="autocomplete-suggestions"></div>
                         </div>
                     </div>
@@ -315,32 +230,32 @@
                 <div class="flex-shrink-0" style="width: 120px;">
                     <div class="form-group">
                         <label class="form-label">Cantidad *</label>
-                        <input type="number" class="form-control" name="formset-__prefix__-quantity" min="1" value="1" required>
+                        <input type="number" class="form-control" name="items-__prefix__-quantity" min="1" value="1" required>
                     </div>
                 </div>
                 <div class="flex-shrink-0" style="width: 120px;">
                     <div class="form-group">
                         <label class="form-label">Costo Unit. *</label>
-                        <input type="number" class="form-control" name="formset-__prefix__-unit_cost" step="0.01" min="0" required>
+                        <input type="number" class="form-control" name="items-__prefix__-unit_cost" step="0.01" min="0" required>
                     </div>
                 </div>
                 <div class="flex-shrink-0" style="width: 100px;">
                     <div class="form-group">
                         <label class="form-label">IVA %</label>
-                        <input type="number" class="form-control" name="formset-__prefix__-tax_percentage" step="0.01" min="0" max="100" value="19.00">
+                        <input type="number" class="form-control" name="items-__prefix__-tax_percentage" step="0.01" min="0" max="100" value="19.00">
                     </div>
                 </div>
                 <div class="flex-shrink-0" style="width: 100px;">
                     <div class="form-group">
                         <label class="form-label">Desc. %</label>
-                        <input type="number" class="form-control" name="formset-__prefix__-discount_percentage" step="0.01" min="0" max="100" value="0.00">
+                        <input type="number" class="form-control" name="items-__prefix__-discount_percentage" step="0.01" min="0" max="100" value="0.00">
                     </div>
                 </div>
                 <div class="tablet-action">
                     <button type="button" class="tablet-btn tablet-btn-danger remove-product" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <input type="checkbox" name="formset-__prefix__-DELETE" style="display: none;">
+                    <input type="checkbox" name="items-__prefix__-DELETE" style="display: none;">
                 </div>
             </div>
             
@@ -781,6 +696,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== INICIANDO AUTOCOMPLETADO COMPRAS ===');
+    console.log('=== JAVASCRIPT CARGADO CORRECTAMENTE ===');
     
     // Debug: Log de errores de recursos
     window.addEventListener('error', function(e) {
@@ -802,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Variables de estado
-    let formCount = {{ formset.total_form_count }};
+    let formCount = 0; // Inicializar en 0 ya que manejamos todo con JavaScript
     const maxForms = {{ formset.max_num }};
     
     console.log('Formularios iniciales:', formCount);
@@ -1226,6 +1142,98 @@ document.addEventListener('DOMContentLoaded', function() {
             calculateTotals();
         }
     });
+    
+    // Función para limpiar formularios vacíos antes del envío
+    function cleanEmptyForms() {
+        console.log('=== EJECUTANDO cleanEmptyForms ===');
+        console.log('=== FUNCIÓN cleanEmptyForms DEFINIDA CORRECTAMENTE ===');
+        const forms = document.querySelectorAll('.product-form');
+        let validFormCount = 0;
+        
+        console.log(`Encontrados ${forms.length} formularios`);
+        
+        forms.forEach((form, index) => {
+            const productInput = form.querySelector('input[name$="-product"]');
+            const quantityInput = form.querySelector('input[name$="-quantity"]');
+            
+            console.log(`Formulario ${index}:`, {
+                product: productInput ? productInput.value : 'no encontrado',
+                quantity: quantityInput ? quantityInput.value : 'no encontrado'
+            });
+            
+            if (productInput && productInput.value && quantityInput && quantityInput.value) {
+                // Este formulario tiene datos válidos
+                validFormCount++;
+                console.log(`Formulario ${index} es válido`);
+            } else {
+                // Este formulario está vacío, marcarlo para eliminación
+                console.log(`Formulario ${index} está vacío, marcando para eliminación`);
+                
+                // Marcar campos como DELETE
+                const deleteInput = form.querySelector('input[name$="-DELETE"]');
+                if (deleteInput) {
+                    deleteInput.checked = true;
+                    console.log(`DELETE marcado para formulario ${index}`);
+                }
+                
+                // Limpiar valores
+                if (productInput) productInput.value = '';
+                if (quantityInput) quantityInput.value = '';
+                
+                const unitCostInput = form.querySelector('input[name$="-unit_cost"]');
+                const taxInput = form.querySelector('input[name$="-tax_percentage"]');
+                const discountInput = form.querySelector('input[name$="-discount_percentage"]');
+                
+                if (unitCostInput) unitCostInput.value = '';
+                if (taxInput) taxInput.value = '';
+                if (discountInput) discountInput.value = '';
+            }
+        });
+        
+        // Solo actualizar TOTAL_FORMS si hay formularios válidos
+        if (validFormCount > 0) {
+            const managementForm = document.querySelector('input[name$="-TOTAL_FORMS"]');
+            if (managementForm) {
+                const oldValue = managementForm.value;
+                managementForm.value = validFormCount;
+                console.log(`TOTAL_FORMS actualizado de ${oldValue} a: ${validFormCount}`);
+            }
+        }
+        
+        console.log(`=== LIMPIEZA COMPLETADA: ${validFormCount} formularios válidos ===`);
+    }
+    
+    // Agregar event listener al formulario para limpiar formularios vacíos antes del envío
+    const form = document.querySelector('form');
+    if (form) {
+        console.log('Formulario encontrado, agregando event listener');
+        form.addEventListener('submit', function(e) {
+            console.log('=== EVENTO SUBMIT DETECTADO ===');
+            console.log('=== LIMPIANDO FORMULARIOS VACÍOS ANTES DEL ENVÍO ===');
+            
+            // Debug: mostrar datos antes de limpiar
+            const formData = new FormData(form);
+            console.log('Datos antes de limpiar:');
+            for (let [key, value] of formData.entries()) {
+                if (key.startsWith('items-')) {
+                    console.log(key + ':', value);
+                }
+            }
+            
+            cleanEmptyForms();
+            
+            // Debug: mostrar datos después de limpiar
+            const formDataAfter = new FormData(form);
+            console.log('Datos después de limpiar:');
+            for (let [key, value] of formDataAfter.entries()) {
+                if (key.startsWith('items-')) {
+                    console.log(key + ':', value);
+                }
+            }
+        });
+    } else {
+        console.log('ERROR: No se encontró el formulario');
+    }
     
     console.log('=== AUTOCOMPLETADO COMPRAS INICIALIZADO ===');
     console.log('Productos disponibles:', productsCache.length);

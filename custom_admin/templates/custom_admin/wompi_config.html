@@ -1,0 +1,221 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}Configuración Wompi - NaturalMede Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-credit-card"></i> Configuración Wompi</h1>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Credenciales y Configuración de Wompi</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="environment">
+                                <i class="fas fa-globe"></i> Ambiente
+                            </label>
+                            <select class="form-control" id="environment" name="environment" required>
+                                <option value="sandbox" {% if config.environment == 'sandbox' %}selected{% endif %}>Sandbox (Pruebas)</option>
+                                <option value="production" {% if config.environment == 'production' %}selected{% endif %}>Producción</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                <strong>Sandbox:</strong> Para pruebas y desarrollo. <strong>Producción:</strong> Para transacciones reales.
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="public_key">
+                                <i class="fas fa-key"></i> Clave Pública (Public Key)
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="public_key" 
+                                   name="public_key" 
+                                   value="{{ config.public_key }}"
+                                   placeholder="pub_test_xxxxxxxxxxxxx o pub_prod_xxxxxxxxxxxxx">
+                            <small class="form-text text-muted">
+                                Clave pública de Wompi. Se usa en el frontend para inicializar el widget de pago.
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="private_key">
+                                <i class="fas fa-lock"></i> Clave Privada (Private Key)
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="private_key" 
+                                   name="private_key" 
+                                   value="{{ config.private_key }}"
+                                   placeholder="prv_test_xxxxxxxxxxxxx o prv_prod_xxxxxxxxxxxxx">
+                            <small class="form-text text-muted">
+                                Clave privada de Wompi. Se usa en el backend para crear transacciones y verificar webhooks.
+                                <button type="button" class="btn btn-sm btn-link p-0 ml-2" onclick="togglePassword('private_key')">
+                                    <i class="fas fa-eye" id="toggle_private_key"></i> Mostrar/Ocultar
+                                </button>
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="events_secret">
+                                <i class="fas fa-bolt"></i> Secreto de Eventos (Eventos)
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="events_secret" 
+                                   name="events_secret" 
+                                   value="{{ config.events_secret }}"
+                                   placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                            <small class="form-text text-muted">
+                                Secreto para validar eventos (webhooks) de Wompi.
+                                <button type="button" class="btn btn-sm btn-link p-0 ml-2" onclick="togglePassword('events_secret')">
+                                    <i class="fas fa-eye" id="toggle_events_secret"></i> Mostrar/Ocultar
+                                </button>
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="integrity_secret">
+                                <i class="fas fa-shield-alt"></i> Secreto de Integridad (Integrity Secret)
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="integrity_secret" 
+                                   name="integrity_secret" 
+                                   value="{{ config.integrity_secret }}"
+                                   placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                            <small class="form-text text-muted">
+                                Secreto para verificar la integridad de los webhooks de Wompi. Opcional pero recomendado.
+                                <button type="button" class="btn btn-sm btn-link p-0 ml-2" onclick="togglePassword('integrity_secret')">
+                                    <i class="fas fa-eye" id="toggle_integrity_secret"></i> Mostrar/Ocultar
+                                </button>
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="is_active" 
+                                       name="is_active" 
+                                       {% if config.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">
+                                    <i class="fas fa-toggle-on"></i> Activar integración con Wompi
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                Si está desactivado, Wompi no estará disponible como método de pago en el checkout.
+                            </small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Información importante:</h6>
+                            <ul class="mb-0">
+                                <li>Las credenciales se obtienen desde el panel de Wompi: <a href="https://comercios.wompi.co/" target="_blank">https://comercios.wompi.co/</a></li>
+                                <li>Para <strong>Sandbox</strong>: Usa las credenciales de prueba que Wompi proporciona.</li>
+                                <li>Para <strong>Producción</strong>: Usa las credenciales reales después de completar el proceso de verificación.</li>
+                                <li>El <strong>Secreto de Eventos</strong> se usa para validar eventos (webhooks) de Wompi.</li>
+                                <li>El <strong>Secreto de Integridad</strong> se usa para verificar integridad según configuración de Wompi.</li>
+                                <li>Las claves privadas y secretos se almacenan de forma segura en la base de datos.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                            <a href="{% url 'custom_admin:admin_dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Información de estado -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Estado de la Configuración</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Ambiente:</strong> 
+                                <span class="badge badge-{% if config.environment == 'production' %}danger{% else %}warning{% endif %}">
+                                    {{ config.get_environment_display }}
+                                </span>
+                            </p>
+                            <p><strong>Estado:</strong> 
+                                <span class="badge badge-{% if config.is_active %}success{% else %}secondary{% endif %}">
+                                    {% if config.is_active %}Activo{% else %}Inactivo{% endif %}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Clave Pública:</strong> 
+                                {% if config.public_key %}
+                                    <span class="badge badge-success">Configurada</span>
+                                {% else %}
+                                    <span class="badge badge-danger">No configurada</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Clave Privada:</strong> 
+                                {% if config.private_key %}
+                                    <span class="badge badge-success">Configurada</span>
+                                {% else %}
+                                    <span class="badge badge-danger">No configurada</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Secreto de Eventos:</strong> 
+                                {% if config.events_secret %}
+                                    <span class="badge badge-success">Configurado</span>
+                                {% else %}
+                                    <span class="badge badge-danger">No configurado</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Secreto de Integridad:</strong> 
+                                {% if config.integrity_secret %}
+                                    <span class="badge badge-success">Configurado</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Opcional</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggleIcon = document.getElementById('toggle_' + fieldId);
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}
+
+
+

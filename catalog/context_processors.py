@@ -1,4 +1,4 @@
-from .models import Cart
+from .models import Cart, Category
 
 
 def cart(request):
@@ -25,6 +25,15 @@ def cart(request):
         'cart_total': cart_total,
         'cart_items_count': cart_items_count,
     }
+
+
+def categories(request):
+    """Context processor para incluir las categorías en todos los templates"""
+    return {
+        'categories': Category.objects.filter(is_active=True).exclude(slug='').exclude(slug__isnull=True)[:10],
+    }
+
+
 
 
 

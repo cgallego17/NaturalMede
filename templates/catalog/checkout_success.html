@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Pedido Confirmado - NaturalMede{% endblock %}
 
@@ -10,11 +11,28 @@
             <div class="card">
                 <div class="card-body text-center py-5">
                     <div class="mb-4">
-                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                        {% if order.status == 'paid' %}
+                            <i class="fas fa-check-circle fa-5x text-success"></i>
+                        {% else %}
+                            <i class="fas fa-clock fa-5x text-warning"></i>
+                        {% endif %}
                     </div>
                     
-                    <h1 class="text-success mb-3">¡Pedido Confirmado!</h1>
-                    <p class="lead">Tu pedido ha sido procesado exitosamente</p>
+                    {% if order.status == 'paid' %}
+                        <h1 class="text-success mb-3">¡Pedido Confirmado!</h1>
+                        <p class="lead">Tu pedido ha sido procesado exitosamente</p>
+                    {% else %}
+                        <h1 class="text-warning mb-3">Pedido en verificación</h1>
+                        <p class="lead">Estamos confirmando el pago. Tu pedido quedó registrado.</p>
+                    {% endif %}
+
+                    {% if order.status != 'paid' %}
+                        <div class="alert alert-warning">
+                            <p class="mb-0">
+                                Si pagaste con Wompi, el estado puede tardar unos minutos en actualizarse.
+                            </p>
+                        </div>
+                    {% endif %}
                     
                     <div class="alert alert-info">
                         <h5><i class="fas fa-info-circle"></i> Número de Orden: {{ order.order_number }}</h5>
@@ -25,7 +43,7 @@
                         <div class="col-md-6">
                             <h6>Resumen del Pedido</h6>
                             <ul class="list-unstyled text-left">
-                                <li><strong>Total:</strong> ${{ order.total|floatformat:0 }}</li>
+                                <li><strong>Total:</strong> ${{ order.total|floatformat:0|intcomma }}</li>
                                 <li><strong>Método de Pago:</strong> {{ order.get_payment_method_display }}</li>
                                 <li><strong>Estado:</strong> {{ order.get_status_display }}</li>
                                 <li><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</li>
@@ -92,7 +110,7 @@
 {% block extra_js %}
 <script>
     function sendWhatsAppOrder() {
-        let message = `Hola, confirmo mi pedido ${'{{ order.order_number }}'} por un total de $${'{{ order.total|floatformat:0 }}'}. `;
+        let message = `Hola, confirmo mi pedido ${'{{ order.order_number }}'} por un total de $${'{{ order.total|floatformat:0|intcomma }}'}. `;
         message += `Método de pago: ${'{{ order.get_payment_method_display }}'}. `;
         message += `Dirección: ${'{{ order.shipping_address }}'}, ${'{{ order.shipping_city }}'}. `;
         message += 'Por favor, confírmame los detalles y el tiempo de entrega.';
@@ -101,6 +119,8 @@
     }
 </script>
 {% endblock %}
+
+
 
 
 

@@ -1,5 +1,6 @@
 from django import forms
 from .models import Product, Category, Brand
+from customers.models import City, Country, Department
 
 
 class CartAddForm(forms.Form):
@@ -17,9 +18,7 @@ class CartAddForm(forms.Form):
 
 class CheckoutForm(forms.Form):
     PAYMENT_METHODS = [
-        ('cash_on_delivery', 'Contraentrega'),
-        ('bank_transfer', 'Transferencia Bancolombia'),
-        ('addi', 'Addi'),
+        ('wompi', 'Wompi - Tarjeta de Crédito/Débito'),
     ]
 
     first_name = forms.CharField(
@@ -56,18 +55,26 @@ class CheckoutForm(forms.Form):
             'rows': 3
         })
     )
-    city = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ciudad'
-        })
+
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all().order_by('name'),
+        empty_label='Selecciona país',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.none(),
+        empty_label='Selecciona departamento',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+    city = forms.ModelChoiceField(
+        queryset=City.objects.none(),
+        empty_label='Selecciona ciudad',
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
     payment_method = forms.ChoiceField(
         choices=PAYMENT_METHODS,
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        })
+        initial='wompi',
+        widget=forms.HiddenInput()  # Oculto porque solo hay una opción
     )
     notes = forms.CharField(
         required=False,
@@ -77,6 +84,70 @@ class CheckoutForm(forms.Form):
             'rows': 3
         })
     )
+
+    create_account = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    password1 = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+    )
+    password2 = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        data = self.data if self.is_bound else None
+        country = None
+        department = None
+
+        if data:
+            try:
+                country_id = int(data.get('country') or 0)
+                if country_id:
+                    country = Country.objects.filter(id=country_id).first()
+            except (TypeError, ValueError):
+                country = None
+
+            try:
+                department_id = int(data.get('department') or 0)
+                if department_id:
+                    department = Department.objects.filter(id=department_id).first()
+            except (TypeError, ValueError):
+                department = None
+
+        if country:
+            self.fields['department'].queryset = Department.objects.filter(
+                country=country
+            ).order_by('name')
+        else:
+            self.fields['department'].queryset = Department.objects.none()
+
+        if department:
+            self.fields['city'].queryset = City.objects.filter(
+                department=department
+            ).order_by('name')
+        else:
+            self.fields['city'].queryset = City.objects.none()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        create_account = bool(cleaned_data.get('create_account'))
+        password1 = cleaned_data.get('password1') or ''
+        password2 = cleaned_data.get('password2') or ''
+
+        if create_account:
+            if not password1 or not password2:
+                raise forms.ValidationError('Debes ingresar y confirmar una contraseña para crear tu cuenta.')
+            if password1 != password2:
+                raise forms.ValidationError('Las contraseñas no coinciden.')
+
+        return cleaned_data
 
 
 class ProductForm(forms.ModelForm):

@@ -1,166 +1,268 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Carrito de Compras - NaturalMede{% endblock %}
 
+{% block extra_css %}
+<!-- Suxnix CSS adicionales -->
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/animate.min.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/magnific-popup.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/jquery-ui.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/odometer.css' %}">
+<link rel="stylesheet" href="{% static 'suxnix/assets/css/slick.css' %}">
+
+<style>
+    /* Ocultar preloader si está visible */
+    #preloader {
+        display: none !important;
+    }
+    body {
+        overflow: auto !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <h1><i class="fas fa-shopping-cart"></i> Carrito de Compras</h1>
-            
-            {% if cart.items.exists %}
-            <div class="card">
-                <div class="card-body">
-                    {% for item in cart.items.all %}
-                    <div class="row align-items-center border-bottom py-3">
-                        <div class="col-md-2">
-                            {% if item.product.images.first %}
-                            <img src="{{ item.product.images.first.image.url }}" class="img-fluid" alt="{{ item.product.name }}" style="height: 80px; object-fit: cover;">
-                            {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 80px;">
-                                <i class="fas fa-image fa-2x text-muted"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="mb-1">{{ item.product.name }}</h6>
-                            <small class="text-muted">{{ item.product.category.name }} - {{ item.product.brand.name }}</small>
-                            <br>
-                            <small class="text-muted">SKU: {{ item.product.sku }}</small>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="font-weight-bold">${{ item.product.price|floatformat:0 }}</span>
-                            {% if item.product.iva_percentage > 0 %}
-                            <br><small class="text-muted">IVA {{ item.product.iva_percentage }}%</small>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2">
-                            <form method="post" action="{% url 'catalog:cart_update' item.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <div class="input-group input-group-sm">
-                                    <input type="number" class="form-control" name="quantity" value="{{ item.quantity }}" min="1" max="99" style="width: 60px;">
-                                    <div class="input-group-append">
-                                        <button type="submit" class="btn btn-outline-secondary">
-                                            <i class="fas fa-sync"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-1">
-                            <span class="font-weight-bold">${{ item.total|floatformat:0 }}</span>
-                        </div>
-                        <div class="col-md-1">
-                            <form method="post" action="{% url 'catalog:cart_remove' item.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm" 
-                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    {% endfor %}
+<!-- breadcrumb-area -->
+<section class="breadcrumb-area breadcrumb-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="breadcrumb-content text-center">
+                    <h2 class="title">Carrito de Compras</h2>
+                    <nav aria-label="Breadcrumbs" class="breadcrumb-trail">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item trail-item trail-begin">
+                                <a href="{% url 'catalog:home' %}"><span>Inicio</span></a>
+                            </li>
+                            <li class="breadcrumb-item trail-item">
+                                <a href="{% url 'catalog:product_list' %}"><span>Catálogo</span></a>
+                            </li>
+                            <li class="breadcrumb-item trail-item trail-end"><span>Carrito</span></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
-            {% else %}
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                    <h4>Tu carrito está vacío</h4>
-                    <p class="text-muted">Agrega algunos productos para comenzar tu compra</p>
-                    <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">
-                        <i class="fas fa-th-large"></i> Ver Catálogo
-                    </a>
-                </div>
-            </div>
-            {% endif %}
         </div>
-        
-        <div class="col-md-4">
-            {% if cart.items.exists %}
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-calculator"></i> Resumen del Pedido</h5>
+    </div>
+    <div class="video-shape one"><img src="{% static 'suxnix/assets/img/others/video_shape01.png' %}" alt="shape"></div>
+    <div class="video-shape two"><img src="{% static 'suxnix/assets/img/others/video_shape02.png' %}" alt="shape"></div>
+</section>
+<!-- breadcrumb-area-end -->
+
+<!-- cart-area -->
+<div class="cart__area section-py-130">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                {% if cart.items.exists %}
+                <table class="table cart__table">
+                    <thead>
+                        <tr>
+                            <th class="product__thumb">&nbsp;</th>
+                            <th class="product__name">Producto</th>
+                            <th class="product__price">Precio</th>
+                            <th class="product__quantity">Cantidad</th>
+                            <th class="product__subtotal">Subtotal</th>
+                            <th class="product__remove">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.items.all %}
+                        <tr>
+                            <td class="product__thumb">
+                                <a href="{% url 'catalog:product_detail' item.product.slug %}">
+                                    {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <img src="{% static 'suxnix/assets/img/products/home_shop_thumb01.png' %}" alt="{{ item.product.name }}">
+                                    {% endif %}
+                                </a>
+                            </td>
+                            <td class="product__name">
+                                <a href="{% url 'catalog:product_detail' item.product.slug %}">{{ item.product.name }}</a>
+                                <br>
+                                <small class="text-muted">{{ item.product.category.name }} - {{ item.product.brand.name }}</small>
+                                <br>
+                                <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                            </td>
+                            <td class="product__price">${{ item.product.price|floatformat:0|intcomma }}</td>
+                            <td class="product__quantity">
+                                <form method="post" action="{% url 'catalog:cart_update' item.id %}" class="cart-update-form">
+                                    {% csrf_token %}
+                                    <div class="quickview-cart-plus-minus">
+                                        <input type="text" name="quantity" value="{{ item.quantity }}" min="1" max="99">
+                                    </div>
+                                </form>
+                            </td>
+                            <td class="product__subtotal">${{ item.total|floatformat:0|intcomma }}</td>
+                            <td class="product__remove">
+                                <form method="post" action="{% url 'catalog:cart_remove' item.id %}" class="d-inline cart-remove-form">
+                                    {% csrf_token %}
+                                    <a href="#" class="remove-from-cart" data-item-id="{{ item.id }}" title="Eliminar">
+                                        ×
+                                    </a>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="6" class="cart__actions">
+                                <div class="update__cart-btn text-end f-right">
+                                    <a href="{% url 'catalog:product_list' %}" class="btn btn-sm">Seguir Comprando</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="cart-empty text-center py-5">
+                    <div class="cart-empty-icon mb-4">
+                        <i class="flaticon-shopping-cart" style="font-size: 80px; color: #ddd;"></i>
+                    </div>
+                    <h3 class="title mb-3">Tu carrito está vacío</h3>
+                    <p class="mb-4">Agrega algunos productos para comenzar tu compra</p>
+                    <a href="{% url 'catalog:product_list' %}" class="btn btn-two">Explorar Productos</a>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Subtotal ({{ cart.total_items }} productos):</span>
-                        <span>${{ cart.total_amount|floatformat:0 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>IVA:</span>
-                        <span>${{ cart.total_iva|floatformat:0 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Costo de envío:</span>
-                        <span class="text-muted">Se calculará en el checkout</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-3">
-                        <strong>Total:</strong>
-                        <strong class="text-success">${{ cart.total_with_iva|floatformat:0 }}</strong>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'catalog:checkout' %}" class="btn btn-success btn-lg">
-                            <i class="fas fa-credit-card"></i> Proceder al Checkout
-                        </a>
-                        <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-primary">
-                            <i class="fas fa-plus"></i> Continuar Comprando
-                        </a>
-                    </div>
-                </div>
+                {% endif %}
             </div>
-            
-            <!-- WhatsApp Order -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h6><i class="fab fa-whatsapp"></i> Pedir por WhatsApp</h6>
+            <div class="col-lg-4">
+                {% if cart.items.exists %}
+                <div class="cart__collaterals-wrap">
+                    <h2 class="title">Total del Carrito</h2>
+                    <ul class="list-wrap">
+                        <li>
+                            Subtotal ({{ cart.total_items }} producto{{ cart.total_items|pluralize }})
+                            <span>${{ cart.total_amount|floatformat:0|intcomma }}</span>
+                        </li>
+                        <li>
+                            Envío
+                            <span>$13.000</span>
+                        </li>
+                        <li class="total">
+                            Total
+                            <span class="amount">${{ cart.total_amount|add:13000|floatformat:0|intcomma }}</span>
+                        </li>
+                    </ul>
+                    <div class="cart-checkout-buttons">
+                        <a href="{% url 'catalog:checkout' %}" class="btn btn-sm" style="width: 100%; margin-bottom: 15px;">Finalizar Compra</a>
+                        <button class="btn btn-sm" onclick="sendWhatsAppOrder()" style="width: 100%; background: #25d366; border-color: #25d366; color: white;">
+                            <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="small text-muted">Envía tu pedido directamente por WhatsApp</p>
-                    <button class="btn btn-success btn-block whatsapp-btn" onclick="sendWhatsAppOrder()">
-                        <i class="fab fa-whatsapp"></i> Enviar Pedido
-                    </button>
-                </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
+<!-- cart-area-end -->
 {% endblock %}
 
 {% block extra_js %}
+<!-- Suxnix JS -->
+<script src="{% static 'suxnix/assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/slick.min.js' %}"></script>
+<script src="{% static 'suxnix/assets/js/main.js' %}"></script>
+
 <script>
+    // Ocultar preloader inmediatamente
+    (function() {
+        var preloader = document.getElementById('preloader');
+        if (preloader) {
+            preloader.style.display = 'none';
+        }
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).ready(function($) {
+                $('#preloader').fadeOut(0);
+            });
+        }
+    })();
+    
+    $(document).ready(function() {
+        // Inicializar botones de cantidad (agregados por main.js)
+        // Esperar a que main.js agregue los botones
+        setTimeout(function() {
+            // Actualizar cantidad cuando cambie
+            $(document).on('click', '.qtybutton', function() {
+                var $input = $(this).parent().find('input[name="quantity"]');
+                var $form = $input.closest('form');
+                
+                // Actualizar el valor del input
+                setTimeout(function() {
+                    var quantity = parseInt($input.val()) || 1;
+                    if (quantity < 1) {
+                        quantity = 1;
+                        $input.val(1);
+                    }
+                    
+                    // Auto-submit del formulario
+                    if ($form.length) {
+                        $form.submit();
+                    }
+                }, 50);
+            });
+            
+            // También actualizar cuando se cambie directamente el input
+            $('input[name="quantity"]').on('change', function() {
+                var $form = $(this).closest('form');
+                var quantity = parseInt($(this).val()) || 1;
+                if (quantity < 1) {
+                    $(this).val(1);
+                    quantity = 1;
+                }
+                $form.submit();
+            });
+        }, 300);
+        
+        // Eliminar producto con confirmación
+        $('.remove-from-cart').on('click', function(e) {
+            e.preventDefault();
+            var $link = $(this);
+            var itemId = $link.data('item-id');
+            
+            if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+                var $form = $link.closest('form');
+                
+                // Enviar con AJAX
+                $.ajax({
+                    url: $form.attr('action'),
+                    method: 'POST',
+                    data: $form.serialize(),
+                    success: function() {
+                        // Recargar la página para actualizar el carrito
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Error al eliminar el producto. Por favor, intenta de nuevo.');
+                    }
+                });
+            }
+        });
+    });
+    
     function sendWhatsAppOrder() {
         let message = 'Hola, me gustaría hacer el siguiente pedido:\n\n';
         
         {% for item in cart.items.all %}
-        message += '• {{ item.product.name }} x{{ item.quantity }} = ${{ item.total|floatformat:0 }}\n';
+        message += '• {{ item.product.name }} x{{ item.quantity }} = ${{ item.total|floatformat:0|intcomma }}\n';
         {% endfor %}
         
-        message += '\nTotal: ${{ cart.total_with_iva|floatformat:0 }}\n\n';
+        message += '\nSubtotal: ${{ cart.total_amount|floatformat:0|intcomma }}\n';
+        message += 'Envío: $13.000\n';
+        message += 'Total: ${{ cart.total_amount|add:13000|floatformat:0|intcomma }}\n\n';
         message += 'Por favor, confírmame la disponibilidad y el proceso de pago.';
         
-        sendWhatsAppMessage(message);
+        if (typeof sendWhatsAppMessage !== 'undefined') {
+            sendWhatsAppMessage(message);
+        } else {
+            const phone = '+573001234567';
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
     }
-    
-    // Auto-submit quantity update forms
-    $('input[name="quantity"]').on('change', function() {
-        $(this).closest('form').submit();
-    });
 </script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-

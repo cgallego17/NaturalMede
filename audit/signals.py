@@ -14,6 +14,15 @@ def audit_post_save(sender, instance, created, **kwargs):
     """
     Captura eventos de creación y actualización
     """
+    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
+        return
+
+    sender_meta = getattr(sender, '_meta', None)
+    if sender_meta and getattr(sender_meta, 'app_label', None) in {'contenttypes', 'admin', 'auth', 'sessions'}:
+        return
+    if sender_meta and getattr(sender_meta, 'model_name', None) in {'migration', 'contenttype'}:
+        return
+
     # Evitar auditoría de nuestros propios modelos para evitar recursión
     if sender.__name__ in ['AuditLog', 'AuditConfiguration', 'AuditReport']:
         return
@@ -79,6 +88,15 @@ def audit_pre_save(sender, instance, **kwargs):
     """
     Captura valores anteriores antes de la actualización
     """
+    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
+        return
+
+    sender_meta = getattr(sender, '_meta', None)
+    if sender_meta and getattr(sender_meta, 'app_label', None) in {'contenttypes', 'admin', 'auth', 'sessions'}:
+        return
+    if sender_meta and getattr(sender_meta, 'model_name', None) in {'migration', 'contenttype'}:
+        return
+
     # Evitar auditoría de nuestros propios modelos
     if sender.__name__ in ['AuditLog', 'AuditConfiguration', 'AuditReport']:
         return
@@ -107,6 +125,15 @@ def audit_post_delete(sender, instance, **kwargs):
     """
     Captura eventos de eliminación
     """
+    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
+        return
+
+    sender_meta = getattr(sender, '_meta', None)
+    if sender_meta and getattr(sender_meta, 'app_label', None) in {'contenttypes', 'admin', 'auth', 'sessions'}:
+        return
+    if sender_meta and getattr(sender_meta, 'model_name', None) in {'migration', 'contenttype'}:
+        return
+
     # Evitar auditoría de nuestros propios modelos
     if sender.__name__ in ['AuditLog', 'AuditConfiguration', 'AuditReport']:
         return
@@ -149,6 +176,9 @@ def audit_user_login(sender, request, user, **kwargs):
     """
     Captura eventos de inicio de sesión
     """
+    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
+        return
+
     AuditLog.objects.create(
         user=user,
         action='LOGIN',
@@ -170,6 +200,9 @@ def audit_user_logout(sender, request, user, **kwargs):
     """
     Captura eventos de cierre de sesión
     """
+    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
+        return
+
     AuditLog.objects.create(
         user=user,
         action='LOGOUT',

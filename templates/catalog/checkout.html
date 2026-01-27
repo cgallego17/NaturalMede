@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Checkout - NaturalMede{% endblock %}
 
@@ -9,7 +10,7 @@
         <div class="col-md-8">
             <h1><i class="fas fa-credit-card"></i> Checkout</h1>
             
-            <form method="post">
+            <form method="post" id="checkout-form-main">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-header">
@@ -57,6 +58,31 @@
                                 </div>
                             </div>
                         </div>
+
+                        {% if not user.is_authenticated %}
+                        <hr>
+                        <div class="form-check mb-2">
+                            {{ form.create_account }}
+                            <label class="form-check-label" for="{{ form.create_account.id_for_label }}">Quiero crear una cuenta</label>
+                        </div>
+                        <div id="checkout-create-account-fields" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.password1.id_for_label }}">Contraseña *</label>
+                                        {{ form.password1 }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="{{ form.password2.id_for_label }}">Confirmar contraseña *</label>
+                                        {{ form.password2 }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="small" href="{% url 'catalog:login' %}?next={% url 'catalog:checkout' %}">¿Ya tienes cuenta? Inicia sesión</a>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -72,27 +98,32 @@
                             <div class="text-danger">{{ form.address.errors }}</div>
                             {% endif %}
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ form.city.id_for_label }}">Ciudad *</label>
-                                    {{ form.city }}
-                                    {% if form.city.errors %}
-                                    <div class="text-danger">{{ form.city.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ form.payment_method.id_for_label }}">Método de Pago *</label>
-                                    {{ form.payment_method }}
-                                    {% if form.payment_method.errors %}
-                                    <div class="text-danger">{{ form.payment_method.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.country.id_for_label }}">País *</label>
+                            {{ form.country }}
+                            {% if form.country.errors %}
+                            <div class="text-danger">{{ form.country.errors }}</div>
+                            {% endif %}
                         </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.department.id_for_label }}">Departamento / Estado *</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                            <div class="text-danger">{{ form.department.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.city.id_for_label }}">Ciudad *</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}
+                            <div class="text-danger">{{ form.city.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {{ form.payment_method }}  {# Campo oculto con valor 'wompi' #}
                         
                         <div class="form-group">
                             <label for="{{ form.notes.id_for_label }}">Notas adicionales (opcional)</label>
@@ -104,32 +135,14 @@
                     </div>
                 </div>
                 
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5><i class="fas fa-info-circle"></i> Información de Pago</h5>
-                    </div>
+                <div class="card mt-3 payment-card-wompi">
                     <div class="card-body">
-                        <div id="payment-info">
-                            <div class="alert alert-info">
-                                <h6>Métodos de Pago Disponibles:</h6>
-                                <ul class="mb-0">
-                                    <li><strong>Contraentrega:</strong> Paga cuando recibas tu pedido</li>
-                                    <li><strong>Transferencia Bancolombia:</strong> Cuenta de ahorros 123456789</li>
-                                    <li><strong>Addi:</strong> Paga a cuotas con Addi</li>
-                                </ul>
-                            </div>
+                        <div class="payment-accepted-logos">
+                            <img src="{% static 'images/wompi-logos.webp' %}" alt="Wompi" class="wompi-logos-img">
                         </div>
                     </div>
                 </div>
                 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-check"></i> Confirmar Pedido
-                    </button>
-                    <a href="{% url 'catalog:cart' %}" class="btn btn-outline-secondary btn-lg ml-2">
-                        <i class="fas fa-arrow-left"></i> Volver al Carrito
-                    </a>
-                </div>
             </form>
         </div>
         
@@ -146,7 +159,7 @@
                             <br>
                             <small class="text-muted">x{{ item.quantity }}</small>
                         </div>
-                        <small class="font-weight-bold">${{ item.total|floatformat:0 }}</small>
+                        <small class="font-weight-bold">${{ item.total|floatformat:0|intcomma }}</small>
                     </div>
                     {% endfor %}
                     
@@ -154,20 +167,16 @@
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal ({{ cart.total_items }} productos):</span>
-                        <span>${{ cart.total_amount|floatformat:0 }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>IVA:</span>
-                        <span>${{ cart.total_iva|floatformat:0 }}</span>
+                        <span>${{ cart.total_amount|floatformat:0|intcomma }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Costo de envío:</span>
-                        <span class="text-muted">Se calculará según la ciudad</span>
+                        <span>$13.000</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
                         <strong>Total estimado:</strong>
-                        <strong class="text-success">${{ cart.total_with_iva|floatformat:0 }}</strong>
+                        <strong class="text-success">${{ cart.total_amount|add:13000|floatformat:0|intcomma }}</strong>
                     </div>
                 </div>
             </div>
@@ -183,45 +192,583 @@
                     </ul>
                 </div>
             </div>
+            
+            <!-- Botones de Pago en el Sidebar -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="checkout-buttons-sidebar">
+                        <button type="submit" form="checkout-form-main" id="checkout-submit" class="btn btn-primary btn-lg btn-block" style="padding: 15px; font-size: 1.1rem; margin-bottom: 10px;">
+                            <i class="fas fa-lock"></i> Continuar con el Pago Seguro
+                        </button>
+                        <a href="{% url 'catalog:cart' %}" class="btn btn-outline-secondary btn-lg btn-block">
+                            <i class="fas fa-arrow-left"></i> Volver al Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // Update payment info based on selected method
-    $('#id_payment_method').on('change', function() {
-        const method = $(this).val();
-        let info = '';
-        
-        switch(method) {
-            case 'cash_on_delivery':
-                info = '<div class="alert alert-success"><h6>Contraentrega</h6><p class="mb-0">Paga cuando recibas tu pedido. El costo de envío se incluirá en el total.</p></div>';
-                break;
-            case 'bank_transfer':
-                info = '<div class="alert alert-info"><h6>Transferencia Bancolombia</h6><p class="mb-0">Cuenta de ahorros: 123456789<br>Nombre: NaturalMede S.A.S<br>Envía el comprobante por WhatsApp</p></div>';
-                break;
-            case 'addi':
-                info = '<div class="alert alert-warning"><h6>Addi</h6><p class="mb-0">Paga a cuotas con Addi. Te redirigiremos a su plataforma para completar el pago.</p></div>';
-                break;
-        }
-        
-        $('#payment-info').html(info);
-    });
+{% block extra_css %}
+<style>
+    html, body {
+        height: auto !important;
+        overflow: auto !important;
+    }
+
+    body {
+        position: relative;
+    }
+
+    main.container-fluid,
+    main.container-fluid > .row,
+    main.container-fluid > .container,
+    main.container-fluid > .container-fluid,
+    .container,
+    .container-fluid,
+    .row,
+    .col-md-8,
+    .col-md-4 {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .checkout-buttons-sidebar {
+        position: relative;
+        z-index: 5;
+    }
+
+    #checkout-submit {
+        display: block !important;
+        width: 100% !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative;
+        z-index: 10;
+        background: #0d9b4d !important;
+        border: 0 !important;
+        color: #ffffff !important;
+        text-align: center !important;
+        padding: 15px !important;
+        min-height: 52px;
+        line-height: 22px;
+        border-radius: 999px !important;
+        box-shadow: 0 10px 24px rgba(13, 155, 77, 0.28) !important;
+    }
+
+    #checkout-submit i {
+        color: #ffffff !important;
+    }
+
+    .payment-card-wompi {
+        --wompi-green: #0d9b4d;
+        --wompi-green-dark: #086a35;
+        --wompi-bg: #ffffff;
+        --wompi-text: #1f2937;
+        --wompi-muted: #6b7280;
+        --wompi-border: #e9ecef;
+    }
+
+    .payment-card-wompi {
+        border: 1px solid var(--wompi-border);
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(13, 155, 77, 0.18);
+        background: var(--wompi-bg);
+        color: var(--wompi-text);
+    }
+
+    .payment-card-wompi h1,
+    .payment-card-wompi h2,
+    .payment-card-wompi h3,
+    .payment-card-wompi h4,
+    .payment-card-wompi h5,
+    .payment-card-wompi h6 {
+        color: var(--wompi-text) !important;
+        letter-spacing: 0;
+    }
+
+    .payment-card-wompi p,
+    .payment-card-wompi small,
+    .payment-card-wompi .text-muted {
+        color: var(--wompi-muted) !important;
+    }
+
+    .payment-card-wompi a {
+        color: var(--wompi-green-dark);
+    }
+
+    .payment-card-wompi a:hover {
+        color: var(--wompi-green);
+    }
     
-    // Trigger change on page load
-    $('#id_payment_method').trigger('change');
-</script>
+    .payment-header-wompi {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        background: linear-gradient(135deg, var(--wompi-green) 0%, var(--wompi-green-dark) 100%);
+    }
+
+    .payment-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .payment-header-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        flex-shrink: 0;
+    }
+
+    .payment-header-icon i {
+        color: #ffffff !important;
+        font-size: 18px;
+    }
+
+    .payment-header-title {
+        color: #ffffff !important;
+        font-weight: 800;
+        font-size: 1.05rem;
+        line-height: 1.1;
+    }
+
+    .payment-header-subtitle {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 0.82rem;
+        font-weight: 600;
+        line-height: 1.1;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .payment-header-badge {
+        color: #ffffff !important;
+        font-weight: 900;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        flex-shrink: 0;
+    }
+
+    .payment-card-wompi .card-body {
+        background: var(--wompi-bg);
+        padding: 14px 16px;
+    }
+    
+    .payment-method-wompi {
+        padding: 6px 0 2px;
+    }
+
+    .payment-hero {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--wompi-border);
+        background: linear-gradient(135deg, rgba(13, 155, 77, 0.06) 0%, rgba(255, 255, 255, 1) 60%);
+    }
+
+    .payment-hero h3 {
+        margin: 0 0 4px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: var(--wompi-green-dark) !important;
+        letter-spacing: -0.2px;
+    }
+
+    .payment-hero p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--wompi-muted) !important;
+    }
+
+    .payment-feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .payment-feature {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 12px;
+        border: 1px solid var(--wompi-border);
+        transition: all 0.3s;
+        height: 100%;
+    }
+    
+    .payment-feature:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 155, 77, 0.14);
+        border-color: var(--wompi-green);
+    }
+    
+    .feature-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--wompi-green) 0%, var(--wompi-green-dark) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    
+    .feature-icon i {
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .payment-feature .feature-text p {
+        color: var(--wompi-muted) !important;
+    }
+    
+    .feature-text {
+        flex: 1;
+    }
+    
+    .feature-text strong {
+        color: var(--wompi-green-dark) !important;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .payment-card-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(44, 85, 48, 0.18);
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--wompi-green-dark) !important;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+    }
+    
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        background: linear-gradient(135deg, var(--wompi-green) 0%, var(--wompi-green-dark) 100%);
+        color: white;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(13, 155, 77, 0.28);
+    }
+    
+    .security-badge i {
+        font-size: 1.1rem;
+    }
+    
+    .payment-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(13, 155, 77, 0.06);
+        border: 1px solid rgba(13, 155, 77, 0.22);
+        margin-bottom: 12px;
+    }
+
+    .payment-info-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 155, 77, 0.12);
+        border: 1px solid rgba(13, 155, 77, 0.18);
+        flex-shrink: 0;
+    }
+
+    .payment-info-icon i {
+        color: var(--wompi-green) !important;
+    }
+
+    .payment-info-text strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--wompi-green-dark) !important;
+    }
+
+    .payment-info-text div {
+        color: var(--wompi-muted) !important;
+        font-size: 0.92rem;
+        line-height: 1.35;
+    }
+
+    .payment-accepted {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--wompi-border);
+        background: #f8f9fa;
+    }
+
+    .payment-accepted-title {
+        font-weight: 800;
+        font-size: 0.85rem;
+        color: var(--wompi-green-dark) !important;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .payment-accepted-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .payment-accepted-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px;
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid rgba(13, 155, 77, 0.14);
+    }
+
+    .wompi-logos-img {
+        display: block;
+        width: 100%;
+        max-width: 420px;
+        height: auto;
+        object-fit: contain;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--wompi-green) 0%, var(--wompi-green-dark) 100%);
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--wompi-green-dark) 0%, var(--wompi-green) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 155, 77, 0.35);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+        .payment-feature {
+            margin-bottom: 15px;
+        }
+
+        .payment-feature-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+    (function () {
+        const createAccount = document.getElementById('{{ form.create_account.id_for_label }}');
+        const fields = document.getElementById('checkout-create-account-fields');
+        if (!createAccount || !fields) return;
 
+        function sync() {
+            fields.style.display = createAccount.checked ? '' : 'none';
+        }
 
+        createAccount.addEventListener('change', sync);
+        sync();
+    })();
+</script>
+<script>
+    // El método de pago ya está establecido como 'wompi' por defecto
+    (function() {
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'auto';
 
+        try {
+            document.body.classList.remove(
+                'mobile-menu-visible',
+                'search-visible',
+                'offcanvas-menu-visible'
+            );
+        } catch (e) {
+            // noop
+        }
 
+        try {
+            var preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.style.display = 'none';
+            }
+        } catch (e) {
+            // noop
+        }
 
+        try {
+            var sidebar = document.getElementById('cartSidebar');
+            var overlay = document.getElementById('cartSidebarOverlay');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+        } catch (e) {
+            // noop
+        }
 
+        function setSelectOptions(selectEl, items, placeholder) {
+            if (!selectEl) {
+                return;
+            }
+            while (selectEl.options.length > 0) {
+                selectEl.remove(0);
+            }
 
+            var defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = placeholder || 'Selecciona';
+            selectEl.appendChild(defaultOpt);
 
+            (items || []).forEach(function(item) {
+                var opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.name;
+                selectEl.appendChild(opt);
+            });
+        }
 
+        var countrySelect = document.getElementById('{{ form.country.id_for_label }}');
+        var deptSelect = document.getElementById('{{ form.department.id_for_label }}');
+        var citySelect = document.getElementById('{{ form.city.id_for_label }}');
 
+        function loadDepartments(countryId) {
+            setSelectOptions(deptSelect, [], 'Cargando...');
+            setSelectOptions(citySelect, [], 'Selecciona ciudad');
+            if (!countryId) {
+                setSelectOptions(deptSelect, [], 'Selecciona departamento');
+                return;
+            }
+
+            fetch('{% url "catalog:api_location_departments" %}?country_id=' + encodeURIComponent(countryId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    setSelectOptions(deptSelect, data, 'Selecciona departamento');
+                })
+                .catch(function() {
+                    setSelectOptions(deptSelect, [], 'Selecciona departamento');
+                });
+        }
+
+        function loadCities(departmentId) {
+            setSelectOptions(citySelect, [], 'Cargando...');
+            if (!departmentId) {
+                setSelectOptions(citySelect, [], 'Selecciona ciudad');
+                return;
+            }
+
+            fetch('{% url "catalog:api_location_cities" %}?department_id=' + encodeURIComponent(departmentId))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    setSelectOptions(citySelect, data, 'Selecciona ciudad');
+                })
+                .catch(function() {
+                    setSelectOptions(citySelect, [], 'Selecciona ciudad');
+                });
+        }
+
+        if (countrySelect && deptSelect && citySelect) {
+            countrySelect.addEventListener('change', function() {
+                loadDepartments(countrySelect.value);
+            });
+
+            deptSelect.addEventListener('change', function() {
+                loadCities(deptSelect.value);
+            });
+
+            if (countrySelect.value && (!deptSelect.value || deptSelect.options.length <= 1)) {
+                loadDepartments(countrySelect.value);
+            }
+            if (deptSelect.value && (!citySelect.value || citySelect.options.length <= 1)) {
+                loadCities(deptSelect.value);
+            }
+        }
+    })();
+</script>
+{% if show_wompi_widget and wompi_data %}
+<script src="https://checkout.wompi.co/widget.js"></script>
+<script>
+    $(document).ready(function() {
+        // Mostrar mensaje de carga
+        $('body').append('<div id="wompi-loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;"><div class="text-center"><i class="fas fa-spinner fa-spin fa-3x mb-3"></i><p>Preparando pago seguro...</p></div></div>');
+        
+        // Inicializar widget de Wompi
+        const checkout = new WidgetCheckout({
+            currency: '{{ wompi_data.currency }}',
+            amountInCents: {{ wompi_data.amount_in_cents }},
+            reference: '{{ wompi_data.reference }}',
+            publicKey: '{{ wompi_data.public_key }}',
+            {% if wompi_data.integrity_signature %}
+            signature: { integrity: '{{ wompi_data.integrity_signature }}' },
+            {% endif %}
+            {% if wompi_data.redirect_url %}
+            redirectUrl: '{{ wompi_data.redirect_url }}',
+            {% endif %}
+        });
+        
+        // Abrir el widget automáticamente después de un breve delay
+        setTimeout(function() {
+            $('#wompi-loading').fadeOut();
+            checkout.open(function (result) {
+                const transaction = result.transaction;
+                console.log('ID de la transacción:', transaction.id);
+                console.log('Estado de la transacción:', transaction.status);
+                
+                // Redirigir según el resultado
+                if (transaction.status === 'APPROVED') {
+                    {% if wompi_data.redirect_url %}
+                    window.location.href = '{{ wompi_data.redirect_url }}';
+                    {% else %}
+                    window.location.href = '{% url "catalog:checkout_success" order_id=order.id %}';
+                    {% endif %}
+                } else {
+                    alert('El pago no pudo ser procesado. Por favor, intenta de nuevo.');
+                    // Redirigir de vuelta al checkout si el pago falla
+                    window.location.href = '{% url "catalog:checkout" %}';
+                }
+            });
+        }, 800);
+    });
+</script>
+{% endif %}
+{% endblock %}

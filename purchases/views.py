@@ -12,7 +12,7 @@ from decimal import Decimal
 
 from .models import Purchase, PurchaseItem, Supplier, PurchaseReceipt
 from .forms import PurchaseForm, PurchaseItemFormSet, SupplierForm, PurchaseReceiptForm
-from inventory.models import Stock, Warehouse
+from inventory.models import Stock, Warehouse, StockMovement
 from catalog.models import Product, ProductImage
 
 
@@ -90,21 +90,101 @@ def purchase_detail(request, pk):
 @login_required
 def purchase_create(request):
     """Crear nueva compra"""
+    print("=== VISTA PURCHASE_CREATE LLAMADA ===")
+    print("Método:", request.method)
+    
     if request.method == 'POST':
-        form = PurchaseForm(request.POST)
-        formset = PurchaseItemFormSet(request.POST)
+        # Debug: imprimir datos recibidos
+        print("=== DEBUG PURCHASE CREATE ===")
+        print("POST data keys:", list(request.POST.keys()))
+        print("Formset data:", {k: v for k, v in request.POST.items() if k.startswith('items-')})
+        print("=============================")
+        
+        # Limpiar formularios vacíos antes de validar
+        cleaned_data = request.POST.copy()
+        total_forms = int(cleaned_data.get('items-TOTAL_FORMS', 0))
+        valid_forms = 0
+        
+        print(f"Total forms encontrados: {total_forms}")
+        
+        for i in range(total_forms):
+            product_key = f'items-{i}-product'
+            quantity_key = f'items-{i}-quantity'
+            
+            product_value = cleaned_data.get(product_key, '').strip()
+            quantity_value = cleaned_data.get(quantity_key, '').strip()
+            
+            print(f"Formulario {i}: product='{product_value}', quantity='{quantity_value}'")
+            
+            if product_value and quantity_value:
+                valid_forms += 1
+                print(f"Formulario {i} es válido")
+            else:
+                # Marcar formulario vacío para eliminación
+                cleaned_data[f'items-{i}-DELETE'] = 'on'
+                # Limpiar campos vacíos
+                cleaned_data[product_key] = ''
+                cleaned_data[quantity_key] = ''
+                cleaned_data[f'items-{i}-unit_cost'] = ''
+                cleaned_data[f'items-{i}-tax_percentage'] = ''
+                cleaned_data[f'items-{i}-discount_percentage'] = ''
+                print(f"Formulario {i} marcado para eliminación")
+        
+        # Actualizar TOTAL_FORMS con el número de formularios válidos
+        cleaned_data['items-TOTAL_FORMS'] = str(valid_forms)
+        
+        print("Formularios válidos encontrados:", valid_forms)
+        print("TOTAL_FORMS actualizado a:", valid_forms)
+        
+        form = PurchaseForm(cleaned_data)
+        formset = PurchaseItemFormSet(cleaned_data)
+        
+        print("Formulario principal válido:", form.is_valid())
+        print("Formset válido:", formset.is_valid())
         
         if form.is_valid() and formset.is_valid():
-            purchase = form.save(commit=False)
-            purchase.created_by = request.user
-            purchase.save()
+            # Verificar que al menos se haya agregado un producto
+            valid_items = [f for f in formset.forms if f.is_valid() and not f.cleaned_data.get('DELETE', False) and f.cleaned_data.get('product')]
+            print("Items válidos encontrados:", len(valid_items))
             
-            # Guardar items
-            formset.instance = purchase
-            formset.save()
+            if not valid_items:
+                print("NO HAY ITEMS VALIDOS - MOSTRANDO ERROR")
+                messages.error(request, 'Debe agregar al menos un producto a la compra.')
+            else:
+                print("HAY ITEMS VALIDOS - CREANDO COMPRA")
+                try:
+                    purchase = form.save(commit=False)
+                    purchase.created_by = request.user
+                    purchase.save()
+                    
+                    # Guardar items
+                    formset.instance = purchase
+                    formset.save()
+                    
+                    print("COMPRA CREADA EXITOSAMENTE:", purchase.purchase_number)
+                    messages.success(request, f'Compra #{purchase.purchase_number} creada exitosamente.')
+                    return redirect('purchases:purchase_list')
+                    
+                except Exception as e:
+                    messages.error(request, f'Error al crear la compra: {str(e)}')
+        else:
+            # Mostrar errores de validación
+            if not form.is_valid():
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'Error en {field}: {error}')
             
-            messages.success(request, f'Compra #{purchase.purchase_number} creada exitosamente.')
-            return redirect('purchases:purchase_detail', pk=purchase.pk)
+            if not formset.is_valid():
+                # Mostrar errores específicos del formset
+                for i, form in enumerate(formset.forms):
+                    if not form.is_valid():
+                        for field, errors in form.errors.items():
+                            for error in errors:
+                                messages.error(request, f'Item {i+1} - Error en {field}: {error}')
+                
+                # Mostrar errores no específicos del formset
+                for error in formset.non_form_errors():
+                    messages.error(request, f'Error general: {error}')
     else:
         form = PurchaseForm()
         formset = PurchaseItemFormSet()
@@ -154,6 +234,11 @@ def purchase_receive(request, pk):
         messages.error(request, 'Solo se pueden recibir compras pendientes.')
         return redirect('purchases:purchase_detail', pk=pk)
     
+    # Verificar si ya existe un recibo para esta compra
+    if hasattr(purchase, 'receipt'):
+        messages.warning(request, f'Esta compra ya fue recibida el {purchase.receipt.received_at.strftime("%d/%m/%Y")} por {purchase.receipt.received_by.username}.')
+        return redirect('purchases:purchase_detail', pk=pk)
+    
     if request.method == 'POST':
         receipt_form = PurchaseReceiptForm(request.POST)
         
@@ -169,29 +254,49 @@ def purchase_receive(request, pk):
             purchase.received_date = timezone.now().date()
             purchase.save()
             
-            # Actualizar stock
+            # Actualizar stock en la bodega principal
             for item in purchase.items.all():
                 try:
-                    # Obtener o crear stock en la bodega principal
-                    warehouse = Warehouse.objects.filter(is_active=True).first()
+                    # Obtener la bodega principal
+                    warehouse = Warehouse.objects.filter(is_main=True, is_active=True).first()
                     if not warehouse:
+                        # Si no existe bodega principal, crear una
                         warehouse = Warehouse.objects.create(
                             name='Bodega Principal',
-                            location='Ubicación Central',
+                            code='PRINCIPAL',
+                            address='Ubicación Central',
+                            city='Ciudad Principal',
+                            is_main=True,
                             is_active=True
                         )
+                        messages.info(request, 'Se creó automáticamente la Bodega Principal.')
                     
+                    # Obtener o crear stock en la bodega principal
                     stock, created = Stock.objects.get_or_create(
                         product=item.product,
                         warehouse=warehouse,
                         defaults={'quantity': 0, 'min_stock': 0}
                     )
                     
+                    # Actualizar cantidad
                     stock.quantity += item.quantity
                     stock.save()
                     
+                    # Crear movimiento de stock para auditoría
+                    StockMovement.objects.create(
+                        product=item.product,
+                        warehouse=warehouse,
+                        movement_type='in',
+                        quantity=item.quantity,
+                        reference=f'Compra #{purchase.purchase_number}',
+                        notes=f'Recepción de compra del proveedor {purchase.supplier.name}',
+                        user=request.user
+                    )
+                    
+                    messages.success(request, f'Stock actualizado: {item.product.name} (+{item.quantity} unidades)')
+                    
                 except Exception as e:
-                    messages.warning(request, f'Error actualizando stock de {item.product.name}: {str(e)}')
+                    messages.error(request, f'Error actualizando stock de {item.product.name}: {str(e)}')
             
             messages.success(request, f'Compra #{purchase.purchase_number} recibida exitosamente.')
             return redirect('purchases:purchase_detail', pk=pk)
@@ -309,6 +414,49 @@ def supplier_edit(request, pk):
 
 
 @login_required
+def purchase_receive_summary(request, pk):
+    """Resumen de recepción de compra con estado del inventario"""
+    purchase = get_object_or_404(Purchase, pk=pk)
+    
+    if purchase.status != 'received':
+        messages.error(request, 'Esta compra no ha sido recibida.')
+        return redirect('purchases:purchase_detail', pk=pk)
+    
+    # Obtener información del stock actual
+    warehouse = Warehouse.objects.filter(is_main=True, is_active=True).first()
+    stock_info = []
+    
+    for item in purchase.items.all():
+        try:
+            stock = Stock.objects.get(product=item.product, warehouse=warehouse)
+            stock_info.append({
+                'product': item.product,
+                'quantity_received': item.quantity,
+                'current_stock': stock.quantity,
+                'min_stock': stock.min_stock,
+                'is_low_stock': stock.is_low_stock,
+                'is_out_of_stock': stock.is_out_of_stock,
+            })
+        except Stock.DoesNotExist:
+            stock_info.append({
+                'product': item.product,
+                'quantity_received': item.quantity,
+                'current_stock': 0,
+                'min_stock': 0,
+                'is_low_stock': True,
+                'is_out_of_stock': True,
+            })
+    
+    context = {
+        'purchase': purchase,
+        'warehouse': warehouse,
+        'stock_info': stock_info,
+    }
+    
+    return render(request, 'purchases/purchase_receive_summary.html', context)
+
+
+@login_required
 def purchase_dashboard(request):
     """Dashboard de compras"""
     # Estadísticas generales
@@ -326,9 +474,9 @@ def purchase_dashboard(request):
     
     # Top proveedores
     top_suppliers = Supplier.objects.annotate(
-        purchase_count=models.Count('purchases'),
+        num_purchases=models.Count('purchases'),
         total_amount=models.Sum('purchases__total')
-    ).filter(purchase_count__gt=0).order_by('-total_amount')[:5]
+    ).filter(num_purchases__gt=0).order_by('-total_amount')[:5]
     
     # Compras del mes actual
     current_month = timezone.now().replace(day=1)
@@ -413,3 +561,27 @@ def api_products(request):
         })
     
     return JsonResponse(data, safe=False)
+
+def test_form_debug(request):
+    """Vista temporal para probar el formulario simple"""
+    if request.method == 'POST':
+        print("=== TEST FORM DEBUG POST ===")
+        print("POST data keys:", list(request.POST.keys()))
+        print("Formset data:", {k: v for k, v in request.POST.items() if k.startswith('items-')})
+        
+        from .forms import PurchaseForm, PurchaseItemFormSet
+        form = PurchaseForm(request.POST)
+        formset = PurchaseItemFormSet(request.POST)
+        
+        print("Formulario principal válido:", form.is_valid())
+        print("Formset válido:", formset.is_valid())
+        
+        if not form.is_valid():
+            print("Errores del formulario:", form.errors)
+        if not formset.is_valid():
+            print("Errores del formset:", formset.errors)
+            print("Errores no específicos:", formset.non_form_errors())
+        
+        return HttpResponse("Test completado - revisar logs del servidor")
+    
+    return render(request, 'test_form_debug.html')

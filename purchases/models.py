@@ -32,9 +32,13 @@ class Supplier(models.Model):
         """Total de compras realizadas a este proveedor"""
         return self.purchases.aggregate(total=models.Sum('total'))['total'] or Decimal('0')
 
+    def get_purchase_count(self):
+        """Obtener el número de compras realizadas a este proveedor"""
+        return self.purchases.count()
+    
     @property
     def purchase_count(self):
-        """Número de compras realizadas a este proveedor"""
+        """Número de compras realizadas a este proveedor (propiedad de solo lectura)"""
         return self.purchases.count()
 
 
@@ -80,7 +84,10 @@ class Purchase(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Compra #{self.purchase_number} - {self.supplier.name}"
+        if hasattr(self, 'supplier') and self.supplier:
+            return f"Compra #{self.purchase_number} - {self.supplier.name}"
+        else:
+            return f"Compra #{self.purchase_number} - Sin proveedor"
 
     def save(self, *args, **kwargs):
         if not self.purchase_number:
@@ -145,8 +152,9 @@ class PurchaseItem(models.Model):
         
         super().save(*args, **kwargs)
         
-        # Actualizar totales de la compra
-        self.update_purchase_totals()
+        # Actualizar totales de la compra solo si ya tiene una compra asignada
+        if self.purchase_id:
+            self.update_purchase_totals()
 
     def update_purchase_totals(self):
         """Actualizar totales de la compra padre"""

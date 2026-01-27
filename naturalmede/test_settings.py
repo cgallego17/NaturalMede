@@ -65,6 +65,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 # Configuración de archivos de media para pruebas
 MEDIA_ROOT = os.path.join(BASE_DIR, 'test_media')
 
+# Desactivar señales de auditoría durante pruebas
+AUDIT_DISABLE_SIGNALS = True
+
 # Configuración de timezone para pruebas
 USE_TZ = True
 TIME_ZONE = 'UTC'

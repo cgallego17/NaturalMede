@@ -22,6 +22,7 @@ class Order(models.Model):
     PAYMENT_METHODS = [
         ('cash_on_delivery', 'Contraentrega'),
         ('bank_transfer', 'Transferencia Bancolombia'),
+        ('wompi', 'Wompi - Tarjeta de Crédito/Débito'),
         ('addi', 'Addi'),
     ]
 
@@ -46,6 +47,11 @@ class Order(models.Model):
     # Información adicional
     notes = models.TextField(blank=True, verbose_name="Notas")
     internal_notes = models.TextField(blank=True, verbose_name="Notas internas")
+    
+    # Información de Wompi
+    wompi_transaction_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="ID Transacción Wompi")
+    wompi_reference = models.CharField(max_length=100, blank=True, null=True, verbose_name="Referencia Wompi")
+    wompi_status = models.CharField(max_length=50, blank=True, null=True, verbose_name="Estado Wompi")
     
     # Fechas
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creada en")
@@ -153,7 +159,7 @@ class OrderItem(models.Model):
         
         # Solo aplicar IVA si la orden es principal
         if self.order.has_iva:
-            self.iva_amount = self.subtotal * (self.iva_percentage / 100)
+            self.iva_amount = self.subtotal * (self.iva_percentage / Decimal('100'))
         else:
             self.iva_amount = Decimal('0.00')
             
@@ -192,4 +198,46 @@ class ShippingRate(models.Model):
             return rate.cost if rate else Decimal('0.00')
         except:
             return Decimal('0.00')
+
+
+class WompiConfig(models.Model):
+    """Configuración de Wompi - Solo debe existir una instancia"""
+    ENVIRONMENT_CHOICES = [
+        ('sandbox', 'Sandbox (Pruebas)'),
+        ('production', 'Producción'),
+    ]
+    
+    public_key = models.CharField(max_length=200, blank=True, verbose_name="Clave Pública")
+    private_key = models.CharField(max_length=200, blank=True, verbose_name="Clave Privada")
+    events_secret = models.CharField(max_length=200, blank=True, verbose_name="Secreto de Eventos")
+    integrity_secret = models.CharField(max_length=200, blank=True, verbose_name="Secreto de Integridad")
+    environment = models.CharField(max_length=20, choices=ENVIRONMENT_CHOICES, default='sandbox', verbose_name="Ambiente")
+    is_active = models.BooleanField(default=True, verbose_name="Activo")
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado en")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Actualizado en")
+    
+    class Meta:
+        verbose_name = "Configuración Wompi"
+        verbose_name_plural = "Configuración Wompi"
+    
+    def __str__(self):
+        return f"Configuración Wompi ({self.get_environment_display()})"
+    
+    def save(self, *args, **kwargs):
+        # Asegurar que solo exista una instancia
+        if not self.pk:
+            if WompiConfig.objects.exists():
+                # Si ya existe una configuración, actualizarla en lugar de crear una nueva
+                existing = WompiConfig.objects.first()
+                self.pk = existing.pk
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_config(cls):
+        """Obtiene la configuración activa, crea una por defecto si no existe"""
+        config = cls.objects.first()
+        if not config:
+            config = cls.objects.create()
+        return config
 

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión - NaturalMede{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="mb-3" style="color:#2c5530; font-weight:700;">Iniciar sesión</h3>
+                    <p class="text-muted mb-4">Ingresa para continuar tu compra.</p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'catalog:login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+                        <div class="form-group">
+                            <label for="username" class="font-weight-bold" style="color:#2c5530;">Email o usuario</label>
+                            <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="font-weight-bold" style="color:#2c5530;">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" style="background:#2c5530; border:0;">Entrar</button>
+                        <a class="btn btn-link btn-block" href="{% url 'catalog:checkout' %}">Volver al checkout</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

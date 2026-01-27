@@ -49,3 +49,5 @@ class ShippingRateSerializer(serializers.ModelSerializer):
 
 
 
+
+

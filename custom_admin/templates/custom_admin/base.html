@@ -432,7 +432,7 @@
         <div class="sidebar-header">
             <div class="text-center">
                 <div class="logo-container">
-                    <img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" style="max-width:95px !important;height:auto;" alt="NaturalMede Logo" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="logo-fallback" style="display: none;">
                         <div class="logo-circle">
                             <i class="fas fa-leaf logo-icon"></i>
@@ -488,6 +488,13 @@
                 <div class="nav-section">
                     <a class="nav-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}" href="{% url 'custom_admin:admin_reports' %}">
                         <i class="fas fa-chart-bar"></i> Reportes
+                    </a>
+                </div>
+                
+                <!-- Configuración -->
+                <div class="nav-section">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'admin_wompi_config' %}active{% endif %}" href="{% url 'custom_admin:admin_wompi_config' %}">
+                        <i class="fas fa-credit-card"></i> Configuración Wompi
                     </a>
                 </div>
                 

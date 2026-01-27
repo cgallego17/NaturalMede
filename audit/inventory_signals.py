@@ -35,21 +35,20 @@ def trace_purchase_receipt(sender, instance, created, **kwargs):
     Rastrea la recepción de productos de compra
     """
     if created:
-        for item in instance.items.all():
+        # Los items están en la compra relacionada, no en el recibo
+        for item in instance.purchase.items.all():
             create_inventory_trace(
                 movement_type='PURCHASE_RECEIPT',
                 product=item.product,
-                warehouse=instance.warehouse,
-                quantity=item.quantity_received,
+                warehouse=None,  # Se determinará en la vista de recepción
+                quantity=item.quantity,
                 unit_cost=item.unit_cost,
-                total_cost=item.quantity_received * item.unit_cost,
+                total_cost=item.total,
                 purchase=instance.purchase,
-                purchase_item=item.purchase_item,
+                purchase_item=item,
                 supplier=instance.purchase.supplier,
                 user=instance.received_by,
-                batch_number=item.batch_number,
-                expiration_date=item.expiration_date,
-                notes=f"Recepción de compra - Lote: {item.batch_number or 'N/A'}"
+                notes=f"Recepción de compra #{instance.purchase.purchase_number}"
             )
 
 
@@ -182,6 +181,21 @@ def create_inventory_trace(movement_type, product, warehouse, quantity,
     Función helper para crear trazabilidad de inventario
     """
     try:
+        # Si no se especifica warehouse, usar la bodega principal
+        if warehouse is None:
+            from inventory.models import Warehouse
+            warehouse = Warehouse.objects.filter(is_main=True, is_active=True).first()
+            if not warehouse:
+                # Si no hay bodega principal, crear una
+                warehouse = Warehouse.objects.create(
+                    name='Bodega Principal', 
+                    code='PRINCIPAL', 
+                    address='Ubicación Central',
+                    city='Ciudad Principal', 
+                    is_main=True, 
+                    is_active=True
+                )
+        
         # Obtener stock actual
         from inventory.models import Stock
         stock_obj = Stock.objects.filter(

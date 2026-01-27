@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="120" viewBox="0 0 300 120">
+  <!-- Texto NATURALMEDE -->
+  <text x="150" y="50" 
+        font-family="Arial, sans-serif" 
+        font-size="32" 
+        font-weight="bold" 
+        text-anchor="middle" 
+        fill="#2F5B3A">
+    NATURALMEDE
+  </text>
+  
+  <!-- Texto TIENDA NATURISTA -->
+  <text x="150" y="85" 
+        font-family="Arial, sans-serif" 
+        font-size="16" 
+        font-weight="normal" 
+        text-anchor="middle" 
+        fill="#A38B4F" 
+        letter-spacing="2">
+    TIENDA NATURISTA
+  </text>
+</svg>
+
+
+

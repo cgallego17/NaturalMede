@@ -100,9 +100,7 @@
                                         <strong class="currency-value" data-value="{{ order.total }}">${{ order.total|floatformat:0 }}</strong>
                                     </td>
                                     <td>
-                                        <span class="badge badge-{{ order.status_color }}">
-                                            {{ order.status_display }}
-                                        </span>
+                                        <span class="badge badge-{{ order.status_color }} text-light">{{ order.status_display }}</span>
                                     </td>
                                     <td>{{ order.payment_method }}</td>
                                     <td>
@@ -118,7 +116,7 @@
                                                     <i class="fas fa-envelope"></i>
                                                 </a>
                                             {% else %}
-                                                <a href="#" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                                <a href="{% url 'custom_admin:admin_order_detail' order.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <a href="#" class="btn btn-sm btn-outline-warning" title="Editar">

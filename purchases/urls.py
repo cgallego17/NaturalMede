@@ -13,6 +13,7 @@ urlpatterns = [
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),
     path('purchases/<int:pk>/edit/', views.purchase_edit, name='purchase_edit'),
     path('purchases/<int:pk>/receive/', views.purchase_receive, name='purchase_receive'),
+    path('purchases/<int:pk>/receive-summary/', views.purchase_receive_summary, name='purchase_receive_summary'),
     path('purchases/<int:pk>/cancel/', views.purchase_cancel, name='purchase_cancel'),
     
     # Proveedores
@@ -23,4 +24,7 @@ urlpatterns = [
     
     # API
     path('api/products/', views.api_products, name='api_products'),
+    
+    # Test temporal
+    path('test-debug/', views.test_form_debug, name='test_form_debug'),
 ]
