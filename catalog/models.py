@@ -90,6 +90,14 @@ class Product(models.Model):
     def iva_amount(self):
         """Calcula el monto del IVA"""
         return self.price * (self.iva_percentage / 100)
+    
+    def get_main_image(self):
+        """Obtiene la imagen principal del producto"""
+        main_image = self.images.filter(is_primary=True).first()
+        if main_image:
+            return main_image
+        # Si no hay imagen principal, devuelve la primera imagen
+        return self.images.first()
 
 
 class ProductImage(models.Model):

@@ -281,7 +281,7 @@ class CategoryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        products = Product.objects.filter(category=self.object, is_active=True)
+        products = Product.objects.filter(category=self.object, is_active=True).prefetch_related('images')
         paginator = Paginator(products, 12)
         page_number = self.request.GET.get('page')
         context['products'] = paginator.get_page(page_number)
