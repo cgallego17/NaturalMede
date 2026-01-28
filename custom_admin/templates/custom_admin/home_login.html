@@ -264,8 +264,8 @@
                                    placeholder="Ingresa tu contraseña" 
                                    required>
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="border-color: #2c5530;">
-                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                <button class="btn btn-link" type="button" id="togglePassword" style="border: none; outline: none; box-shadow: none; color: #ffffff; padding: 8px 12px;">
+                                    <i class="fas fa-eye" id="toggleIcon" style="font-size: 14px;"></i>
                                 </button>
                             </div>
                         </div>
@@ -282,9 +282,7 @@
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                     </button>
                     <div class="text-center mt-3">
-                        <a href="{% url 'password_reset' %}" class="text-muted">
-                            <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
-                        </a>
+                        <small><a href="{% url 'password_reset' %}" style="color: rgba(245,245,220,0.7); text-decoration: none;">¿Olvidaste tu contraseña?</a></small>
                     </div>
                 </form>
             </div>
