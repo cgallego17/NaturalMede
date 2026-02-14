@@ -56,11 +56,14 @@
                                 <p class="text-muted">{{ category.description|linebreaks }}</p>
                             {% endif %}
 
-                            <div class="alert alert-info mt-3">
+                            <div class="alert {% if product_count > 0 %}alert-danger{% else %}alert-info{% endif %} mt-3">
                                 <h6><strong>Productos en esta categoría:</strong></h6>
-                                <p>Esta categoría tiene <strong>{{ category.product_set.count }}</strong> producto(s) asociado(s).</p>
-                                {% if category.product_set.count > 0 %}
-                                    <p class="text-warning"><strong>Nota:</strong> Los productos asociados a esta categoría no serán eliminados, pero perderán su categorización.</p>
+                                <p>Esta categoría tiene <strong>{{ product_count }}</strong> producto(s) asociado(s).</p>
+                                {% if product_count > 0 %}
+                                    <p class="text-danger"><strong>⚠️ ADVERTENCIA:</strong> No se puede eliminar esta categoría porque tiene productos asociados. Los productos también serían eliminados permanentemente.</p>
+                                    <p><strong>Acción requerida:</strong> Primero debes reasignar los productos a otra categoría o eliminarlos individualmente.</p>
+                                {% else %}
+                                    <p class="text-success"><strong>✓</strong> Esta categoría no tiene productos asociados y puede ser eliminada de forma segura.</p>
                                 {% endif %}
                             </div>
 
@@ -70,8 +73,8 @@
                                     <a href="{% url 'custom_admin:admin_category_detail' category.pk %}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fas fa-trash"></i> Sí, Eliminar Categoría
+                                    <button type="submit" class="btn btn-danger" {% if product_count > 0 %}disabled{% endif %}>
+                                        <i class="fas fa-trash"></i> {% if product_count > 0 %}No se puede eliminar{% else %}Sí, Eliminar Categoría{% endif %}
                                     </button>
                                 </div>
                             </form>

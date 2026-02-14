@@ -688,7 +688,13 @@ def admin_category_delete(request, pk):
         messages.error(request, 'Categoría no encontrada.')
         return redirect('custom_admin:admin_categories')
     
+    product_count = category.product_set.count()
+    
     if request.method == 'POST':
+        if product_count > 0:
+            messages.error(request, f'No se puede eliminar la categoría "{category.name}" porque tiene {product_count} producto(s) asociado(s). Primero reasigna o elimina los productos.')
+            return redirect('custom_admin:admin_category_detail', pk=pk)
+        
         category_name = category.name
         category.delete()
         messages.success(request, f'Categoría "{category_name}" eliminada exitosamente.')
@@ -696,6 +702,7 @@ def admin_category_delete(request, pk):
     
     context = {
         'category': category,
+        'product_count': product_count,
     }
     
     return render(request, 'custom_admin/category_confirm_delete.html', context)
