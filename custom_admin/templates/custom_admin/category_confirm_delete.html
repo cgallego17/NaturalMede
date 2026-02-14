@@ -60,8 +60,33 @@
                                 <h6><strong>Productos en esta categoría:</strong></h6>
                                 <p>Esta categoría tiene <strong>{{ product_count }}</strong> producto(s) asociado(s).</p>
                                 {% if product_count > 0 %}
-                                    <p class="text-danger"><strong>⚠️ ADVERTENCIA:</strong> No se puede eliminar esta categoría porque tiene productos asociados. Los productos también serían eliminados permanentemente.</p>
-                                    <p><strong>Acción requerida:</strong> Primero debes reasignar los productos a otra categoría o eliminarlos individualmente.</p>
+                                    <p class="text-danger"><strong>⚠️ ADVERTENCIA CRÍTICA:</strong> Al eliminar esta categoría, <strong>TODOS los {{ product_count }} producto(s) asociados serán eliminados permanentemente</strong>.</p>
+                                    <p><strong>Esta acción NO se puede deshacer.</strong></p>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Productos que serán eliminados:</strong>
+                                        <ul class="list-group mt-2">
+                                            {% for product in products %}
+                                            <li class="list-group-item list-group-item-danger">
+                                                <strong>{{ product.name }}</strong> (SKU: {{ product.sku }})
+                                                {% if product.stock_set.exists %}
+                                                    - Stock: {% for stock in product.stock_set.all %}{{ stock.warehouse.name }}: {{ stock.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                {% endif %}
+                                            </li>
+                                            {% endfor %}
+                                            {% if product_count > 10 %}
+                                            <li class="list-group-item list-group-item-warning">
+                                                <em>... y {{ product_count|add:"-10" }} producto(s) más</em>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    
+                                    <ul class="text-danger">
+                                        <li>Se eliminarán {{ product_count }} producto(s)</li>
+                                        <li>Se perderán todas las imágenes de los productos</li>
+                                        <li>Se eliminarán los registros de stock asociados</li>
+                                    </ul>
                                 {% else %}
                                     <p class="text-success"><strong>✓</strong> Esta categoría no tiene productos asociados y puede ser eliminada de forma segura.</p>
                                 {% endif %}
@@ -69,14 +94,32 @@
 
                             <form method="post" class="mt-4">
                                 {% csrf_token %}
+                                
+                                {% if product_count > 0 %}
+                                <div class="form-check mb-3 p-3 bg-light border border-danger rounded">
+                                    <input class="form-check-input" type="checkbox" name="confirm_cascade" id="confirm_cascade" required>
+                                    <label class="form-check-label text-danger" for="confirm_cascade">
+                                        <strong>Confirmo que deseo eliminar esta categoría y TODOS los {{ product_count }} producto(s) asociados permanentemente.</strong>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                
                                 <div class="d-flex justify-content-between">
                                     <a href="{% url 'custom_admin:admin_category_detail' category.pk %}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
-                                    <button type="submit" class="btn btn-danger" {% if product_count > 0 %}disabled{% endif %}>
-                                        <i class="fas fa-trash"></i> {% if product_count > 0 %}No se puede eliminar{% else %}Sí, Eliminar Categoría{% endif %}
+                                    <button type="submit" class="btn btn-danger" id="deleteBtn" {% if product_count > 0 %}disabled{% endif %}>
+                                        <i class="fas fa-trash"></i> {% if product_count > 0 %}Sí, Eliminar Categoría y {{ product_count }} Producto(s){% else %}Sí, Eliminar Categoría{% endif %}
                                     </button>
                                 </div>
+                                
+                                {% if product_count > 0 %}
+                                <script>
+                                document.getElementById('confirm_cascade').addEventListener('change', function() {
+                                    document.getElementById('deleteBtn').disabled = !this.checked;
+                                });
+                                </script>
+                                {% endif %}
                             </form>
                         </div>
                     </div>

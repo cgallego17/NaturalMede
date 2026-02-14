@@ -689,20 +689,27 @@ def admin_category_delete(request, pk):
         return redirect('custom_admin:admin_categories')
     
     product_count = category.product_set.count()
+    products = category.product_set.all()[:10] if product_count > 0 else []
     
     if request.method == 'POST':
         if product_count > 0:
-            messages.error(request, f'No se puede eliminar la categoría "{category.name}" porque tiene {product_count} producto(s) asociado(s). Primero reasigna o elimina los productos.')
-            return redirect('custom_admin:admin_category_detail', pk=pk)
+            confirm_cascade = request.POST.get('confirm_cascade')
+            if not confirm_cascade:
+                messages.error(request, f'Debes confirmar que deseas eliminar la categoría "{category.name}" y sus {product_count} producto(s) asociado(s).')
+                return redirect('custom_admin:admin_category_delete', pk=pk)
         
         category_name = category.name
         category.delete()
-        messages.success(request, f'Categoría "{category_name}" eliminada exitosamente.')
+        if product_count > 0:
+            messages.success(request, f'Categoría "{category_name}" y {product_count} producto(s) eliminados exitosamente.')
+        else:
+            messages.success(request, f'Categoría "{category_name}" eliminada exitosamente.')
         return redirect('custom_admin:admin_categories')
     
     context = {
         'category': category,
         'product_count': product_count,
+        'products': products,
     }
     
     return render(request, 'custom_admin/category_confirm_delete.html', context)
@@ -836,20 +843,27 @@ def admin_brand_delete(request, pk):
         return redirect('custom_admin:admin_brands')
     
     product_count = brand.product_set.count()
+    products = brand.product_set.all()[:10] if product_count > 0 else []
     
     if request.method == 'POST':
         if product_count > 0:
-            messages.error(request, f'No se puede eliminar la marca "{brand.name}" porque tiene {product_count} producto(s) asociado(s). Primero reasigna o elimina los productos.')
-            return redirect('custom_admin:admin_brand_detail', pk=pk)
+            confirm_cascade = request.POST.get('confirm_cascade')
+            if not confirm_cascade:
+                messages.error(request, f'Debes confirmar que deseas eliminar la marca "{brand.name}" y sus {product_count} producto(s) asociado(s).')
+                return redirect('custom_admin:admin_brand_delete', pk=pk)
         
         brand_name = brand.name
         brand.delete()
-        messages.success(request, f'Marca "{brand_name}" eliminada exitosamente.')
+        if product_count > 0:
+            messages.success(request, f'Marca "{brand_name}" y {product_count} producto(s) eliminados exitosamente.')
+        else:
+            messages.success(request, f'Marca "{brand_name}" eliminada exitosamente.')
         return redirect('custom_admin:admin_brands')
     
     context = {
         'brand': brand,
         'product_count': product_count,
+        'products': products,
     }
     
     return render(request, 'custom_admin/brand_confirm_delete.html', context)
