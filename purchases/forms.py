@@ -147,6 +147,18 @@ class PurchaseItemForm(forms.ModelForm):
         # Solo mostrar productos activos
         self.fields['product'].queryset = Product.objects.filter(is_active=True)
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity is not None and quantity <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        return quantity
+
+    def clean_unit_cost(self):
+        unit_cost = self.cleaned_data.get('unit_cost')
+        if unit_cost is not None and unit_cost <= 0:
+            raise forms.ValidationError('El costo unitario debe ser mayor a 0.')
+        return unit_cost
+
 
 # Formset para items de compra
 PurchaseItemFormSet = inlineformset_factory(

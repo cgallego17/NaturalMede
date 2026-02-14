@@ -63,3 +63,9 @@ class StockTransferItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['product'].queryset = Product.objects.filter(is_active=True)
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity is not None and quantity <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        return quantity
+

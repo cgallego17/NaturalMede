@@ -36,3 +36,21 @@ class POSSaleItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['product'].queryset = Product.objects.filter(is_active=True)
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity is not None and quantity <= 0:
+            raise forms.ValidationError('La cantidad debe ser mayor a 0.')
+        return quantity
+
+    def clean_unit_price(self):
+        unit_price = self.cleaned_data.get('unit_price')
+        if unit_price is not None and unit_price <= 0:
+            raise forms.ValidationError('El precio unitario debe ser mayor a 0.')
+        return unit_price
+
+    def clean_discount_percentage(self):
+        discount = self.cleaned_data.get('discount_percentage')
+        if discount is not None and (discount < 0 or discount > 100):
+            raise forms.ValidationError('El descuento debe estar entre 0 y 100.')
+        return discount
+

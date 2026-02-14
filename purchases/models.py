@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from decimal import Decimal
 
 
@@ -109,6 +111,19 @@ class Purchase(models.Model):
         
         return f"COMP-{year}{month:02d}-{count:04d}"
 
+    def recalculate_totals(self):
+        items = self.items.all()
+        subtotal = sum((item.subtotal for item in items), Decimal('0.00'))
+        tax_amount = sum((item.tax_amount for item in items), Decimal('0.00'))
+        discount_amount = sum((item.discount_amount for item in items), Decimal('0.00'))
+        total = subtotal - discount_amount + tax_amount + (self.shipping_cost or Decimal('0.00'))
+
+        self.subtotal = subtotal
+        self.tax_amount = tax_amount
+        self.discount_amount = discount_amount
+        self.total = total
+        self.save(update_fields=['subtotal', 'tax_amount', 'discount_amount', 'total'])
+
     @property
     def items_count(self):
         """Número de items en la compra"""
@@ -183,3 +198,10 @@ class PurchaseReceipt(models.Model):
 
     def __str__(self):
         return f"Recibo #{self.receipt_number} - {self.purchase.purchase_number}"
+
+
+@receiver(post_delete, sender=PurchaseItem)
+def _purchaseitem_post_delete_recalculate_totals(sender, instance, **kwargs):
+    purchase = getattr(instance, 'purchase', None)
+    if purchase and purchase.pk:
+        purchase.recalculate_totals()

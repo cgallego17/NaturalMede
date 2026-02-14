@@ -38,6 +38,28 @@ class CustomerForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
             self.fields['email'].initial = self.instance.user.email
 
+    def clean_document_number(self):
+        document_number = self.cleaned_data.get('document_number')
+        if document_number:
+            document_number = document_number.strip()
+            qs = Customer.objects.filter(document_number=document_number)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError(f'Ya existe un cliente con el documento "{document_number}".')
+        return document_number
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.strip().lower()
+            qs = User.objects.filter(email=email)
+            if self.instance and self.instance.user:
+                qs = qs.exclude(pk=self.instance.user.pk)
+            if qs.exists():
+                raise forms.ValidationError(f'Ya existe un usuario con el email "{email}".')
+        return email
+
     def save(self, commit=True):
         customer = super().save(commit=False)
         
