@@ -689,7 +689,7 @@ def admin_category_delete(request, pk):
         return redirect('custom_admin:admin_categories')
     
     product_count = category.product_set.count()
-    products = category.product_set.all()[:10] if product_count > 0 else []
+    products = category.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
     
     if request.method == 'POST':
         if product_count > 0:
@@ -843,7 +843,7 @@ def admin_brand_delete(request, pk):
         return redirect('custom_admin:admin_brands')
     
     product_count = brand.product_set.count()
-    products = brand.product_set.all()[:10] if product_count > 0 else []
+    products = brand.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
     
     if request.method == 'POST':
         if product_count > 0:
