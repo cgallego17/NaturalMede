@@ -132,43 +132,38 @@
             <section class="tg-features-area">
                 <div class="container">
                     <div class="tg-features-inner">
+                        <div class="row justify-content-center mb-3">
+                            <div class="col-lg-8">
+                                <div class="tg-section-title text-center">
+                                    <span class="sub-title">CATEGORIAS</span>
+                                    <h2 class="title">Explora Nuestras Categorias</h2>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row justify-content-center">
+                            {% for category in categories|slice:":6" %}
                             <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
                                         <i class="flaticon-supplement"></i>
                                     </div>
                                     <div class="tg-features-content">
-                                        <h4 class="title">Suplementos Naturales</h4>
-                                        <p>Productos 100% naturales formulados con ingredientes de la más alta calidad para complementar tu dieta diaria.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
+                                        <h4 class="title">{{ category.name }}</h4>
+                                        <p>{{ category.description|default:"Descubre productos naturales seleccionados para tu bienestar diario."|truncatewords:18 }}</p>
+                                        {% if category.slug %}
+                                        <a href="{% url 'catalog:category_detail' category.slug %}">Ver categoría</a>
+                                        {% else %}
+                                        <a href="{% url 'catalog:product_list' %}">Ver categoría</a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".4s">
-                                <div class="tg-features-item">
-                                    <div class="tg-features-icon">
-                                        <i class="flaticon-whey-protein-3"></i>
-                                    </div>
-                                    <div class="tg-features-content">
-                                        <h4 class="title">Rutina Saludable</h4>
-                                        <p>Establece una rutina diaria de bienestar con nuestros productos naturales que apoyan tu salud y energía.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
-                                    </div>
-                                </div>
+                            {% empty %}
+                            <div class="col-12 text-center">
+                                <p>No hay categorías disponibles en este momento.</p>
+                                <a href="{% url 'catalog:product_list' %}" class="tg-btn">Ver productos</a>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".6s">
-                                <div class="tg-features-item">
-                                    <div class="tg-features-icon">
-                                        <i class="flaticon-strong-1"></i>
-                                    </div>
-                                    <div class="tg-features-content">
-                                        <h4 class="title">Energía Natural</h4>
-                                        <p>Potencia tu energía y vitalidad con nuestros suplementos naturales diseñados para mejorar tu rendimiento diario.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
-                                    </div>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

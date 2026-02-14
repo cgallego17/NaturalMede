@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, View, TemplateView
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -97,11 +97,16 @@ class HomeView(TemplateView):
             is_active=True
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3]  # 3 productos aleatorios como destacados
         
-        # Obtener producto específico para la sección supplement
+        # Obtener producto más vendido para la sección supplement
         featured_product = Product.objects.filter(
-            sku='ARNI50',
             is_active=True
-        ).select_related('category', 'brand').prefetch_related('images').first()
+        ).select_related('category', 'brand').prefetch_related('images').annotate(
+            total_sold=Sum('orderitem__quantity')
+        ).order_by('-total_sold', '-created_at').first()
+
+        # Si no hay ventas registradas, usar el más reciente
+        if (not featured_product or not getattr(featured_product, 'total_sold', None)) and recent_products:
+            featured_product = recent_products.first()
         
         # Obtener producto destacado para el banner
         banner_product = Product.objects.filter(
