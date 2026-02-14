@@ -107,6 +107,24 @@ class HomeView(TemplateView):
         # Si no hay ventas registradas, usar el más reciente
         if (not featured_product or not getattr(featured_product, 'total_sold', None)) and recent_products:
             featured_product = recent_products.first()
+
+        # Productos para slider de la sección supplement
+        supplement_products = []
+        if featured_product:
+            supplement_products.append(featured_product)
+
+        for product in featured_products:
+            if product and all(p.id != product.id for p in supplement_products):
+                supplement_products.append(product)
+            if len(supplement_products) >= 4:
+                break
+
+        if len(supplement_products) < 4:
+            for product in recent_products:
+                if product and all(p.id != product.id for p in supplement_products):
+                    supplement_products.append(product)
+                if len(supplement_products) >= 4:
+                    break
         
         # Obtener producto destacado para el banner
         banner_product = Product.objects.filter(
@@ -142,6 +160,7 @@ class HomeView(TemplateView):
             'recent_products': recent_products,
             'featured_products': featured_products,
             'featured_product': featured_product,
+            'supplement_products': supplement_products,
             'banner_product': banner_product,
             'shop_featured_product': shop_featured_product,
             'pricing_products': pricing_products,
