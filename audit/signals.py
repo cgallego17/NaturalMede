@@ -125,50 +125,54 @@ def audit_post_delete(sender, instance, **kwargs):
     """
     Captura eventos de eliminación
     """
-    if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
-        return
-
-    sender_meta = getattr(sender, '_meta', None)
-    if sender_meta and getattr(sender_meta, 'app_label', None) in {'contenttypes', 'admin', 'auth', 'sessions'}:
-        return
-    if sender_meta and getattr(sender_meta, 'model_name', None) in {'migration', 'contenttype'}:
-        return
-
-    # Evitar auditoría de nuestros propios modelos
-    if sender.__name__ in ['AuditLog', 'AuditConfiguration', 'AuditReport']:
-        return
-    
-    # Verificar si la auditoría está habilitada para este modelo
     try:
-        content_type = ContentType.objects.get_for_model(sender)
-        config = AuditConfiguration.objects.get(content_type=content_type)
-        
-        if not config.is_enabled or not config.track_deletes:
+        if getattr(settings, 'AUDIT_DISABLE_SIGNALS', False):
             return
+
+        sender_meta = getattr(sender, '_meta', None)
+        if sender_meta and getattr(sender_meta, 'app_label', None) in {'contenttypes', 'admin', 'auth', 'sessions'}:
+            return
+        if sender_meta and getattr(sender_meta, 'model_name', None) in {'migration', 'contenttype'}:
+            return
+
+        # Evitar auditoría de nuestros propios modelos
+        if sender.__name__ in ['AuditLog', 'AuditConfiguration', 'AuditReport']:
+            return
+        
+        # Verificar si la auditoría está habilitada para este modelo
+        try:
+            content_type = ContentType.objects.get_for_model(sender)
+            config = AuditConfiguration.objects.get(content_type=content_type)
             
-    except AuditConfiguration.DoesNotExist:
+            if not config.is_enabled or not config.track_deletes:
+                return
+                
+        except AuditConfiguration.DoesNotExist:
+            pass
+        
+        # Obtener valores del objeto eliminado
+        old_values = {}
+        for field in instance._meta.fields:
+            if field.name not in ['id', 'created_at', 'updated_at']:
+                value = getattr(instance, field.name)
+                old_values[field.name] = str(value) if value is not None else None
+        
+        # Crear el registro de auditoría
+        AuditLog.objects.create(
+            action='DELETE',
+            content_type=ContentType.objects.get_for_model(sender),
+            object_id=str(instance.pk),
+            object_repr=str(instance),
+            old_values=old_values,
+            new_values=None,
+            severity=getattr(config, 'severity_level', 'MEDIUM') if 'config' in locals() else 'MEDIUM',
+            app_label=sender._meta.app_label,
+            model_name=sender._meta.model_name,
+            message=f"DELETE de {sender._meta.verbose_name}: {str(instance)}"
+        )
+    except Exception:
+        # Silenciar errores durante eliminaciones en cascada
         pass
-    
-    # Obtener valores del objeto eliminado
-    old_values = {}
-    for field in instance._meta.fields:
-        if field.name not in ['id', 'created_at', 'updated_at']:
-            value = getattr(instance, field.name)
-            old_values[field.name] = str(value) if value is not None else None
-    
-    # Crear el registro de auditoría
-    AuditLog.objects.create(
-        action='DELETE',
-        content_type=ContentType.objects.get_for_model(sender),
-        object_id=str(instance.pk),
-        object_repr=str(instance),
-        old_values=old_values,
-        new_values=None,
-        severity=getattr(config, 'severity_level', 'MEDIUM') if 'config' in locals() else 'MEDIUM',
-        app_label=sender._meta.app_label,
-        model_name=sender._meta.model_name,
-        message=f"DELETE de {sender._meta.verbose_name}: {str(instance)}"
-    )
 
 
 @receiver(user_logged_in)

@@ -202,6 +202,10 @@ class PurchaseReceipt(models.Model):
 
 @receiver(post_delete, sender=PurchaseItem)
 def _purchaseitem_post_delete_recalculate_totals(sender, instance, **kwargs):
-    purchase = getattr(instance, 'purchase', None)
-    if purchase and purchase.pk:
-        purchase.recalculate_totals()
+    try:
+        purchase = getattr(instance, 'purchase', None)
+        if purchase and purchase.pk:
+            purchase.recalculate_totals()
+    except (Purchase.DoesNotExist, AttributeError):
+        # La compra ya fue eliminada en cascada, no hacer nada
+        pass
