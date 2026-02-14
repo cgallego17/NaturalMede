@@ -463,9 +463,9 @@
             <section id="ingredient" class="tg-supplement-area pt-130 pb-120">
                 <div class="tg-supplement-bg"></div>
     <div class="container">
-                    <div class="supplement-slider tg-supplement-inner">
+                    <div class="supplement-slider">
                         {% for product in supplement_products %}
-                        <div class="supplement-slide-item">
+                        <div class="supplement-slide-item tg-supplement-inner">
                             <div class="row justify-content-center">
                                 <div class="col-lg-6 col-md-8 order-0 order-lg-2">
                                     <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
@@ -492,7 +492,7 @@
                             </div>
                         </div>
                         {% empty %}
-                        <div class="supplement-slide-item">
+                        <div class="supplement-slide-item tg-supplement-inner">
                             <div class="row justify-content-center">
                                 <div class="col-lg-6 col-md-8 order-0 order-lg-2">
                                     <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
