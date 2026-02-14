@@ -462,35 +462,172 @@
             <!-- supplement-area -->
             <section id="ingredient" class="tg-supplement-area pt-130 pb-120">
                 <div class="tg-supplement-bg"></div>
-    <div class="container">
+                <div class="container">
                     <div class="tg-supplement-inner">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-6 col-md-8 order-0 order-lg-2">
-                                <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
-                                    {% if featured_product and featured_product.images.first %}
-                                        <img src="{{ featured_product.images.first.image.url }}" alt="{{ featured_product.name }}">
-                                    {% else %}
-                                        <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="">
-                                    {% endif %}
-                    </div>
-                                <div class="tg-supplement-shape">
-                                    <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
-                </div>
-            </div>
-            <div class="col-lg-6">
-                                <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
-                                    <div class="tg-section-title mb-25">
-                                        <span class="sub-title">{% if featured_product %}{{ featured_product.category.name|default:"Ingredientes" }}{% else %}Ingredientes{% endif %}</span>
-                                        <h2 class="title">{% if featured_product %}{{ featured_product.name }}{% else %}Suplemento Natural <br> Para Tu Bienestar{% endif %}</h2>
+                        <div class="supplement-slider-wrap">
+                            <div class="supplement-slider-track" id="supplementSliderTrack">
+                                {% for product in featured_products|slice:":4" %}
+                                <div class="supplement-slide">
+                                    <div class="row justify-content-center align-items-center">
+                                        <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                            <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
+                                                {% if product.images.first %}
+                                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                                {% else %}
+                                                    <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="{{ product.name }}">
+                                                {% endif %}
+                                            </div>
+                                            <div class="tg-supplement-shape">
+                                                <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
+                                                <div class="tg-section-title mb-25">
+                                                    <span class="sub-title">{{ product.category.name|default:"Ingredientes" }}</span>
+                                                    <h2 class="title">{{ product.name }}</h2>
+                                                </div>
+                                                <p>{{ product.description|default:"Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad."|truncatewords:30 }}</p>
+                                                <a href="{% if product.slug %}{% url 'catalog:product_detail' product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">VER PRODUCTO</a>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <p>{% if featured_product %}{{ featured_product.description|truncatewords:30 }}{% else %}Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales.{% endif %}</p>
-                                    <a href="{% if featured_product and featured_product.slug %}{% url 'catalog:product_detail' featured_product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">{% if featured_product %}VER PRODUCTO{% else %}VER MÁS{% endif %}</a>
                                 </div>
+                                {% empty %}
+                                {% if featured_product %}
+                                <div class="supplement-slide">
+                                    <div class="row justify-content-center align-items-center">
+                                        <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                            <div class="tg-supplement-img text-end">
+                                                {% if featured_product.images.first %}
+                                                    <img src="{{ featured_product.images.first.image.url }}" alt="{{ featured_product.name }}">
+                                                {% else %}
+                                                    <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="{{ featured_product.name }}">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="tg-supplement-content mt-60">
+                                                <div class="tg-section-title mb-25">
+                                                    <span class="sub-title">{{ featured_product.category.name|default:"Ingredientes" }}</span>
+                                                    <h2 class="title">{{ featured_product.name }}</h2>
+                                                </div>
+                                                <p>{{ featured_product.description|truncatewords:30 }}</p>
+                                                <a href="{% if featured_product.slug %}{% url 'catalog:product_detail' featured_product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">VER PRODUCTO</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <button class="supplement-nav supplement-prev" type="button" aria-label="Anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="supplement-nav supplement-next" type="button" aria-label="Siguiente">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+
+                            <div class="supplement-dots" id="supplementDots"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
 </section>
+
+            <style>
+                .supplement-slider-wrap {
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .supplement-slider-track {
+                    display: flex;
+                    transition: transform 0.45s ease;
+                }
+
+                .supplement-slide {
+                    min-width: 100%;
+                }
+
+                .supplement-nav {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 42px;
+                    height: 42px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #fff;
+                    color: #2c5530;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+                    z-index: 2;
+                }
+
+                .supplement-prev { left: 8px; }
+                .supplement-next { right: 8px; }
+
+                .supplement-dots {
+                    display: flex;
+                    justify-content: center;
+                    gap: 8px;
+                    margin-top: 20px;
+                }
+
+                .supplement-dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: rgba(44, 85, 48, 0.25);
+                    border: none;
+                }
+
+                .supplement-dot.active {
+                    background: #94be26;
+                }
+
+                @media (max-width: 991px) {
+                    .supplement-nav { display: none; }
+                }
+            </style>
+
+            <script>
+                (function() {
+                    const track = document.getElementById('supplementSliderTrack');
+                    const dotsWrap = document.getElementById('supplementDots');
+                    if (!track || !dotsWrap) return;
+
+                    const slides = track.querySelectorAll('.supplement-slide');
+                    if (!slides.length) return;
+
+                    let current = 0;
+
+                    function renderDots() {
+                        dotsWrap.innerHTML = '';
+                        slides.forEach((_, idx) => {
+                            const dot = document.createElement('button');
+                            dot.className = 'supplement-dot' + (idx === current ? ' active' : '');
+                            dot.type = 'button';
+                            dot.addEventListener('click', () => goTo(idx));
+                            dotsWrap.appendChild(dot);
+                        });
+                    }
+
+                    function goTo(index) {
+                        current = (index + slides.length) % slides.length;
+                        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+                        renderDots();
+                    }
+
+                    const prevBtn = document.querySelector('.supplement-prev');
+                    const nextBtn = document.querySelector('.supplement-next');
+                    if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+                    if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+
+                    setInterval(() => goTo(current + 1), 5500);
+                    renderDots();
+                })();
+            </script>
             <!-- supplement-area-end -->
 
             <!-- video-area -->
