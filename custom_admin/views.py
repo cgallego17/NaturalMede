@@ -835,7 +835,13 @@ def admin_brand_delete(request, pk):
         messages.error(request, 'Marca no encontrada.')
         return redirect('custom_admin:admin_brands')
     
+    product_count = brand.product_set.count()
+    
     if request.method == 'POST':
+        if product_count > 0:
+            messages.error(request, f'No se puede eliminar la marca "{brand.name}" porque tiene {product_count} producto(s) asociado(s). Primero reasigna o elimina los productos.')
+            return redirect('custom_admin:admin_brand_detail', pk=pk)
+        
         brand_name = brand.name
         brand.delete()
         messages.success(request, f'Marca "{brand_name}" eliminada exitosamente.')
@@ -843,6 +849,7 @@ def admin_brand_delete(request, pk):
     
     context = {
         'brand': brand,
+        'product_count': product_count,
     }
     
     return render(request, 'custom_admin/brand_confirm_delete.html', context)

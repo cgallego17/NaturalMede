@@ -59,11 +59,14 @@
                                 <p class="text-muted">{{ brand.description|linebreaks }}</p>
                             {% endif %}
 
-                            <div class="alert alert-info mt-3">
+                            <div class="alert {% if product_count > 0 %}alert-danger{% else %}alert-info{% endif %} mt-3">
                                 <h6><strong>Productos de esta marca:</strong></h6>
-                                <p>Esta marca tiene <strong>{{ brand.product_set.count }}</strong> producto(s) asociado(s).</p>
-                                {% if brand.product_set.count > 0 %}
-                                    <p class="text-warning"><strong>Nota:</strong> Los productos asociados a esta marca no serán eliminados, pero perderán su marca.</p>
+                                <p>Esta marca tiene <strong>{{ product_count }}</strong> producto(s) asociado(s).</p>
+                                {% if product_count > 0 %}
+                                    <p class="text-danger"><strong>⚠️ ADVERTENCIA:</strong> No se puede eliminar esta marca porque tiene productos asociados. Los productos también serían eliminados permanentemente.</p>
+                                    <p><strong>Acción requerida:</strong> Primero debes reasignar los productos a otra marca o eliminarlos individualmente.</p>
+                                {% else %}
+                                    <p class="text-success"><strong>✓</strong> Esta marca no tiene productos asociados y puede ser eliminada de forma segura.</p>
                                 {% endif %}
                             </div>
 
@@ -73,8 +76,8 @@
                                     <a href="{% url 'custom_admin:admin_brand_detail' brand.pk %}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fas fa-trash"></i> Sí, Eliminar Marca
+                                    <button type="submit" class="btn btn-danger" {% if product_count > 0 %}disabled{% endif %}>
+                                        <i class="fas fa-trash"></i> {% if product_count > 0 %}No se puede eliminar{% else %}Sí, Eliminar Marca{% endif %}
                                     </button>
                                 </div>
                             </form>
