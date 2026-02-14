@@ -32,6 +32,82 @@
         display: block !important;
         background: transparent !important;
     }
+    
+    /* Social Media Header Styles */
+    .social-media-header {
+        margin-left: 30px;
+    }
+    
+    .social-label {
+        font-size: 14px;
+        color: #2c5530;
+        font-weight: 500;
+        margin-right: 15px;
+    }
+    
+    .social-icons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .social-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    
+    .social-icon.instagram {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        color: white;
+    }
+    
+    .social-icon.instagram:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(225, 48, 108, 0.4);
+    }
+    
+    .social-icon.tiktok {
+        background: #000000;
+        color: white;
+    }
+    
+    .social-icon.tiktok:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    .social-icon.whatsapp {
+        background: #25D366;
+        color: white;
+    }
+    
+    .social-icon.whatsapp:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    }
+    
+    .social-icon.facebook {
+        background: #1877F2;
+        color: white;
+    }
+    
+    .social-icon.facebook:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1199px) {
+        .social-media-header {
+            display: none !important;
+        }
+    }
 </style>
 <!-- Pre-loader-start -->
 <div id="preloader">
@@ -70,6 +146,26 @@
                                     <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo" style="max-width: 95px !important; height: auto; display: block;">
                                 </a>
                             </div>
+                            
+                            <!-- Social Media Icons -->
+                            <div class="social-media-header d-none d-lg-flex align-items-center ml-4">
+                                <span class="social-label mr-3">Síguenos en:</span>
+                                <div class="social-icons">
+                                    <a href="https://www.instagram.com/naturalmede" target="_blank" class="social-icon instagram" title="Instagram">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="https://www.tiktok.com/@naturalmede" target="_blank" class="social-icon tiktok" title="TikTok">
+                                        <i class="fab fa-tiktok"></i>
+                                    </a>
+                                    <a href="https://wa.me/573001234567" target="_blank" class="social-icon whatsapp" title="WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="https://www.facebook.com/naturalmede" target="_blank" class="social-icon facebook" title="Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            
                             <div class="navbar-wrap main-menu d-none d-xl-flex">
                                 <ul class="navigation">
                                     <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
