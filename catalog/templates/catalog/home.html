@@ -494,30 +494,93 @@
             <!-- supplement-area-end -->
 
             <!-- video-area -->
-            <section class="tg-video-area tg-video-bg jarallax parallax-img">
-    <div class="container">
-                    <div class="row align-items-center justify-content-center">
-                        <div class="col-xl-7 col-lg-8">
-                            <div class="tg-video-img wow fadeInLeft" data-wow-delay=".2s">
-                                <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&auto=format&fit=crop" alt="Suplementos Naturales">
-                                <a href="https://www.youtube.com/watch?v=2ZjdBY8aOrA" class="play-btn popup-video">
-                                    <i class="fas fa-play"></i></a>
+            <section class="tg-video-area pt-120 pb-120" style="background:#f7f9f2;">
+                <div class="container">
+                    <div class="row justify-content-center mb-5">
+                        <div class="col-lg-8">
+                            <div class="tg-section-title text-center">
+                                <span class="sub-title">NUESTRA RED</span>
+                                <h2 class="title">Videos de TikTok</h2>
+                                <p>Mira contenido de <strong>@naturalmede</strong> y descubre nuestros productos en acción.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <!-- Reemplaza los href por los 4 links reales de videos de @naturalmede -->
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <a href="https://www.tiktok.com/@naturalmede/video/7598988158251928853" target="_blank" class="tiktok-video-card">
+                                <i class="fab fa-tiktok"></i>
+                                <h5>Video 1</h5>
+                                <span>Ver en TikTok</span>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <a href="https://www.tiktok.com/@naturalmede/video/7585662643738889493" target="_blank" class="tiktok-video-card">
+                                <i class="fab fa-tiktok"></i>
+                                <h5>Video 2</h5>
+                                <span>Ver en TikTok</span>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <a href="https://www.tiktok.com/@naturalmede/video/7571918928239168788" target="_blank" class="tiktok-video-card">
+                                <i class="fab fa-tiktok"></i>
+                                <h5>Video 3</h5>
+                                <span>Ver en TikTok</span>
+                            </a>
+                        </div>
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <a href="https://www.tiktok.com/@naturalmede" target="_blank" class="tiktok-video-card">
+                                <i class="fab fa-tiktok"></i>
+                                <h5>Más videos</h5>
+                                <span>Ver perfil completo</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-                        <div class="col-xl-5 col-lg-8">
-                            <div class="tg-video-content wow fadeInRight" data-wow-delay=".2s">
-                                <div class="tg-section-title white mb-30">
-                                    <span class="sub-title">Promocional</span>
-                                    <h2 class="title white-text">Cómo Funcionan Nuestros <br> Suplementos Naturales</h2>
-                </div>
-                                <p class="info-one">Nuestros productos naturales están formulados con ingredientes cuidadosamente seleccionados que trabajan en sinergia para apoyar tu salud y bienestar general.</p>
-                                <p class="info-two">Cada suplemento está diseñado para complementar tu dieta diaria y proporcionar los nutrientes esenciales que tu cuerpo necesita para funcionar de manera óptima.</p>
-                                <a href="{% url 'catalog:product_list' %}" class="tg-btn">VER MÁS</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
+
+            <style>
+                .tiktok-video-card {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    background: #ffffff;
+                    border: 1px solid #e6eadf;
+                    border-radius: 16px;
+                    min-height: 220px;
+                    text-align: center;
+                    text-decoration: none;
+                    transition: all 0.25s ease;
+                    color: #2c5530;
+                    box-shadow: 0 6px 20px rgba(44, 85, 48, 0.08);
+                }
+
+                .tiktok-video-card i {
+                    font-size: 42px;
+                    color: #111;
+                    margin-bottom: 14px;
+                }
+
+                .tiktok-video-card h5 {
+                    font-size: 20px;
+                    margin-bottom: 6px;
+                    color: #2c5530;
+                }
+
+                .tiktok-video-card span {
+                    color: #7b8a6a;
+                    font-size: 14px;
+                }
+
+                .tiktok-video-card:hover {
+                    transform: translateY(-6px);
+                    border-color: #94be26;
+                    box-shadow: 0 12px 28px rgba(44, 85, 48, 0.16);
+                    color: #2c5530;
+                }
+            </style>
             <!-- video-area-end -->
 
             <!-- tg-shop-area -->
