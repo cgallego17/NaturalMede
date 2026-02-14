@@ -691,7 +691,16 @@ def admin_category_delete(request, pk):
     product_count = category.product_set.count()
     products = category.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
     
+    # Verificar si hay productos con compras asociadas
+    from purchases.models import PurchaseItem
+    products_with_purchases = PurchaseItem.objects.filter(product__category=category).values_list('product_id', flat=True).distinct()
+    has_purchase_items = products_with_purchases.exists()
+    
     if request.method == 'POST':
+        if has_purchase_items:
+            messages.error(request, f'No se puede eliminar la categoría "{category.name}" porque tiene productos con compras registradas. Esto afectaría el historial de compras.')
+            return redirect('custom_admin:admin_category_detail', pk=pk)
+        
         if product_count > 0:
             confirm_cascade = request.POST.get('confirm_cascade')
             if not confirm_cascade:
@@ -710,6 +719,7 @@ def admin_category_delete(request, pk):
         'category': category,
         'product_count': product_count,
         'products': products,
+        'has_purchase_items': has_purchase_items,
     }
     
     return render(request, 'custom_admin/category_confirm_delete.html', context)
@@ -845,7 +855,16 @@ def admin_brand_delete(request, pk):
     product_count = brand.product_set.count()
     products = brand.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
     
+    # Verificar si hay productos con compras asociadas
+    from purchases.models import PurchaseItem
+    products_with_purchases = PurchaseItem.objects.filter(product__brand=brand).values_list('product_id', flat=True).distinct()
+    has_purchase_items = products_with_purchases.exists()
+    
     if request.method == 'POST':
+        if has_purchase_items:
+            messages.error(request, f'No se puede eliminar la marca "{brand.name}" porque tiene productos con compras registradas. Esto afectaría el historial de compras.')
+            return redirect('custom_admin:admin_brand_detail', pk=pk)
+        
         if product_count > 0:
             confirm_cascade = request.POST.get('confirm_cascade')
             if not confirm_cascade:
@@ -864,6 +883,7 @@ def admin_brand_delete(request, pk):
         'brand': brand,
         'product_count': product_count,
         'products': products,
+        'has_purchase_items': has_purchase_items,
     }
     
     return render(request, 'custom_admin/brand_confirm_delete.html', context)

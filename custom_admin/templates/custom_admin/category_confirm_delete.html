@@ -56,6 +56,15 @@
                                 <p class="text-muted">{{ category.description|linebreaks }}</p>
                             {% endif %}
 
+                            {% if has_purchase_items %}
+                            <div class="alert alert-danger mt-3">
+                                <h6><strong>❌ ELIMINACIÓN BLOQUEADA:</strong></h6>
+                                <p class="text-danger"><strong>No se puede eliminar esta categoría porque tiene productos con compras registradas.</strong></p>
+                                <p>Eliminar esta categoría afectaría el historial de compras y la integridad de los datos.</p>
+                                <p><strong>Acción requerida:</strong> No es posible eliminar categorías con historial de compras. Puedes desactivarla en su lugar.</p>
+                            </div>
+                            {% endif %}
+                            
                             <div class="alert {% if product_count > 0 %}alert-danger{% else %}alert-info{% endif %} mt-3">
                                 <h6><strong>Productos en esta categoría:</strong></h6>
                                 <p>Esta categoría tiene <strong>{{ product_count }}</strong> producto(s) asociado(s).</p>
@@ -95,7 +104,7 @@
                             <form method="post" class="mt-4">
                                 {% csrf_token %}
                                 
-                                {% if product_count > 0 %}
+                                {% if product_count > 0 and not has_purchase_items %}
                                 <div class="form-check mb-3 p-3 bg-light border border-danger rounded">
                                     <input class="form-check-input" type="checkbox" name="confirm_cascade" id="confirm_cascade" required>
                                     <label class="form-check-label text-danger" for="confirm_cascade">
@@ -108,12 +117,12 @@
                                     <a href="{% url 'custom_admin:admin_category_detail' category.pk %}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
-                                    <button type="submit" class="btn btn-danger" id="deleteBtn" {% if product_count > 0 %}disabled{% endif %}>
-                                        <i class="fas fa-trash"></i> {% if product_count > 0 %}Sí, Eliminar Categoría y {{ product_count }} Producto(s){% else %}Sí, Eliminar Categoría{% endif %}
+                                    <button type="submit" class="btn btn-danger" id="deleteBtn" {% if product_count > 0 or has_purchase_items %}disabled{% endif %}>
+                                        <i class="fas fa-trash"></i> {% if has_purchase_items %}No se puede eliminar (tiene compras){% elif product_count > 0 %}Sí, Eliminar Categoría y {{ product_count }} Producto(s){% else %}Sí, Eliminar Categoría{% endif %}
                                     </button>
                                 </div>
                                 
-                                {% if product_count > 0 %}
+                                {% if product_count > 0 and not has_purchase_items %}
                                 <script>
                                 document.getElementById('confirm_cascade').addEventListener('change', function() {
                                     document.getElementById('deleteBtn').disabled = !this.checked;
