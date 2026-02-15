@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, View, TemplateView
 from django.db.models import Q, Count, Sum
+from django.db.utils import OperationalError, ProgrammingError
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -13,6 +14,7 @@ from .models import Product, Category, Brand, Cart, CartItem
 from .forms import CartAddForm, CheckoutForm
 from orders.models import Order, OrderItem, ShippingRate
 from customers.models import Customer, City
+from custom_admin.models import HomeBannerConfig
 from .wompi_views import create_wompi_transaction
 import json
 from decimal import Decimal
@@ -150,6 +152,14 @@ class HomeView(TemplateView):
             is_active=True,
             category_id=11,
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3])
+
+        # Configuración de banner editable desde admin custom
+        try:
+            home_banner_config = HomeBannerConfig.get_config()
+            if home_banner_config and not home_banner_config.is_active:
+                home_banner_config = None
+        except (OperationalError, ProgrammingError):
+            home_banner_config = None
         
         context.update({
             'recent_products': recent_products,
@@ -157,6 +167,7 @@ class HomeView(TemplateView):
             'featured_product': featured_product,
             'supplement_products': supplement_products,
             'banner_product': banner_product,
+            'home_banner_config': home_banner_config,
             'shop_featured_product': shop_featured_product,
             'pricing_products': pricing_products,
         })

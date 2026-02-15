@@ -496,6 +496,9 @@
                     <a class="nav-link {% if request.resolver_match.url_name == 'admin_wompi_config' %}active{% endif %}" href="{% url 'custom_admin:admin_wompi_config' %}">
                         <i class="fas fa-credit-card"></i> Configuración Wompi
                     </a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'admin_home_banner_config' %}active{% endif %}" href="{% url 'custom_admin:admin_home_banner_config' %}">
+                        <i class="fas fa-image"></i> Banner Home
+                    </a>
                 </div>
                 
                 <!-- Auditoría -->

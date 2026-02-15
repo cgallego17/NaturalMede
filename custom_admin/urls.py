@@ -67,4 +67,9 @@ urlpatterns = [
     
     # Configuración Wompi
     path('wompi-config/', views.admin_wompi_config, name='admin_wompi_config'),
+    path(
+        'home-banner-config/',
+        views.admin_home_banner_config,
+        name='admin_home_banner_config',
+    ),
 ]

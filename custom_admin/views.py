@@ -18,6 +18,8 @@ from pos.models import POSSale, POSSaleItem, POSSession
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from .forms import HomeBannerConfigForm
+from .models import HomeBannerConfig
 
 
 def admin_login(request):
@@ -2509,6 +2511,35 @@ def admin_wompi_config(request):
     }
     
     return render(request, 'custom_admin/wompi_config.html', context)
+
+
+@login_required
+def admin_home_banner_config(request):
+    """Configuración del banner principal del home."""
+    config = HomeBannerConfig.get_config()
+
+    if request.method == 'POST':
+        form = HomeBannerConfigForm(
+            request.POST,
+            request.FILES,
+            instance=config,
+        )
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                'Banner del home actualizado exitosamente.',
+            )
+            return redirect('custom_admin:admin_home_banner_config')
+        messages.error(request, 'Revisa los campos del formulario del banner.')
+    else:
+        form = HomeBannerConfigForm(instance=config)
+
+    context = {
+        'form': form,
+        'config': config,
+    }
+    return render(request, 'custom_admin/home_banner_config.html', context)
 
 
 # --------- Detalle de Orden ---------
