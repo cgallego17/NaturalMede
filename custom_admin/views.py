@@ -2515,29 +2515,60 @@ def admin_wompi_config(request):
 
 @login_required
 def admin_home_banner_config(request):
-    """Configuración del banner principal del home."""
-    config = HomeBannerConfig.get_config()
+    """Gestión de múltiples banners del home."""
+    banners = HomeBannerConfig.objects.all()
+    editing_banner = None
+
+    edit_id = request.GET.get('edit')
+    if edit_id:
+        editing_banner = HomeBannerConfig.objects.filter(pk=edit_id).first()
 
     if request.method == 'POST':
-        form = HomeBannerConfigForm(
-            request.POST,
-            request.FILES,
-            instance=config,
-        )
-        if form.is_valid():
-            form.save()
-            messages.success(
-                request,
-                'Banner del home actualizado exitosamente.',
-            )
+        action = request.POST.get('action', 'create')
+
+        if action == 'delete':
+            banner_id = request.POST.get('banner_id')
+            deleted = HomeBannerConfig.objects.filter(pk=banner_id).delete()[0]
+            if deleted:
+                messages.success(request, 'Banner eliminado exitosamente.')
+            else:
+                messages.error(request, 'No se encontró el banner para eliminar.')
             return redirect('custom_admin:admin_home_banner_config')
-        messages.error(request, 'Revisa los campos del formulario del banner.')
+
+        if action == 'update':
+            banner_id = request.POST.get('banner_id')
+            banner = HomeBannerConfig.objects.filter(pk=banner_id).first()
+            if not banner:
+                messages.error(request, 'No se encontró el banner para editar.')
+                return redirect('custom_admin:admin_home_banner_config')
+
+            form = HomeBannerConfigForm(
+                request.POST,
+                request.FILES,
+                instance=banner,
+            )
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Banner actualizado exitosamente.')
+                return redirect('custom_admin:admin_home_banner_config')
+            messages.error(request, 'Revisa los campos del banner a editar.')
+        else:
+            form = HomeBannerConfigForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Banner agregado exitosamente.')
+                return redirect('custom_admin:admin_home_banner_config')
+            messages.error(request, 'Revisa los campos del nuevo banner.')
     else:
-        form = HomeBannerConfigForm(instance=config)
+        if editing_banner:
+            form = HomeBannerConfigForm(instance=editing_banner)
+        else:
+            form = HomeBannerConfigForm()
 
     context = {
         'form': form,
-        'config': config,
+        'banners': banners,
+        'editing_banner': editing_banner,
     }
     return render(request, 'custom_admin/home_banner_config.html', context)
 

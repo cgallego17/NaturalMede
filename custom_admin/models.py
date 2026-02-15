@@ -13,20 +13,21 @@ class HomeBannerConfig(models.Model):
         blank=True,
         verbose_name='Texto alternativo',
     )
+    display_order = models.PositiveIntegerField(default=0, verbose_name='Orden')
     is_active = models.BooleanField(default=True, verbose_name='Activo')
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Creado en',
+    )
     updated_at = models.DateTimeField(
         auto_now=True,
         verbose_name='Actualizado en',
     )
 
     class Meta:
-        verbose_name = 'Configuración Banner Home'
-        verbose_name_plural = 'Configuración Banner Home'
+        verbose_name = 'Banner Home'
+        verbose_name_plural = 'Banners Home'
+        ordering = ['display_order', '-created_at']
 
     def __str__(self):
-        return 'Banner principal home'
-
-    @classmethod
-    def get_config(cls):
-        config, _ = cls.objects.get_or_create(pk=1)
-        return config
+        return f'Banner Home #{self.pk}'

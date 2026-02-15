@@ -52,10 +52,19 @@
                         position: relative;
                         z-index: 2;
                     }
+                    .home-banner-slide {
+                        width: 100%;
+                    }
                 </style>
-                <div class="tg-custom-banner-wrap wow fadeInUp" data-wow-delay=".2s">
-                    {% if home_banner_config and home_banner_config.image %}
-                        <img src="{{ home_banner_config.image.url }}" alt="{{ home_banner_config.alt_text|default:'Banner NaturalMede' }}" class="tg-custom-banner-image">
+                <div class="tg-custom-banner-wrap wow fadeInUp home-banner-slider" data-wow-delay=".2s">
+                    {% if home_banners %}
+                        {% for banner in home_banners %}
+                        <div class="home-banner-slide">
+                            {% if banner.image %}
+                            <img src="{{ banner.image.url }}" alt="{{ banner.alt_text|default:'Banner NaturalMede' }}" class="tg-custom-banner-image">
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     {% else %}
                         <img src="{% static 'images/duovit-vitamin-d3-k2.png' %}" alt="Banner NaturalMede" class="tg-custom-banner-image">
                     {% endif %}
@@ -695,6 +704,21 @@
                         autoplay: true,
                         autoplaySpeed: 2500,
                         speed: 350,
+                        fade: true,
+                        cssEase: 'ease',
+                        adaptiveHeight: false
+                    });
+                }
+
+                if ($.fn.slick && $('.home-banner-slider').length && $('.home-banner-slide').length > 1) {
+                    $('.home-banner-slider').slick({
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        arrows: false,
+                        dots: false,
+                        autoplay: true,
+                        autoplaySpeed: 3500,
+                        speed: 500,
                         fade: true,
                         cssEase: 'ease',
                         adaptiveHeight: false

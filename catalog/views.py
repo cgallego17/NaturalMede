@@ -153,13 +153,13 @@ class HomeView(TemplateView):
             category_id=11,
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3])
 
-        # Configuración de banner editable desde admin custom
+        # Banners del home editables desde admin custom
         try:
-            home_banner_config = HomeBannerConfig.get_config()
-            if home_banner_config and not home_banner_config.is_active:
-                home_banner_config = None
+            home_banners = list(
+                HomeBannerConfig.objects.filter(is_active=True)
+            )
         except (OperationalError, ProgrammingError):
-            home_banner_config = None
+            home_banners = []
         
         context.update({
             'recent_products': recent_products,
@@ -167,7 +167,7 @@ class HomeView(TemplateView):
             'featured_product': featured_product,
             'supplement_products': supplement_products,
             'banner_product': banner_product,
-            'home_banner_config': home_banner_config,
+            'home_banners': home_banners,
             'shop_featured_product': shop_featured_product,
             'pricing_products': pricing_products,
         })

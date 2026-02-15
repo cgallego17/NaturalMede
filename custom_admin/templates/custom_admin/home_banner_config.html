@@ -7,18 +7,26 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <div class="col-lg-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1><i class="fas fa-image"></i> Banner principal del home</h1>
+                <h1><i class="fas fa-image"></i> Banners del home</h1>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Imagen recomendada: 1692 x 627</h5>
+                    <h5 class="mb-0">
+                        {% if editing_banner %}Editar banner{% else %}Agregar nuevo banner{% endif %}
+                    </h5>
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {% if editing_banner %}
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="banner_id" value="{{ editing_banner.id }}">
+                        {% else %}
+                        <input type="hidden" name="action" value="create">
+                        {% endif %}
 
                         <div class="form-group mb-3">
                             <label for="id_image" class="font-weight-bold">Imagen</label>
@@ -30,35 +38,81 @@
                             {{ form.alt_text }}
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label for="id_display_order" class="font-weight-bold">Orden</label>
+                            {{ form.display_order }}
+                        </div>
+
                         <div class="form-group form-check mb-4">
                             {{ form.is_active }}
                             <label class="form-check-label" for="id_is_active">Mostrar banner en home</label>
                         </div>
 
                         <button type="submit" class="btn btn-primary">
+                            {% if editing_banner %}
+                            <i class="fas fa-save"></i> Actualizar banner
+                            {% else %}
                             <i class="fas fa-save"></i> Guardar cambios
+                            {% endif %}
                         </button>
+                        {% if editing_banner %}
+                        <a href="{% url 'custom_admin:admin_home_banner_config' %}" class="btn btn-outline-secondary ml-2">
+                            Cancelar edición
+                        </a>
+                        {% endif %}
                     </form>
                 </div>
             </div>
+        </div>
 
-            <div class="card mt-4">
+        <div class="col-lg-7">
+            <div class="card mt-4 mt-lg-0">
                 <div class="card-header">
-                    <h5 class="mb-0">Vista previa actual</h5>
+                    <h5 class="mb-0">Banners registrados</h5>
                 </div>
                 <div class="card-body">
-                    {% if config.image %}
-                    <img
-                        src="{{ config.image.url }}"
-                        alt="{{ config.alt_text|default:'Banner Home' }}"
-                        style="width: 100%; max-width: 100%; aspect-ratio: 1692 / 627; object-fit: cover; border-radius: 12px;"
-                    >
+                    {% if banners %}
+                    <div class="row">
+                        {% for banner in banners %}
+                        <div class="col-12 mb-4">
+                            <div class="border rounded p-3">
+                                {% if banner.image %}
+                                <img
+                                    src="{{ banner.image.url }}"
+                                    alt="{{ banner.alt_text|default:'Banner Home' }}"
+                                    style="width: 100%; aspect-ratio: 1692 / 627; object-fit: cover; border-radius: 10px;"
+                                >
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div>
+                                        <strong>Orden:</strong> {{ banner.display_order }}
+                                        <span class="ml-2 badge {% if banner.is_active %}badge-success{% else %}badge-secondary{% endif %}">
+                                            {% if banner.is_active %}Activo{% else %}Inactivo{% endif %}
+                                        </span>
+                                        <div class="text-muted small">{{ banner.alt_text|default:'Sin texto alternativo' }}</div>
+                                    </div>
+                                    <form method="post" class="mb-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="banner_id" value="{{ banner.id }}">
+                                        <a href="{% url 'custom_admin:admin_home_banner_config' %}?edit={{ banner.id }}" class="btn btn-sm btn-outline-primary mr-2">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este banner?');">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                     {% else %}
-                    <p class="text-muted mb-0">Aun no has subido una imagen para el banner.</p>
+                    <p class="text-muted mb-0">Aún no has subido banners para el home.</p>
                     {% endif %}
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 </div>
 {% endblock %}
