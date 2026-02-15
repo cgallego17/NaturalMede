@@ -5,22 +5,26 @@
 
 {% block content %}
 <!-- breadcrumb-area -->
-<section class="breadcrumb-area breadcrumb-bg" style="background-image: url('{% static 'suxnix/assets/img/bg/features_bg.jpg' %}');">
+<section class="breadcrumb-area breadcrumb-bg">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="breadcrumb-content">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="breadcrumb-content text-center">
                     <h2 class="title">Contáctenos</h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Inicio</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Contacto</li>
-                        </ol>
+                    <nav aria-label="Breadcrumbs" class="breadcrumb-trail">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item trail-item trail-begin">
+                                <a href="{% url 'catalog:home' %}"><span>Inicio</span></a>
+                            </li>
+                            <li class="breadcrumb-item trail-item trail-end"><span>Contacto</span></li>
+                        </ul>
                     </nav>
                 </div>
             </div>
         </div>
     </div>
+    <div class="video-shape one"><img src="{% static 'suxnix/assets/img/others/video_shape01.png' %}" alt="shape"></div>
+    <div class="video-shape two"><img src="{% static 'suxnix/assets/img/others/video_shape02.png' %}" alt="shape"></div>
 </section>
 <!-- breadcrumb-area-end -->
 
