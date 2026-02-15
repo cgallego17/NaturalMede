@@ -145,16 +145,11 @@ class HomeView(TemplateView):
         if not shop_featured_product and recent_products:
             shop_featured_product = recent_products.first()
         
-        # Obtener 3 productos para la sección de planes/precios
+        # Obtener productos para la sección de planes/precios (solo categoría ID 11)
         pricing_products = list(Product.objects.filter(
-            is_active=True
+            is_active=True,
+            category_id=11,
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3])
-        
-        # Si no hay suficientes productos, usar los de recent_products
-        if len(pricing_products) < 3 and recent_products:
-            for product in recent_products:
-                if product not in pricing_products and len(pricing_products) < 3:
-                    pricing_products.append(product)
         
         context.update({
             'recent_products': recent_products,
