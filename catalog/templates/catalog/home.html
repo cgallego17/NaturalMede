@@ -39,6 +39,13 @@
                     .tg-custom-banner-wrap {
                         width: 100vw;
                         margin-left: calc(50% - 50vw);
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .home-banner-slider,
+                    .home-banner-slider.slick-slider {
+                        position: relative;
+                        z-index: 1;
                     }
                     .tg-custom-banner-image {
                         width: 100%;
@@ -50,7 +57,7 @@
                     .tg-features-area {
                         margin-top: -110px;
                         position: relative;
-                        z-index: 5;
+                        z-index: 10;
                     }
                     @media (max-width: 991px) {
                         .tg-features-area {
@@ -185,7 +192,7 @@
                         </div>
                         <div class="row justify-content-center">
                             {% for category in categories|slice:":6" %}
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s">
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
                                         <i class="flaticon-supplement"></i>
@@ -659,9 +666,6 @@
                             <div class="col-xl-5 col-lg-6 col-md-12">
                                 <div class="footer-widget footer-card">
                                     <div class="footer-about">
-                                        <div class="footer-logo logo">
-                                            <a href="{% url 'catalog:home' %}"><img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" class="footer-logo-img"></a>
-                                        </div>
                                         <div class="footer-text">
                                             <p class="footer-brand-tag">
                                                 <span>💚 NATURISTA 💚</span>
@@ -762,6 +766,51 @@
             </div>
         </footer>
         <!-- Footer-area-end -->
+
+        <style>
+            .whatsapp-float-btn {
+                position: fixed;
+                right: 20px;
+                bottom: 24px;
+                width: 58px;
+                height: 58px;
+                border-radius: 50%;
+                background: #25d366;
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                box-shadow: 0 10px 24px rgba(37, 211, 102, 0.45);
+                z-index: 9999;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .whatsapp-float-btn:hover {
+                color: #fff;
+                transform: translateY(-2px) scale(1.03);
+                box-shadow: 0 14px 28px rgba(37, 211, 102, 0.52);
+            }
+            @media (max-width: 575px) {
+                .whatsapp-float-btn {
+                    right: 14px;
+                    bottom: 16px;
+                    width: 54px;
+                    height: 54px;
+                    font-size: 28px;
+                }
+            }
+        </style>
+
+        <a
+            href="https://wa.me/573127201803"
+            class="whatsapp-float-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contactar por WhatsApp"
+            title="Escríbenos por WhatsApp"
+        >
+            <i class="fab fa-whatsapp"></i>
+        </a>
 
 
 
