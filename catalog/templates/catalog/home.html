@@ -34,6 +34,65 @@
         <main class="main-area fix">
 
             <!-- tg-banner-area -->
+            <section id="ingredient" class="tg-supplement-area pt-130 pb-120">
+                <div class="tg-supplement-bg"></div>
+    <div class="container">
+                    <div class="supplement-slider">
+                        {% for product in supplement_products %}
+                        <div class="supplement-slide-item tg-supplement-inner">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                    <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
+                                        {% if product.images.first %}
+                                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="{{ product.name }}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="tg-supplement-shape">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
+                                        <div class="tg-section-title mb-25">
+                                            <span class="sub-title">{{ product.category.name|default:"Ingredientes" }}</span>
+                                            <h2 class="title">{{ product.name }}</h2>
+                                        </div>
+                                        <p>{{ product.description|truncatewords:30|default:"Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales." }}</p>
+                                        <a href="{% if product.slug %}{% url 'catalog:product_detail' product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">VER PRODUCTO</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="supplement-slide-item tg-supplement-inner">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                    <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="Suplemento Natural">
+                                    </div>
+                                    <div class="tg-supplement-shape">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
+                                        <div class="tg-section-title mb-25">
+                                            <span class="sub-title">Ingredientes</span>
+                                            <h2 class="title">Suplemento Natural <br> Para Tu Bienestar</h2>
+                                        </div>
+                                        <p>Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales.</p>
+                                        <a href="{% url 'catalog:product_list' %}" class="tg-btn view-btn">VER MÁS</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+    </div>
+</section>
+            {% comment %}
             {% if banner_product %}
             <section class="tg-banner-area banner-bg jarallax parallax-img">
                 <style>
@@ -126,6 +185,7 @@
                 </div>
             </section>
             {% endif %}
+            {% endcomment %}
             <!-- banner-area-end -->
 
             <!-- tg-features-area -->
@@ -459,6 +519,7 @@
             </script>
             <!-- featured-products-carousel-end -->
 
+            {% comment %}
             <!-- supplement-area -->
             <section id="ingredient" class="tg-supplement-area pt-130 pb-120">
                 <div class="tg-supplement-bg"></div>
@@ -519,6 +580,7 @@
     </div>
 </section>
             <!-- supplement-area-end -->
+            {% endcomment %}
 
             <!-- video-area -->
             <section class="tg-video-area pt-120 pb-120" style="background:#f7f9f2;">
