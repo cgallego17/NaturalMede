@@ -194,6 +194,9 @@
                                     <li class="{% if 'cart' in request.resolver_match.url_name %}active{% endif %}">
                                         <a href="{% url 'catalog:cart' %}">Carrito</a>
                                     </li>
+                                    <li class="{% if 'contact' in request.resolver_match.url_name %}active{% endif %}">
+                                        <a href="{% url 'catalog:contact' %}">Contacto</a>
+                                    </li>
                                     {% if user.is_authenticated %}
                                     <li class="menu-item-has-children">
                                         <a href="#">Mi Cuenta</a>
