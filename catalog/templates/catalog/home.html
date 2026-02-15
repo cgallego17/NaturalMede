@@ -192,7 +192,7 @@
             <!-- banner-area-end -->
 
             <!-- tg-features-area -->
-            <section class="tg-features-area" style="position: relative !important; z-index: 40 !important; margin-top: -200px !important; isolation: isolate !important;">
+            <section class="tg-features-area" style="position: relative !important;z-index: 40 !important;margin-top: 90px !important;isolation: isolate !important;">
                 <div class="container">
                     <div class="tg-features-inner">
                         <div class="row justify-content-center mb-3">
@@ -204,29 +204,67 @@
                             </div>
                         </div>
                         <div class="row justify-content-center">
-                            {% for category in categories|slice:":6" %}
-                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s">
+                            
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
                                         <i class="flaticon-supplement"></i>
                                     </div>
                                     <div class="tg-features-content">
-                                        <h4 class="title">{{ category.name }}</h4>
-                                        <p>{{ category.description|default:"Descubre productos naturales seleccionados para tu bienestar diario."|truncatewords:18 }}</p>
-                                        {% if category.slug %}
-                                        <a href="{% url 'catalog:category_detail' category.slug %}">Ver categoría</a>
-                                        {% else %}
-                                        <a href="{% url 'catalog:product_list' %}">Ver categoría</a>
-                                        {% endif %}
+                                        <h4 class="title">Colágenos</h4>
+                                        <p>Descubre productos naturales seleccionados para tu bienestar diario.</p>
+                                        
+                                        <a href="/category/colagenos/">Ver categoría</a>
+                                        
                                     </div>
                                 </div>
                             </div>
-                            {% empty %}
-                            <div class="col-12 text-center">
-                                <p>No hay categorías disponibles en este momento.</p>
-                                <a href="{% url 'catalog:product_list' %}" class="tg-btn">Ver productos</a>
+                            
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                                <div class="tg-features-item">
+                                    <div class="tg-features-icon">
+                                        <i class="flaticon-supplement"></i>
+                                    </div>
+                                    <div class="tg-features-content">
+                                        <h4 class="title">Combos &amp; Promos</h4>
+                                        <p>Los mejores combos en promoción para el cuidado de tu salud</p>
+                                        
+                                        <a href="/category/combos/">Ver categoría</a>
+                                        
+                                    </div>
+                                </div>
                             </div>
-                            {% endfor %}
+                            
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                                <div class="tg-features-item">
+                                    <div class="tg-features-icon">
+                                        <i class="flaticon-supplement"></i>
+                                    </div>
+                                    <div class="tg-features-content">
+                                        <h4 class="title">Suplementos Deportivos</h4>
+                                        <p>Suplementos deportivos para el rendimiento físico, la energía y la recuperación muscular.</p>
+                                        
+                                        <a href="/category/suplementos-deportivos/">Ver categoría</a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                                <div class="tg-features-item">
+                                    <div class="tg-features-icon">
+                                        <i class="flaticon-supplement"></i>
+                                    </div>
+                                    <div class="tg-features-content">
+                                        <h4 class="title">Suplementos Dietarios</h4>
+                                        <p>Productos naturales para el cuidado de la piel y el cabello.</p>
+                                        
+                                        <a href="/category/cuidado-personal/">Ver categoría</a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
