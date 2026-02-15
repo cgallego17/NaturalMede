@@ -20,7 +20,7 @@ from .wompi_views import create_wompi_transaction
 import json
 from decimal import Decimal
 
-FIXED_SHIPPING_COST = Decimal('13000.00')
+FIXED_SHIPPING_COST = Decimal('14000.00')
 
 
 def merge_session_cart_into_user_cart(request, user):

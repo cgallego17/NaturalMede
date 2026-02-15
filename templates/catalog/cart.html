@@ -138,11 +138,11 @@
                         </li>
                         <li>
                             Envío
-                            <span>$13.000</span>
+                            <span>$14.000</span>
                         </li>
                         <li class="total">
                             Total
-                            <span class="amount">${{ cart.total_amount|add:13000|floatformat:0|intcomma }}</span>
+                            <span class="amount">${{ cart.total_amount|add:14000|floatformat:0|intcomma }}</span>
                         </li>
                     </ul>
                     <div class="cart-checkout-buttons">
@@ -252,8 +252,8 @@
         {% endfor %}
         
         message += '\nSubtotal: ${{ cart.total_amount|floatformat:0|intcomma }}\n';
-        message += 'Envío: $13.000\n';
-        message += 'Total: ${{ cart.total_amount|add:13000|floatformat:0|intcomma }}\n\n';
+        message += 'Envío: $14.000\n';
+        message += 'Total: ${{ cart.total_amount|add:14000|floatformat:0|intcomma }}\n\n';
         message += 'Por favor, confírmame la disponibilidad y el proceso de pago.';
         
         if (typeof sendWhatsAppMessage !== 'undefined') {
