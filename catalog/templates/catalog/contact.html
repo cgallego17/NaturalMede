@@ -107,62 +107,13 @@
             </div>
 
             <div class="col-lg-7">
-                <div class="contact-form-wrap">
-                    <h2 class="title">Envíanos un Mensaje</h2>
-                    <p>¿Tienes alguna pregunta? Completa el formulario y te responderemos lo antes posible.</p>
-
-                    {% if messages %}
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <form method="post" class="contact-form">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-grp">
-                                    <input type="text" name="name" placeholder="Tu Nombre *" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-grp">
-                                    <input type="email" name="email" placeholder="Tu Email *" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-grp">
-                                    <input type="tel" name="phone" placeholder="Tu Teléfono">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-grp">
-                                    <input type="text" name="subject" placeholder="Asunto *" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-grp">
-                            <textarea name="message" placeholder="Tu Mensaje *" required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Enviar Mensaje</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mapa -->
-        <div class="row mt-60">
-            <div class="col-12">
                 <div class="contact-map">
                     <h3 class="mb-4">Encuéntranos Aquí</h3>
                     <div class="map-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.2449276788616!2d-75.60277892404826!3d6.2369738937729995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e4429535e5e5e5f%3A0x5e5e5e5e5e5e5e5e!2sCra.%2070%20%2332b-45%2C%20Bel%C3%A9n%2C%20Medell%C3%ADn%2C%20Antioquia!5e0!3m2!1ses!2sco!4v1708045000000!5m2!1ses!2sco" 
                             width="100%" 
-                            height="450" 
+                            height="550" 
                             style="border:0;" 
                             allowfullscreen="" 
                             loading="lazy" 

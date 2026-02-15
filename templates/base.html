@@ -399,7 +399,7 @@
     <script>
         // WhatsApp integration
         function sendWhatsAppMessage(message) {
-            const phone = '{{ WHATSAPP_PHONE|default:"+573001234567" }}';
+            const phone = '{{ WHATSAPP_PHONE|default:"573127201803" }}';
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
