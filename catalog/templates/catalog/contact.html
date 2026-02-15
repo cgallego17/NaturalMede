@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contáctenos - NaturalMede{% endblock %}
+
+{% block content %}
+<!-- breadcrumb-area -->
+<section class="breadcrumb-area breadcrumb-bg" style="background-image: url('{% static 'suxnix/assets/img/bg/breadcrumb_bg.jpg' %}');">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-content">
+                    <h2 class="title">Contáctenos</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Inicio</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Contacto</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb-area-end -->
+
+<!-- contact-area -->
+<section class="contact-area pt-120 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="contact-info-wrap">
+                    <h2 class="title">Información de Contacto</h2>
+                    <p>Estamos aquí para ayudarte. Contáctanos por cualquiera de estos medios.</p>
+                    
+                    <ul class="list-wrap">
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Dirección</h5>
+                                    <p>Cra 70 32B 45, Belén Rosales<br>Medellín, Colombia</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
+                                    <i class="fab fa-whatsapp"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>WhatsApp</h5>
+                                    <p><a href="https://wa.me/573127201803" target="_blank">+57 312 720 1803</a></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Instagram</h5>
+                                    <p><a href="https://www.instagram.com/naturalmede/" target="_blank">@naturalmede</a></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
+                                    <i class="fab fa-facebook-f"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Facebook</h5>
+                                    <p><a href="https://www.facebook.com/naturalmede" target="_blank">NaturalMede</a></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>Envíos</h5>
+                                    <p>Domicilios en Medellín y toda Colombia</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="contact-social mt-4">
+                        <h5>Síguenos en Redes Sociales</h5>
+                        <ul class="list-wrap">
+                            <li><a href="https://wa.me/573127201803" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                            <li><a href="https://www.instagram.com/naturalmede/" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                            <li><a href="https://www.facebook.com/naturalmede" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="contact-form-wrap">
+                    <h2 class="title">Envíanos un Mensaje</h2>
+                    <p>¿Tienes alguna pregunta? Completa el formulario y te responderemos lo antes posible.</p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-grp">
+                                    <input type="text" name="name" placeholder="Tu Nombre *" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-grp">
+                                    <input type="email" name="email" placeholder="Tu Email *" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-grp">
+                                    <input type="tel" name="phone" placeholder="Tu Teléfono">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-grp">
+                                    <input type="text" name="subject" placeholder="Asunto *" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-grp">
+                            <textarea name="message" placeholder="Tu Mensaje *" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="row mt-60">
+            <div class="col-12">
+                <div class="contact-map">
+                    <h3 class="mb-4">Encuéntranos Aquí</h3>
+                    <div class="map-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.1234567890!2d-75.6!3d6.25!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTUnMDAuMCJOIDc1wrAzNicwMC4wIlc!5e0!3m2!1ses!2sco!4v1234567890!5m2!1ses!2sco" 
+                            width="100%" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- contact-area-end -->
+
+<style>
+.contact-info-wrap {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 12px;
+    height: 100%;
+}
+
+.contact-info-wrap .title {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.contact-info-wrap > p {
+    margin-bottom: 30px;
+    color: #666;
+}
+
+.contact-info-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.contact-info-item .icon {
+    width: 50px;
+    height: 50px;
+    background: #94be26;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.contact-info-item .content h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+}
+
+.contact-info-item .content p {
+    margin: 0;
+    color: #666;
+}
+
+.contact-info-item .content a {
+    color: #94be26;
+    text-decoration: none;
+}
+
+.contact-info-item .content a:hover {
+    text-decoration: underline;
+}
+
+.contact-info-wrap > ul.list-wrap {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contact-info-wrap > ul.list-wrap > li {
+    margin-bottom: 25px;
+}
+
+.contact-social h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.contact-social ul.list-wrap {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contact-social ul.list-wrap li a {
+    width: 40px;
+    height: 40px;
+    background: #94be26;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.contact-social ul.list-wrap li a:hover {
+    background: #7a9e1f;
+    transform: translateY(-3px);
+}
+
+.contact-form-wrap {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.contact-form-wrap .title {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+}
+
+.contact-form-wrap > p {
+    margin-bottom: 30px;
+    color: #666;
+}
+
+.contact-form .form-grp {
+    margin-bottom: 20px;
+}
+
+.contact-form .form-grp input,
+.contact-form .form-grp textarea {
+    width: 100%;
+    padding: 15px 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.contact-form .form-grp input:focus,
+.contact-form .form-grp textarea:focus {
+    outline: none;
+    border-color: #94be26;
+    box-shadow: 0 0 0 3px rgba(148, 190, 38, 0.1);
+}
+
+.contact-form .form-grp textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.contact-form .btn {
+    background: #94be26;
+    color: #fff;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contact-form .btn:hover {
+    background: #7a9e1f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(148, 190, 38, 0.3);
+}
+
+.contact-map h3 {
+    font-size: 24px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+@media (max-width: 991px) {
+    .contact-info-wrap,
+    .contact-form-wrap {
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+}
+</style>
+{% endblock %}

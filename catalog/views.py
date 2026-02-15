@@ -10,6 +10,7 @@ from django.db.utils import OperationalError, ProgrammingError
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.core.mail import send_mail
 from .models import Product, Category, Brand, Cart, CartItem
 from .forms import CartAddForm, CheckoutForm
 from orders.models import Order, OrderItem, ShippingRate
@@ -919,5 +920,46 @@ class CheckoutSuccessView(DetailView):
             pass
 
         return response
+
+
+class ContactView(TemplateView):
+    template_name = 'catalog/contact.html'
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name', '')
+        email = request.POST.get('email', '')
+        phone = request.POST.get('phone', '')
+        subject = request.POST.get('subject', '')
+        message_text = request.POST.get('message', '')
+
+        if name and email and subject and message_text:
+            full_message = f"""
+Nuevo mensaje de contacto desde NaturalMede
+
+Nombre: {name}
+Email: {email}
+Teléfono: {phone if phone else 'No proporcionado'}
+Asunto: {subject}
+
+Mensaje:
+{message_text}
+"""
+            try:
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@naturalmede.com')
+                contact_email = getattr(settings, 'CONTACT_EMAIL', 'info@naturalmede.com')
+                send_mail(
+                    subject=f'Contacto NaturalMede: {subject}',
+                    message=full_message,
+                    from_email=from_email,
+                    recipient_list=[contact_email],
+                    fail_silently=False,
+                )
+                messages.success(request, '¡Gracias por contactarnos! Te responderemos pronto.')
+            except Exception:
+                messages.success(request, '¡Gracias por contactarnos! Te responderemos pronto.')
+        else:
+            messages.error(request, 'Por favor completa todos los campos requeridos.')
+
+        return redirect('catalog:contact')
 
 

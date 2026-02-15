@@ -36,6 +36,11 @@
             <!-- tg-banner-area -->
             <section class="tg-banner-area p-0">
                 <style>
+                    .tg-banner-area {
+                        position: relative;
+                        z-index: 0;
+                        --features-overlay-offset: 200px;
+                    }
                     .tg-custom-banner-wrap {
                         width: 100vw;
                         margin-left: calc(50% - 50vw);
@@ -55,19 +60,25 @@
                         border-radius: 0;
                     }
                     .tg-features-area {
-                        position: relative;
-                        z-index: 30;
-                        transform: translateY(-120px);
-                        margin-bottom: -120px;
+                        position: relative !important;
+                        z-index: 40 !important;
+                        margin-top: calc(-1 * var(--features-overlay-offset)) !important;
+                        isolation: isolate !important;
                     }
                     @media (max-width: 991px) {
+                        .tg-banner-area {
+                            --features-overlay-offset: 120px;
+                        }
                         .tg-features-area {
-                            transform: translateY(-70px);
-                            margin-bottom: -70px;
+                            margin-top: calc(-1 * var(--features-overlay-offset)) !important;
                         }
                     }
                     .home-banner-slide {
                         width: 100%;
+                    }
+                    .tg-features-area .tg-features-inner {
+                        position: relative !important;
+                        z-index: 41 !important;
                     }
                 </style>
                 <div class="tg-custom-banner-wrap wow fadeInUp home-banner-slider" data-wow-delay=".2s">
@@ -181,7 +192,7 @@
             <!-- banner-area-end -->
 
             <!-- tg-features-area -->
-            <section class="tg-features-area">
+            <section class="tg-features-area" style="position: relative !important; z-index: 40 !important; margin-top: -200px !important; isolation: isolate !important;">
                 <div class="container">
                     <div class="tg-features-inner">
                         <div class="row justify-content-center mb-3">
@@ -721,7 +732,7 @@
                                         <li><a href="{% url 'catalog:product_list' %}">Blog</a></li>
                                         <li><a href="{% url 'catalog:product_list' %}">Guía de Productos</a></li>
                                         <li><a href="{% url 'catalog:product_list' %}">Preguntas Frecuentes</a></li>
-                                        <li><a href="{% url 'catalog:product_list' %}">Contacto</a></li>
+                                        <li><a href="{% url 'catalog:contact' %}">Contacto</a></li>
                                     </ul>
                                 </div>
                             </div>
