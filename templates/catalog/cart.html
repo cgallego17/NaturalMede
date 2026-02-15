@@ -251,9 +251,7 @@
         message += '• {{ item.product.name }} x{{ item.quantity }} = ${{ item.total|floatformat:0|intcomma }}\n';
         {% endfor %}
         
-        message += '\nSubtotal: ${{ cart.total_amount|floatformat:0|intcomma }}\n';
-        message += 'Envío: $14.000\n';
-        message += 'Total: ${{ cart.total_amount|add:14000|floatformat:0|intcomma }}\n\n';
+        message += '\nTotal: ${{ cart.total_amount|floatformat:0|intcomma }}\n\n';
         message += 'Por favor, confírmame la disponibilidad y el proceso de pago.';
         
         if (typeof sendWhatsAppMessage !== 'undefined') {
