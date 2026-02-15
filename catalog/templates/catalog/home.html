@@ -34,28 +34,26 @@
         <main class="main-area fix">
 
             <!-- tg-banner-area -->
-            <section class="tg-banner-area pt-40 pb-40">
+            <section class="tg-banner-area p-0">
                 <style>
                     .tg-custom-banner-wrap {
-                        max-width: 1692px;
-                        margin: 0 auto;
+                        width: 100vw;
+                        margin-left: calc(50% - 50vw);
                     }
                     .tg-custom-banner-image {
                         width: 100%;
-                        aspect-ratio: 1692 / 627;
+                        height: clamp(220px, 37vw, 627px);
                         object-fit: cover;
                         display: block;
-                        border-radius: 18px;
+                        border-radius: 0;
                     }
                 </style>
-                <div class="container">
-                    <div class="tg-custom-banner-wrap wow fadeInUp" data-wow-delay=".2s">
-                        {% if home_banner_config and home_banner_config.image %}
-                            <img src="{{ home_banner_config.image.url }}" alt="{{ home_banner_config.alt_text|default:'Banner NaturalMede' }}" class="tg-custom-banner-image">
-                        {% else %}
-                            <img src="{% static 'images/duovit-vitamin-d3-k2.png' %}" alt="Banner NaturalMede" class="tg-custom-banner-image">
-                        {% endif %}
-                    </div>
+                <div class="tg-custom-banner-wrap wow fadeInUp" data-wow-delay=".2s">
+                    {% if home_banner_config and home_banner_config.image %}
+                        <img src="{{ home_banner_config.image.url }}" alt="{{ home_banner_config.alt_text|default:'Banner NaturalMede' }}" class="tg-custom-banner-image">
+                    {% else %}
+                        <img src="{% static 'images/duovit-vitamin-d3-k2.png' %}" alt="Banner NaturalMede" class="tg-custom-banner-image">
+                    {% endif %}
                 </div>
             </section>
             {% comment %}
