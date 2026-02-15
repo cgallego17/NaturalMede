@@ -74,6 +74,17 @@
                         <li>
                             <div class="contact-info-item">
                                 <div class="icon">
+                                    <i class="fab fa-tiktok"></i>
+                                </div>
+                                <div class="content">
+                                    <h5>TikTok</h5>
+                                    <p><a href="https://www.tiktok.com/@naturalmede" target="_blank">@naturalmede</a></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="contact-info-item">
+                                <div class="icon">
                                     <i class="fab fa-facebook-f"></i>
                                 </div>
                                 <div class="content">
@@ -306,4 +317,114 @@
     }
 }
 </style>
+
+<!-- Footer-area -->
+<footer class="footer-style-two">
+    <div class="footer-two-top-wrap">
+        <div class="container">
+            <div class="footer-two-widgets-wrap">
+                <div class="row justify-content-between">
+                    <div class="col-xl-5 col-lg-6 col-md-12">
+                        <div class="footer-widget footer-card">
+                            <div class="footer-about">
+                                <div class="footer-text">
+                                    <p class="footer-brand-tag">
+                                        <span>💚 NATURISTA 💚</span>
+                                        <span>+ 10 años</span>
+                                    </p>
+                                    <p class="footer-brand-desc">
+                                        Tu tienda naturista de confianza. Productos naturales para una vida saludable.
+                                    </p>
+                                </div>
+                                <div class="footer-contact-wrap">
+                                    <ul class="list-wrap">
+                                        <li>
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Cra 70 32B 45, Belén Rosales, Medellín</span>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-truck"></i>
+                                            <span>Domicilios en Medellín y toda Colombia</span>
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-money-bill-wave"></i>
+                                            <span>Contraentrega / Bancolombia / Addi</span>
+                                        </li>
+                                        <li>
+                                            <i class="fab fa-whatsapp"></i>
+                                            <span>
+                                                <a href="https://wa.me/573127201803" target="_blank" class="footer-link-whatsapp">3127201803</a>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <i class="fab fa-instagram"></i>
+                                            <span>
+                                                <a href="https://www.instagram.com/naturalmede/" target="_blank" class="footer-link-instagram">@naturalmede</a>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="footer-social">
+                                    <a href="https://wa.me/573127201803" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="https://www.instagram.com/naturalmede/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                                    <a href="https://www.facebook.com/naturalmede" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer-widget widget_nav_menu footer-card">
+                            <h4 class="fw-title">Soporte</h4>
+                            <ul class="list-wrap">
+                                <li><a href="{% url 'catalog:product_list' %}">Base de Conocimiento</a></li>
+                                <li><a href="{% url 'catalog:product_list' %}">Blog</a></li>
+                                <li><a href="{% url 'catalog:product_list' %}">Guía de Productos</a></li>
+                                <li><a href="{% url 'catalog:product_list' %}">Preguntas Frecuentes</a></li>
+                                <li><a href="{% url 'catalog:contact' %}">Contacto</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer-widget footer-card">
+                            <h4 class="fw-title">Boletín</h4>
+                            <div class="footer-newsletter-wrap">
+                                <p>Suscríbete para recibir ofertas especiales <span>*</span></p>
+                                <form action="#">
+                                    <input type="email" placeholder="Ingresa tu correo.." required>
+                                    <button><i class="fas fa-rocket"></i></button>
+                                </form>
+                            </div>
+                            <div class="footer-confidential-wrap">
+                                <div class="confidential-logo">
+                                    <img src="{% static 'suxnix/assets/img/others/satisfaction_img.png' %}" alt="img">
+                                </div>
+                                <div class="confidential-content">
+                                    <h4 class="con-title">100% Confidencial</h4>
+                                    <span>25k Clientes Activos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="copyright-wrap">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <div class="copyright-text">
+                        <p>Copyright © 2026 NaturalMede. Todos los derechos reservados. by <a href="https://megadominio.co" target="_blank" style="color: #94be26; text-decoration: none;">megadominio.co</a></p>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="payment-card text-center text-md-end">
+                        <img src="{% static 'suxnix/assets/img/others/card_img.png' %}" alt="card">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- Footer-area-end -->
 {% endblock %}
