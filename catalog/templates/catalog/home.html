@@ -48,9 +48,14 @@
                         border-radius: 0;
                     }
                     .tg-features-area {
-                        margin-top: 0px;
+                        margin-top: -110px;
                         position: relative;
-                        z-index: 2;
+                        z-index: 5;
+                    }
+                    @media (max-width: 991px) {
+                        .tg-features-area {
+                            margin-top: -60px;
+                        }
                     }
                     .home-banner-slide {
                         width: 100%;
@@ -546,6 +551,101 @@
                 .footer-two-widgets-wrap .row [class*="col-"] {
                     margin-bottom: 30px;
                 }
+                .footer-two-widgets-wrap {
+                    padding: 20px 0 10px;
+                }
+                .footer-card {
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 14px;
+                    padding: 22px;
+                    height: 100%;
+                }
+                .footer-logo-img {
+                    max-width: 160px;
+                    height: auto;
+                    display: block;
+                }
+                .footer-brand-tag {
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                }
+                .footer-brand-tag span:first-child {
+                    color: #94be26;
+                    font-weight: 700;
+                }
+                .footer-brand-tag span:last-child {
+                    font-weight: 600;
+                }
+                .footer-brand-desc {
+                    font-size: 14px;
+                    line-height: 1.6;
+                    margin-bottom: 0;
+                }
+                .footer-contact-wrap .list-wrap li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    margin-bottom: 12px;
+                }
+                .footer-contact-wrap .list-wrap li i {
+                    width: 18px;
+                    margin-top: 3px;
+                    color: #94be26;
+                }
+                .footer-link-whatsapp {
+                    color: #25d366;
+                    text-decoration: none;
+                }
+                .footer-link-instagram {
+                    color: #e4405f;
+                    text-decoration: none;
+                }
+                .footer-social {
+                    margin-top: 12px;
+                    display: flex;
+                    gap: 10px;
+                }
+                .footer-social a {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    border: 1px solid rgba(255, 255, 255, 0.18);
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .footer-widget.widget_nav_menu .list-wrap li a {
+                    transition: all 0.2s ease;
+                }
+                .footer-widget.widget_nav_menu .list-wrap li a:hover {
+                    color: #94be26;
+                    transform: translateX(3px);
+                    display: inline-block;
+                }
+                .footer-newsletter-wrap form {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .footer-newsletter-wrap input {
+                    border-radius: 10px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    background: rgba(255, 255, 255, 0.08);
+                }
+                .footer-newsletter-wrap button {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 10px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .footer-confidential-wrap {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
                 @media (min-width: 992px) {
                     .footer-two-widgets-wrap .row [class*="col-"] {
                         margin-bottom: 0;
@@ -556,18 +656,18 @@
                 <div class="container">
                     <div class="footer-two-widgets-wrap">
                         <div class="row justify-content-between">
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-9">
-                                <div class="footer-widget">
+                            <div class="col-xl-5 col-lg-6 col-md-12">
+                                <div class="footer-widget footer-card">
                                     <div class="footer-about">
                                         <div class="footer-logo logo">
-                                            <a href="{% url 'catalog:home' %}"><img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" style="max-width: 160px; height: auto; display: block;"></a>
+                                            <a href="{% url 'catalog:home' %}"><img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" class="footer-logo-img"></a>
                                         </div>
                                         <div class="footer-text">
-                                            <p style="margin-bottom: 10px; font-size: 14px;">
-                                                <span style="color: #94be26; font-weight: bold;">💚 NATURISTA 💚</span> 
-                                                <span style="font-weight: 600;">+ 10 años</span>
+                                            <p class="footer-brand-tag">
+                                                <span>💚 NATURISTA 💚</span>
+                                                <span>+ 10 años</span>
                                             </p>
-                                            <p style="font-size: 14px; line-height: 1.6; margin-bottom: 0;">
+                                            <p class="footer-brand-desc">
                                                 Tu tienda naturista de confianza. Productos naturales para una vida saludable.
                                             </p>
                                         </div>
@@ -588,13 +688,13 @@
                                                 <li>
                                                     <i class="fab fa-whatsapp"></i>
                                                     <span>
-                                                        <a href="https://wa.me/573127201803" target="_blank" style="color: #25d366; text-decoration: none;">3127201803</a>
+                                                        <a href="https://wa.me/573127201803" target="_blank" class="footer-link-whatsapp">3127201803</a>
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <i class="fab fa-instagram"></i>
                                                     <span>
-                                                        <a href="https://www.instagram.com/naturalmede/" target="_blank" style="color: #E4405F; text-decoration: none;">@naturalmede</a>
+                                                        <a href="https://www.instagram.com/naturalmede/" target="_blank" class="footer-link-instagram">@naturalmede</a>
                                                     </span>
                                                 </li>
                                             </ul>
@@ -607,8 +707,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-2 col-lg-3 col-md-5 col-sm-4">
-                                <div class="footer-widget widget_nav_menu">
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+                                <div class="footer-widget widget_nav_menu footer-card">
                                     <h4 class="fw-title">Soporte</h4>
                                     <ul class="list-wrap">
                                         <li><a href="{% url 'catalog:product_list' %}">Base de Conocimiento</a></li>
@@ -619,8 +719,8 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-5">
-                                <div class="footer-widget">
+                            <div class="col-xl-4 col-lg-3 col-md-6 col-sm-6">
+                                <div class="footer-widget footer-card">
                                     <h4 class="fw-title">Boletín</h4>
                                     <div class="footer-newsletter-wrap">
                                         <p>Suscríbete para recibir ofertas especiales <span>*</span></p>
