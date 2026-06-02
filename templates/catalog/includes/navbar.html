@@ -32,6 +32,25 @@
         display: block !important;
         background: transparent !important;
     }
+    /* Estilos para el buscador en sticky-header */
+    .header-search .search-input {
+        transition: all 0.3s ease;
+    }
+    .header-search .search-input:focus {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.2);
+    }
+    .header-search .search-input::placeholder {
+        color: #999;
+    }
+    .sticky-menu .header-search .search-input {
+        background-color: #f9f9f9;
+    }
+    @media (max-width: 991px) {
+        .header-search {
+            display: none !important;
+        }
+    }
 </style>
 <!-- Pre-loader-start -->
 <div id="preloader">
@@ -104,6 +123,26 @@
                                     <li><a href="{% url 'catalog:login' %}">Iniciar Sesión</a></li>
                                     {% endif %}
                                 </ul>
+                            </div>
+                            <div class="header-search d-none d-lg-block" style="flex: 1; margin: 0 30px;">
+                                <form action="{% url 'catalog:product_search' %}" method="GET" class="search-form" style="display: flex; align-items: center;">
+                                    <div style="position: relative; width: 100%;">
+                                        <input 
+                                            type="text" 
+                                            name="q" 
+                                            placeholder="Buscar productos..." 
+                                            class="search-input"
+                                            value="{{ request.GET.q }}"
+                                            style="width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; outline: none; transition: all 0.3s ease;"
+                                        >
+                                        <button 
+                                            type="submit" 
+                                            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; padding: 0 10px;"
+                                        >
+                                            <i class="fas fa-search" style="color: #666; font-size: 14px;"></i>
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                             <div class="header-action d-none d-sm-block">
                                 <ul>
