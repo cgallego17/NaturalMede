@@ -137,6 +137,46 @@
         border-color: #8ec63f;
     }
 
+    /* ── Mobile search (dentro del menú deslizante) ─────── */
+    .mobile-search-wrap {
+        padding: 15px 20px 5px;
+    }
+    .mobile-search-inner {
+        display: flex;
+        align-items: center;
+        background: #f0f0f0;
+        border: 1.5px solid transparent;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: border-color 0.25s, background 0.25s;
+    }
+    .mobile-search-inner:focus-within {
+        background: #fff;
+        border-color: #66b021;
+    }
+    .mobile-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 10px 8px 10px 14px;
+        font-size: 14px;
+        background: transparent;
+        color: #333;
+    }
+    .mobile-search-input::placeholder { color: #999; }
+    .mobile-search-btn {
+        flex-shrink: 0;
+        border: none;
+        background: transparent;
+        padding: 0 14px;
+        cursor: pointer;
+        color: #66b021;
+        font-size: 15px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 1199px) {
         .nav-social          { display: none !important; }
@@ -297,6 +337,20 @@
                 <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo">
             </a>
         </div>
+
+        <!-- Buscador mobile -->
+        <div class="mobile-search-wrap">
+            <form action="{% url 'catalog:product_search' %}" method="GET">
+                <div class="mobile-search-inner">
+                    <input type="text" name="q" placeholder="Buscar productos..."
+                           value="{{ request.GET.q }}" class="mobile-search-input">
+                    <button type="submit" class="mobile-search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <div class="menu-outer"></div>
         <div class="social-links">
             <ul class="clearfix">

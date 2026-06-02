@@ -208,6 +208,49 @@
         color: white;
         border-color: #94be26;
     }
+
+    /* ── Grid 2 columnas en móvil ────────────────────────── */
+    @media (max-width: 767px) {
+        .home-shop-item.inner-shop-item .home-shop-thumb img {
+            height: 160px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .home-shop-item.inner-shop-item .home-shop-content {
+            padding: 10px 10px 12px;
+        }
+        .home-shop-item.inner-shop-item .title {
+            font-size: 13px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .home-shop-item.inner-shop-item .home-shop-price {
+            font-size: 14px;
+        }
+        .home-shop-item.inner-shop-item .home-shop-rating {
+            font-size: 10px;
+            margin-bottom: 8px;
+        }
+        .home-shop-item.inner-shop-item .shop-content-bottom {
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
+        }
+        .home-shop-item.inner-shop-item .shop-content-bottom .btn-two {
+            font-size: 11px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        .home-shop-item.inner-shop-item .shop-content-bottom .cart {
+            width: 100%;
+            justify-content: center;
+        }
+        .shop-item-cat {
+            font-size: 11px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -383,7 +426,7 @@
                 <div class="suxnix-shop-product-main">
                     <div class="row">
                         {% for product in products %}
-                        <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="col-xl-4 col-lg-6 col-md-6 col-6">
                             <div class="home-shop-item inner-shop-item">
                                 <div class="home-shop-thumb">
                                     <a href="{% url 'catalog:product_detail' product.slug %}">

@@ -295,7 +295,7 @@
                     <div class="tg-shop-wrapper">
                         <div class="row justify-content-center">
                             {% for product in recent_products %}
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-shop-item text-center">
                                     <div class="tg-shop-thumb">
                                         {% if forloop.counter <= 2 %}
@@ -583,7 +583,7 @@
                         </div>
                     </div>
                         <div class="row justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">01</div>
                                     <div class="icon">
@@ -596,7 +596,7 @@
                         </div>
                     </div>
                         </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">02</div>
                                     <div class="icon">
@@ -609,7 +609,7 @@
                     </div>
                         </div>
                         </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">03</div>
                                     <div class="icon">
@@ -622,7 +622,7 @@
                 </div>
             </div>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">04</div>
                                     <div class="icon">
@@ -635,7 +635,7 @@
                         </div>
                     </div>
                 </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">05</div>
                                     <div class="icon">
@@ -648,7 +648,7 @@
         </div>
     </div>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">06</div>
                                     <div class="icon">
@@ -794,7 +794,7 @@
                         </div>
                     </div>
                         <div class="row justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">01</div>
                                     <div class="icon">
@@ -807,7 +807,7 @@
                         </div>
                     </div>
                         </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">02</div>
                                     <div class="icon">
@@ -820,7 +820,7 @@
                         </div>
                     </div>
                         </div>
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="tg-service-item">
                                     <div class="tg-services-count">03</div>
                                     <div class="icon">
@@ -853,7 +853,7 @@
                     <div class="pricing-wrap">
                         <div class="row align-items-end justify-content-center">
                             {% for product in pricing_products %}
-                            <div class="col-lg-4 col-md-6 col-sm-9">
+                            <div class="col-lg-4 col-md-6 col-6">
                                 <div class="pricing-item mb-30 {% if forloop.counter == 2 %}popular-plan{% elif forloop.counter == 3 %}best-value-plan{% else %}regular{% endif %} wow fadeInUp" data-wow-delay=".{{ forloop.counter|add:forloop.counter }}s">
                                     {% if forloop.counter == 2 %}
                                     <div class="pricing-title text-center mb-10">
@@ -1117,6 +1117,47 @@
                 @media (min-width: 992px) {
                     .footer-two-widgets-wrap .row [class*="col-"] {
                         margin-bottom: 0;
+                    }
+                }
+            </style>
+            <style>
+                /* ── Grid 2 columnas en móvil (home) ─────────── */
+                @media (max-width: 767px) {
+                    .home-shop-item .home-shop-thumb img {
+                        height: 155px;
+                        object-fit: cover;
+                        width: 100%;
+                    }
+                    .home-shop-item .home-shop-content {
+                        padding: 10px 10px 12px;
+                    }
+                    .home-shop-item .title {
+                        font-size: 13px;
+                        margin-bottom: 4px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .home-shop-item .home-shop-price {
+                        font-size: 14px;
+                    }
+                    .home-shop-item .home-shop-rating {
+                        font-size: 10px;
+                        margin-bottom: 8px;
+                    }
+                    .home-shop-item .shop-content-bottom {
+                        flex-direction: column;
+                        gap: 6px;
+                        align-items: stretch;
+                    }
+                    .home-shop-item .shop-content-bottom .btn-two {
+                        font-size: 11px;
+                        padding: 6px 8px;
+                        text-align: center;
+                    }
+                    .home-shop-item .shop-content-bottom .cart {
+                        width: 100%;
+                        justify-content: center;
                     }
                 }
             </style>
