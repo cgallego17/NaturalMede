@@ -22,6 +22,7 @@ urlpatterns = [
     path('checkout/success/<int:order_id>/', views.CheckoutSuccessView.as_view(), name='checkout_success'),
     path('checkout/wompi/create/<int:order_id>/', views.WompiCreateTransactionView.as_view(), name='wompi_create_transaction'),
     path('wompi/webhook/', wompi_views.wompi_webhook, name='wompi_webhook'),
+    path('contacto/', views.ContactView.as_view(), name='contact'),
     
     # API URLs
     path('api/products/', api_views.product_list_api, name='api_products'),

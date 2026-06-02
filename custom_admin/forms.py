@@ -2,6 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from inventory.models import StockTransfer, StockTransferItem, Warehouse, Stock
 from catalog.models import Product
+from .models import HomeBannerConfig
 
 
 class StockTransferForm(forms.ModelForm):
@@ -123,3 +124,22 @@ StockTransferItemFormSetWithStock = inlineformset_factory(
     min_num=0,  # Permitir cero productos inicialmente
     validate_min=False  # Validación manual
 )
+
+
+class HomeBannerConfigForm(forms.ModelForm):
+    class Meta:
+        model = HomeBannerConfig
+        fields = ['image', 'alt_text', 'display_order', 'is_active']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'alt_text': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'Texto alternativo del banner',
+                }
+            ),
+            'display_order': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': 0}
+            ),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

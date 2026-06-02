@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator
+from django.utils.text import slugify
 from decimal import Decimal
 
 
@@ -21,6 +22,17 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name) or 'category'
+            slug = base_slug
+            suffix = 1
+            while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                suffix += 1
+                slug = f"{base_slug}-{suffix}"
+            self.slug = slug
+        super().save(*args, **kwargs)
+
 
 class Brand(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nombre")
@@ -39,6 +51,17 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name) or 'brand'
+            slug = base_slug
+            suffix = 1
+            while Brand.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                suffix += 1
+                slug = f"{base_slug}-{suffix}"
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -77,6 +100,19 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name) or 'product'
+            slug = base_slug
+            suffix = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                suffix += 1
+                slug = f"{base_slug}-{suffix}"
+            self.slug = slug
+        if self.sku:
+            self.sku = self.sku.strip().upper()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('catalog:product_detail', kwargs={'slug': self.slug})

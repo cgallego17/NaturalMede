@@ -9,7 +9,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link rel="shortcut icon" type="image/x-icon" href="{% static 'suxnix/assets/img/favicon.png' %}">
+		<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/input-onlinepngtools.png' %}">
         <!-- Place favicon.ico in the root directory -->
 
 		<!-- CSS here -->
@@ -34,6 +34,74 @@
         <main class="main-area fix">
 
             <!-- tg-banner-area -->
+            <section class="tg-banner-area p-0">
+                <style>
+                    .tg-banner-area {
+                        position: relative;
+                        z-index: 0;
+                        --features-overlay-offset: 200px;
+                    }
+                    .tg-custom-banner-wrap {
+                        width: 100vw;
+                        margin-left: calc(50% - 50vw);
+                        position: relative;
+                        z-index: 0;
+                    }
+                    .home-banner-slider,
+                    .home-banner-slider.slick-slider {
+                        position: relative;
+                        z-index: 0;
+                    }
+                    .tg-custom-banner-image {
+                        width: 100%;
+                        height: 87svh;
+                        object-fit: cover;
+                        display: block;
+                        border-radius: 0;
+                    }
+                    .tg-features-area {
+                        position: relative !important;
+                        z-index: 40 !important;
+                        margin-top: calc(-1 * var(--features-overlay-offset)) !important;
+                        isolation: isolate !important;
+                    }
+                    @media (max-width: 991px) {
+                        .tg-banner-area {
+                            --features-overlay-offset: 120px;
+                        }
+                        .tg-features-area {
+                            margin-top: calc(-1 * var(--features-overlay-offset)) !important;
+                        }
+                    }
+                    @media (max-width: 767.98px) {
+                        .tg-custom-banner-image {
+                            height: 16vh;
+                            object-fit: cover;
+                        }
+                    }
+                    .home-banner-slide {
+                        width: 100%;
+                    }
+                    .tg-features-area .tg-features-inner {
+                        position: relative !important;
+                        z-index: 41 !important;
+                    }
+                </style>
+                <div class="tg-custom-banner-wrap wow fadeInUp home-banner-slider" data-wow-delay=".2s">
+                    {% if home_banners %}
+                        {% for banner in home_banners %}
+                        <div class="home-banner-slide">
+                            {% if banner.image %}
+                            <img src="{{ banner.image.url }}" alt="{{ banner.alt_text|default:'Banner NaturalMede' }}" class="tg-custom-banner-image">
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <img src="{% static 'images/duovit-vitamin-d3-k2.png' %}" alt="Banner NaturalMede" class="tg-custom-banner-image">
+                    {% endif %}
+                </div>
+            </section>
+            {% comment %}
             {% if banner_product %}
             <section class="tg-banner-area banner-bg jarallax parallax-img">
                 <style>
@@ -126,6 +194,7 @@
                 </div>
             </section>
             {% endif %}
+            {% endcomment %}
             <!-- banner-area-end -->
 
             <!-- tg-shop-area -->
@@ -287,85 +356,135 @@
             <!-- video-area-end -->
 
             <!-- tg-features-area -->
-            <section class="tg-features-area">
+            <section class="tg-features-area" style="position: relative !important;z-index: 40 !important;margin-top: 90px !important;isolation: isolate !important;">
                 <div class="container">
                     <div class="tg-features-inner">
+                        <div class="row justify-content-center mb-3">
+                            <div class="col-lg-8">
+                                <div class="tg-section-title text-center">
+                                    <span class="sub-title">CATEGORIAS</span>
+                                    <h2 class="title">Explora Nuestras Categorias</h2>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s">
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
                                         <i class="flaticon-supplement"></i>
                                     </div>
                                     <div class="tg-features-content">
-                                        <h4 class="title">Suplementos Naturales</h4>
-                                        <p>Productos 100% naturales formulados con ingredientes de la más alta calidad para complementar tu dieta diaria.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
+                                        <h4 class="title">Colágenos</h4>
+                                        <p>Descubre productos naturales seleccionados para tu bienestar diario.</p>
+                                        <a href="/category/colagenos/">Ver categoría</a>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".4s">
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
-                                        <i class="flaticon-whey-protein-3"></i>
+                                        <i class="flaticon-supplement"></i>
                                     </div>
                                     <div class="tg-features-content">
-                                        <h4 class="title">Rutina Saludable</h4>
-                                        <p>Establece una rutina diaria de bienestar con nuestros productos naturales que apoyan tu salud y energía.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
+                                        <h4 class="title">Combos &amp; Promos</h4>
+                                        <p>Los mejores combos en promoción para el cuidado de tu salud</p>
+                                        <a href="/category/combos/">Ver categoría</a>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".6s">
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
                                 <div class="tg-features-item">
                                     <div class="tg-features-icon">
-                                        <i class="flaticon-strong-1"></i>
+                                        <i class="flaticon-supplement"></i>
                                     </div>
                                     <div class="tg-features-content">
-                                        <h4 class="title">Energía Natural</h4>
-                                        <p>Potencia tu energía y vitalidad con nuestros suplementos naturales diseñados para mejorar tu rendimiento diario.</p>
-                                        <a href="{% url 'catalog:product_list' %}">Ver más</a>
+                                        <h4 class="title">Suplementos Deportivos</h4>
+                                        <p>Suplementos deportivos para el rendimiento físico, la energía y la recuperación muscular.</p>
+                                        <a href="/category/suplementos-deportivos/">Ver categoría</a>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-3 col-md-6 col-sm-8 wow fadeInUp" data-wow-delay=".2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                                <div class="tg-features-item">
+                                    <div class="tg-features-icon">
+                                        <i class="flaticon-supplement"></i>
+                                    </div>
+                                    <div class="tg-features-content">
+                                        <h4 class="title">Suplementos Dietarios</h4>
+                                        <p>Productos naturales para el cuidado de la piel y el cabello.</p>
+                                        <a href="/category/cuidado-personal/">Ver categoría</a>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </section>
             <!-- tg-features-area-end -->
 
+            {% comment %}
             <!-- supplement-area -->
             <section id="ingredient" class="tg-supplement-area pt-130 pb-120">
                 <div class="tg-supplement-bg"></div>
     <div class="container">
-                    <div class="tg-supplement-inner">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-6 col-md-8 order-0 order-lg-2">
-                                <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
-                                    {% if featured_product and featured_product.images.first %}
-                                        <img src="{{ featured_product.images.first.image.url }}" alt="{{ featured_product.name }}">
-                                    {% else %}
-                                        <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="">
-                                    {% endif %}
-                    </div>
-                                <div class="tg-supplement-shape">
-                                    <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
-                </div>
-            </div>
-            <div class="col-lg-6">
-                                <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
-                                    <div class="tg-section-title mb-25">
-                                        <span class="sub-title">{% if featured_product %}{{ featured_product.category.name|default:"Ingredientes" }}{% else %}Ingredientes{% endif %}</span>
-                                        <h2 class="title">{% if featured_product %}{{ featured_product.name }}{% else %}Suplemento Natural <br> Para Tu Bienestar{% endif %}</h2>
+                    <div class="supplement-slider">
+                        {% for product in supplement_products %}
+                        <div class="supplement-slide-item tg-supplement-inner">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                    <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
+                                        {% if product.images.first %}
+                                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="{{ product.name }}">
+                                        {% endif %}
                                     </div>
-                                    <p>{% if featured_product %}{{ featured_product.description|truncatewords:30 }}{% else %}Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales.{% endif %}</p>
-                                    <a href="{% if featured_product and featured_product.slug %}{% url 'catalog:product_detail' featured_product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">{% if featured_product %}VER PRODUCTO{% else %}VER MÁS{% endif %}</a>
+                                    <div class="tg-supplement-shape">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
+                                    </div>
                                 </div>
-                </div>
-            </div>
-        </div>
+                                <div class="col-lg-6">
+                                    <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
+                                        <div class="tg-section-title mb-25">
+                                            <span class="sub-title">{{ product.category.name|default:"Ingredientes" }}</span>
+                                            <h2 class="title">{{ product.name }}</h2>
+                                        </div>
+                                        <p>{{ product.description|truncatewords:30|default:"Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales." }}</p>
+                                        <a href="{% if product.slug %}{% url 'catalog:product_detail' product.slug %}{% else %}{% url 'catalog:product_list' %}{% endif %}" class="tg-btn view-btn">VER PRODUCTO</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="supplement-slide-item tg-supplement-inner">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-6 col-md-8 order-0 order-lg-2">
+                                    <div class="tg-supplement-img text-end wow fadeInRight" data-wow-delay=".2s">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_img.png' %}" alt="Suplemento Natural">
+                                    </div>
+                                    <div class="tg-supplement-shape">
+                                        <img src="{% static 'suxnix/assets/img/others/supplement_shape02.png' %}" alt="" class="rotateme">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="tg-supplement-content mt-60 wow fadeInLeft" data-wow-delay=".2s">
+                                        <div class="tg-section-title mb-25">
+                                            <span class="sub-title">Ingredientes</span>
+                                            <h2 class="title">Suplemento Natural <br> Para Tu Bienestar</h2>
+                                        </div>
+                                        <p>Descubre nuestros productos naturales elaborados con ingredientes de la más alta calidad. Formulados para apoyar tu salud y bienestar de manera natural, sin químicos ni aditivos artificiales.</p>
+                                        <a href="{% url 'catalog:product_list' %}" class="tg-btn view-btn">VER MÁS</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
     </div>
 </section>
             <!-- supplement-area-end -->
+            {% endcomment %}
 
             <!-- service-area -->
             <section id="feature" class="tg-service-area">
@@ -578,6 +697,63 @@
     </div>
 </section>
             <!-- shop-details-area-end -->
+            <!-- service-area -->
+            <section id="feature" class="tg-service-area">
+    <div class="container">
+                    <div class="tg-service-inner">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="tg-section-title text-center mb-60">
+                                    <span class="sub-title">Características NaturalMede</span>
+                                    <h2 class="title">Características de Nuestros Productos</h2>
+                        </div>
+                        </div>
+                    </div>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-4 col-md-6 col-sm-9">
+                                <div class="tg-service-item">
+                                    <div class="tg-services-count">01</div>
+                                    <div class="icon">
+                                        <i class="flaticon-vitamins-1"></i>
+                        </div>
+                                    <h2 class="title"><a href="{% url 'catalog:product_list' %}">Suplementos Dietéticos</a></h2>
+                                    <div class="tg-service-content">
+                                        <p>Complementa tu alimentación diaria con nuestros suplementos naturales formulados para apoyar tu salud y bienestar integral.</p>
+                                        <a href="{% url 'catalog:product_list' %}"><i class="fas fa-arrow-circle-right"></i>Leer Más</a>
+                        </div>
+                    </div>
+                        </div>
+                            <div class="col-lg-4 col-md-6 col-sm-9">
+                                <div class="tg-service-item">
+                                    <div class="tg-services-count">02</div>
+                                    <div class="icon">
+                                        <i class="flaticon-supplement"></i>
+                        </div>
+                                    <h2 class="title"><a href="{% url 'catalog:product_list' %}">Ingredientes Naturales</a></h2>
+                                    <div class="tg-service-content">
+                                        <p>Descubre ingredientes puros y naturales, seleccionados para brindar apoyo nutricional y bienestar diario.</p>
+                                        <a href="{% url 'catalog:product_list' %}"><i class="fas fa-arrow-circle-right"></i>Leer Más</a>
+                        </div>
+                    </div>
+                        </div>
+                            <div class="col-lg-4 col-md-6 col-sm-9">
+                                <div class="tg-service-item">
+                                    <div class="tg-services-count">03</div>
+                                    <div class="icon">
+                                        <i class="flaticon-leaf"></i>
+                        </div>
+                                    <h2 class="title"><a href="{% url 'catalog:product_list' %}">Calidad Garantizada</a></h2>
+                                    <div class="tg-service-content">
+                                        <p>Garantizamos la calidad de nuestros productos con formulaciones limpias, seguras y certificadas.</p>
+                                        <a href="{% url 'catalog:product_list' %}"><i class="fas fa-arrow-circle-right"></i>Leer Más</a>
+                        </div>
+                    </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- service-area-end -->
 
             <!-- pricing-area -->
             <section class="tg-pricing-area">
@@ -654,168 +830,53 @@
 </section>
             <!-- pricing-area-end -->
 
-            <!-- testimonial-area -->
-            <section class="tg-testimonial-area tg-testimonial-bg jarallax parallax-img">
-    <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8">
-                            <div class="tg-section-title white text-center mb-60">
-                                <span class="sub-title">Recomendado por doctores</span>
-                                <h2 class="title white-text">Recomendado por Profesionales</h2>
-        </div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-xxl-10 col-xl-11">
-        <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="tg-testimonial-item">
-                                        <div class="tg-testimonial-thumb">
-                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop" alt="María González">
-                    </div>
-                                        <div class="tg-testimonial-content">
-                                            <div class="rating">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                </div>
-                                            <h2 class="title">Lo Uso Todos los Días</h2>
-                                            <p>Excelentes productos naturales que realmente funcionan. He notado una mejora significativa en mi energía y bienestar general desde que los uso.</p>
-                                            <p class="tg-testi-avatar-info">María González . <span>Hace 2 horas</span></p>
-            </div>
-                    </div>
-                </div>
-                                <div class="col-lg-6">
-                                    <div class="tg-testimonial-item">
-                                        <div class="tg-testimonial-thumb">
-                                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop" alt="Carlos Ramírez">
-            </div>
-                                        <div class="tg-testimonial-content">
-                                            <div class="rating">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                    </div>
-                                            <h2 class="title">Productos 100% Orgánicos</h2>
-                                            <p>Estoy muy contenta con la calidad de los productos. Son completamente naturales y me han ayudado mucho con mi salud. Los recomiendo totalmente.</p>
-                                            <p class="tg-testi-avatar-info">Carlos Ramírez . <span>Hace 2 horas</span></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="tg-testimonial-item">
-                                        <div class="tg-testimonial-thumb">
-                                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop" alt="Ana Martínez">
-                                        </div>
-                                        <div class="tg-testimonial-content">
-                                            <div class="rating">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <h2 class="title">Calidad Excepcional</h2>
-                                            <p>Los productos de NaturalMede superan mis expectativas. La calidad es excepcional y los resultados son notables. Definitivamente los recomiendo a todos mis amigos.</p>
-                                            <p class="tg-testi-avatar-info">Ana Martínez . <span>Hace 3 horas</span></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="tg-testimonial-item">
-                                        <div class="tg-testimonial-thumb">
-                                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop" alt="Roberto Sánchez">
-                                        </div>
-                                        <div class="tg-testimonial-content">
-                                            <div class="rating">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <h2 class="title">Resultados Increíbles</h2>
-                                            <p>He estado usando estos suplementos durante tres meses y los resultados son increíbles. Me siento más energético y saludable que nunca. ¡Gracias NaturalMede!</p>
-                                            <p class="tg-testi-avatar-info">Roberto Sánchez . <span>Hace 5 horas</span></p>
-                                        </div>
-                                    </div>
-                                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-            <!-- testimonial-area-end -->
-
-            <!-- blog-area -->
-            <section id="news" class="tg-blog-area pt-120 pb-90">
-    <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-xl-6 col-lg-8">
-                            <div class="tg-section-title text-center mb-60">
-                                <h6 class="sub-title">Últimas Noticias</h6>
-                                <h2 class="title">Noticias NaturalMede</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-9">
-                            <div class="tg-blog-post-item mb-30 wow fadeInUp" data-wow-delay=".2s">
-                                <div class="tg-blog-post-thumb">
-                                    <a href="{% url 'catalog:product_list' %}"><img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop" alt="Beneficios de los Suplementos Naturales"></a>
-                                    <div class="tg-blog-overlay-tag">
-                                        <a href="#">Alimentos</a>
-                                    </div>
-                                </div>
-                                <div class="tg-blog-post-content">
-                                    <div class="post-date"><i class="far fa-calendar-alt"></i> 24 de Septiembre 2024</div>
-                                    <h4 class="title"><a href="{% url 'catalog:product_list' %}">Beneficios de los Suplementos Naturales para tu Salud</a></h4>
-                                    <a href="{% url 'catalog:product_list' %}" class="read-more"><span>Leer Más</span> <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-9">
-                            <div class="tg-blog-post-item mb-30 wow fadeInUp" data-wow-delay=".4s">
-                                <div class="tg-blog-post-thumb">
-                                    <a href="{% url 'catalog:product_list' %}"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600&auto=format&fit=crop" alt="Sistema Inmunológico"></a>
-                                    <div class="tg-blog-overlay-tag">
-                                        <a href="#">Salud</a>
-                                    </div>
-                                </div>
-                                <div class="tg-blog-post-content">
-                                    <div class="post-date"><i class="far fa-calendar-alt"></i> 24 de Septiembre 2024</div>
-                                    <h4 class="title"><a href="{% url 'catalog:product_list' %}">Mejores Formas de Apoyar tu Sistema Inmunológico</a></h4>
-                                    <a href="{% url 'catalog:product_list' %}" class="read-more"><span>Leer Más</span> <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-9">
-                            <div class="tg-blog-post-item mb-30 wow fadeInUp" data-wow-delay=".6s">
-                                <div class="tg-blog-post-thumb">
-                                    <a href="{% url 'catalog:product_list' %}"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop" alt="Alimentos Orgánicos"></a>
-                                    <div class="tg-blog-overlay-tag">
-                                        <a href="#">Bienestar</a>
-                                    </div>
-                                </div>
-                                <div class="tg-blog-post-content">
-                                    <div class="post-date"><i class="far fa-calendar-alt"></i> 24 de Septiembre 2024</div>
-                                    <h4 class="title"><a href="{% url 'catalog:product_list' %}">Alimentos Orgánicos: Métodos de Producción Natural</a></h4>
-                                    <a href="{% url 'catalog:product_list' %}" class="read-more"><span>Leer Más</span> <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-            <!-- blog-area-end -->
-
         </main>
         <!-- main-area-end -->
 
+        <!-- Benefits Section -->
+        <section class="benefits-section py-5" style="background: #f8f9fa;">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                        <div class="benefit-item">
+                            <div class="benefit-icon mb-3">
+                                <i class="fas fa-shield-alt" style="font-size: 48px; color: #94be26;"></i>
+                            </div>
+                            <h5 style="color: #1a1a1a; font-weight: 600; margin-bottom: 10px;">Compra Segura</h5>
+                            <p style="color: #666; font-size: 14px; margin: 0;">Protegemos tus datos y transacciones</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                        <div class="benefit-item">
+                            <div class="benefit-icon mb-3">
+                                <i class="fas fa-credit-card" style="font-size: 48px; color: #94be26;"></i>
+                            </div>
+                            <h5 style="color: #1a1a1a; font-weight: 600; margin-bottom: 10px;">El método de pago que elijas</h5>
+                            <p style="color: #666; font-size: 14px; margin: 0;">Múltiples opciones de pago disponibles</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                        <div class="benefit-item">
+                            <div class="benefit-icon mb-3">
+                                <i class="fas fa-truck" style="font-size: 48px; color: #94be26;"></i>
+                            </div>
+                            <h5 style="color: #1a1a1a; font-weight: 600; margin-bottom: 10px;">Envíos a todo el país</h5>
+                            <p style="color: #666; font-size: 14px; margin: 0;">Entrega rápida y segura en Colombia</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="benefit-item">
+                            <div class="benefit-icon mb-3">
+                                <i class="fas fa-certificate" style="font-size: 48px; color: #94be26;"></i>
+                            </div>
+                            <h5 style="color: #1a1a1a; font-weight: 600; margin-bottom: 10px;">Productos seguros</h5>
+                            <p style="color: #666; font-size: 14px; margin: 0;">Calidad garantizada y certificada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Benefits Section End -->
 
         <!-- Footer-area -->
         <footer class="footer-style-two">
@@ -874,6 +935,101 @@
                 .footer-two-widgets-wrap .row [class*="col-"] {
                     margin-bottom: 30px;
                 }
+                .footer-two-widgets-wrap {
+                    padding: 20px 0 10px;
+                }
+                .footer-card {
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 14px;
+                    padding: 22px;
+                    height: 100%;
+                }
+                .footer-logo-img {
+                    max-width: 160px;
+                    height: auto;
+                    display: block;
+                }
+                .footer-brand-tag {
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                }
+                .footer-brand-tag span:first-child {
+                    color: #94be26;
+                    font-weight: 700;
+                }
+                .footer-brand-tag span:last-child {
+                    font-weight: 600;
+                }
+                .footer-brand-desc {
+                    font-size: 14px;
+                    line-height: 1.6;
+                    margin-bottom: 0;
+                }
+                .footer-contact-wrap .list-wrap li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    margin-bottom: 12px;
+                }
+                .footer-contact-wrap .list-wrap li i {
+                    width: 18px;
+                    margin-top: 3px;
+                    color: #94be26;
+                }
+                .footer-link-whatsapp {
+                    color: #25d366;
+                    text-decoration: none;
+                }
+                .footer-link-instagram {
+                    color: #e4405f;
+                    text-decoration: none;
+                }
+                .footer-social {
+                    margin-top: 12px;
+                    display: flex;
+                    gap: 10px;
+                }
+                .footer-social a {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    border: 1px solid rgba(255, 255, 255, 0.18);
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .footer-widget.widget_nav_menu .list-wrap li a {
+                    transition: all 0.2s ease;
+                }
+                .footer-widget.widget_nav_menu .list-wrap li a:hover {
+                    color: #94be26;
+                    transform: translateX(3px);
+                    display: inline-block;
+                }
+                .footer-newsletter-wrap form {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .footer-newsletter-wrap input {
+                    border-radius: 10px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    background: rgba(255, 255, 255, 0.08);
+                }
+                .footer-newsletter-wrap button {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 10px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .footer-confidential-wrap {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
                 @media (min-width: 992px) {
                     .footer-two-widgets-wrap .row [class*="col-"] {
                         margin-bottom: 0;
@@ -884,18 +1040,15 @@
                 <div class="container">
                     <div class="footer-two-widgets-wrap">
                         <div class="row justify-content-between">
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-9">
-                                <div class="footer-widget">
+                            <div class="col-xl-5 col-lg-6 col-md-12">
+                                <div class="footer-widget footer-card">
                                     <div class="footer-about">
-                                        <div class="footer-logo logo">
-                                            <a href="{% url 'catalog:home' %}"><img src="{% static 'images/logo.png' %}" alt="NaturalMede Logo" style="max-width: 160px; height: auto; display: block;"></a>
-                                        </div>
                                         <div class="footer-text">
-                                            <p style="margin-bottom: 10px; font-size: 14px;">
-                                                <span style="color: #94be26; font-weight: bold;">💚 NATURISTA 💚</span> 
-                                                <span style="font-weight: 600;">+ 10 años</span>
+                                            <p class="footer-brand-tag">
+                                                <span>💚 NATURISTA 💚</span>
+                                                <span>+ 10 años</span>
                                             </p>
-                                            <p style="font-size: 14px; line-height: 1.6; margin-bottom: 0;">
+                                            <p class="footer-brand-desc">
                                                 Tu tienda naturista de confianza. Productos naturales para una vida saludable.
                                             </p>
                                         </div>
@@ -916,13 +1069,13 @@
                                                 <li>
                                                     <i class="fab fa-whatsapp"></i>
                                                     <span>
-                                                        <a href="https://wa.me/573127201803" target="_blank" style="color: #25d366; text-decoration: none;">3127201803</a>
+                                                        <a href="https://wa.me/573127201803" target="_blank" class="footer-link-whatsapp">3127201803</a>
                                                     </span>
                                                 </li>
                                                 <li>
                                                     <i class="fab fa-instagram"></i>
                                                     <span>
-                                                        <a href="https://www.instagram.com/naturalmede/" target="_blank" style="color: #E4405F; text-decoration: none;">@naturalmede</a>
+                                                        <a href="https://www.instagram.com/naturalmede/" target="_blank" class="footer-link-instagram">@naturalmede</a>
                                                     </span>
                                                 </li>
                                             </ul>
@@ -935,49 +1088,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-3 col-lg-4 col-md-5 col-sm-8">
-                                <div class="footer-widget">
-                                    <h4 class="fw-title">Sobre Nosotros</h4>
-                                    <div class="tg-footer-rc-post">
-                                        <div class="footer-post-item">
-                                            <div class="thumb">
-                                                <a href="{% url 'catalog:product_list' %}">
-                                                    <img src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&auto=format&fit=crop" alt="Nuevos Productos Naturales">
-                                                </a>
-                                            </div>
-                                            <div class="content">
-                                                <span><i class="far fa-clock"></i> 08 de Octubre 2024</span>
-                                                <h6 class="title"><a href="{% url 'catalog:product_list' %}">Nuevos Productos Naturales Disponibles</a></h6>
-                                            </div>
-                                        </div>
-                                        <div class="footer-post-item">
-                                            <div class="thumb">
-                                                <a href="{% url 'catalog:product_list' %}">
-                                                    <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&auto=format&fit=crop&q=80" alt="Consejos Saludables">
-                                                </a>
-                                            </div>
-                                            <div class="content">
-                                                <span><i class="far fa-clock"></i> 12 de Octubre 2024</span>
-                                                <h6 class="title"><a href="{% url 'catalog:product_list' %}">Consejos para una Vida Saludable</a></h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-2 col-lg-3 col-md-5 col-sm-4">
-                                <div class="footer-widget widget_nav_menu">
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+                                <div class="footer-widget widget_nav_menu footer-card">
                                     <h4 class="fw-title">Soporte</h4>
                                     <ul class="list-wrap">
                                         <li><a href="{% url 'catalog:product_list' %}">Base de Conocimiento</a></li>
                                         <li><a href="{% url 'catalog:product_list' %}">Blog</a></li>
                                         <li><a href="{% url 'catalog:product_list' %}">Guía de Productos</a></li>
                                         <li><a href="{% url 'catalog:product_list' %}">Preguntas Frecuentes</a></li>
-                                        <li><a href="{% url 'catalog:product_list' %}">Contacto</a></li>
+                                        <li><a href="{% url 'catalog:contact' %}">Contacto</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-5">
-                                <div class="footer-widget">
+                            <div class="col-xl-4 col-lg-3 col-md-6 col-sm-6">
+                                <div class="footer-widget footer-card">
                                     <h4 class="fw-title">Boletín</h4>
                                     <div class="footer-newsletter-wrap">
                                         <p>Suscríbete para recibir ofertas especiales <span>*</span></p>
@@ -1006,7 +1130,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-7">
                             <div class="copyright-text">
-                                <p>Copyright © 2024 NaturalMede. Todos los derechos reservados.</p>
+                                <p>Copyright © 2026 NaturalMede. Todos los derechos reservados. by <a href="https://megadominio.co" target="_blank" style="color: #94be26; text-decoration: none;">megadominio.co</a></p>
                             </div>
                         </div>
                         <div class="col-md-5">
@@ -1019,6 +1143,51 @@
             </div>
         </footer>
         <!-- Footer-area-end -->
+
+        <style>
+            .whatsapp-float-btn {
+                position: fixed;
+                right: 27px;
+                bottom: 100px;
+                width: 58px;
+                height: 58px;
+                border-radius: 50%;
+                background: #25d366;
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                box-shadow: 0 10px 24px rgba(37, 211, 102, 0.45);
+                z-index: 9999;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .whatsapp-float-btn:hover {
+                color: #fff;
+                transform: translateY(-2px) scale(1.03);
+                box-shadow: 0 14px 28px rgba(37, 211, 102, 0.52);
+            }
+            @media (max-width: 575px) {
+                .whatsapp-float-btn {
+                    right: 14px;
+                    bottom: 16px;
+                    width: 54px;
+                    height: 54px;
+                    font-size: 28px;
+                }
+            }
+        </style>
+
+        <a
+            href="https://wa.me/573127201803"
+            class="whatsapp-float-btn"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contactar por WhatsApp"
+            title="Escríbenos por WhatsApp"
+        >
+            <i class="fab fa-whatsapp"></i>
+        </a>
 
 
 
@@ -1046,41 +1215,71 @@
         <script src="{% static 'suxnix/assets/js/main.js' %}"></script>
         <script>
             SVGInject(document.querySelectorAll("img.injectable"));
-            
+
             // Inicializar WOW.js para animaciones
             new WOW().init();
-            
+
             // Función para agregar al carrito desde shop-details
             $(document).ready(function() {
+                if ($.fn.slick && $('.supplement-slider').length) {
+                    $('.supplement-slider').slick({
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        arrows: false,
+                        dots: false,
+                        autoplay: true,
+                        autoplaySpeed: 2500,
+                        speed: 350,
+                        fade: true,
+                        cssEase: 'ease',
+                        adaptiveHeight: false
+                    });
+                }
+
+                if ($.fn.slick && $('.home-banner-slider').length && $('.home-banner-slide').length > 1) {
+                    $('.home-banner-slider').slick({
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        arrows: false,
+                        dots: false,
+                        autoplay: true,
+                        autoplaySpeed: 3500,
+                        speed: 500,
+                        fade: true,
+                        cssEase: 'ease',
+                        adaptiveHeight: false
+                    });
+                }
+
                 $('#shopDetailsCartForm').on('submit', function(e) {
                     e.preventDefault();
-                    
+
                     const form = $(this);
                     const productId = {{ shop_featured_product.id|default:0 }};
                     const quantity = parseInt(form.find('input[name="quantity"]').val()) || 1;
-                    
+
                     if (productId === 0) {
                         window.location.href = '{% url "catalog:product_list" %}';
                         return;
                     }
-                    
+
                     // Get CSRF token
                     let csrftoken = form.find('[name=csrfmiddlewaretoken]').val();
                     if (!csrftoken) {
                         csrftoken = getCookie('csrftoken');
                     }
-                    
+
                     if (!csrftoken) {
                         console.error('CSRF token not found.');
                         alert('Error: CSRF token no encontrado.');
                         return;
                     }
-                    
+
                     // Disable button to prevent double submission
                     const submitBtn = form.find('button[type="submit"]');
                     const originalText = submitBtn.text();
                     submitBtn.prop('disabled', true).text('Agregando...');
-                    
+
                     // Send as JSON
                     const cartAddUrl = '{% url "catalog:cart_add" 999 %}'.replace('999', productId);
                     fetch(cartAddUrl, {
@@ -1125,7 +1324,7 @@
                     });
                 });
             });
-            
+
             // Function to get CSRF token from cookies
             function getCookie(name) {
                 let cookieValue = null;

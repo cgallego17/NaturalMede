@@ -236,6 +236,23 @@ class ProductForm(forms.ModelForm):
         self.fields['category'].queryset = Category.objects.filter(is_active=True)
         self.fields['brand'].queryset = Brand.objects.filter(is_active=True)
 
+    def clean_sku(self):
+        sku = self.cleaned_data.get('sku')
+        if sku:
+            sku = sku.strip().upper()
+            qs = Product.objects.filter(sku=sku)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError(f'Ya existe un producto con el SKU "{sku}".')
+        return sku
+
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        if not description or not description.strip():
+            raise forms.ValidationError('La descripción del producto es obligatoria.')
+        return description.strip()
+
 
 class CategoryForm(forms.ModelForm):
     """Formulario para crear y editar categorías"""
@@ -261,6 +278,14 @@ class CategoryForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name:
+            name = name.strip()
+            if not name:
+                raise forms.ValidationError('El nombre de la categoría es obligatorio.')
+        return name
 
 
 class BrandForm(forms.ModelForm):
@@ -291,5 +316,13 @@ class BrandForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name:
+            name = name.strip()
+            if not name:
+                raise forms.ValidationError('El nombre de la marca es obligatorio.')
+        return name
 
 

@@ -31,6 +31,20 @@ class OrderForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['customer'].queryset = Customer.objects.filter(is_active=True)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        subtotal = cleaned_data.get('subtotal')
+        iva_amount = cleaned_data.get('iva_amount')
+        shipping_cost = cleaned_data.get('shipping_cost')
+        total = cleaned_data.get('total')
+        
+        if all([subtotal is not None, iva_amount is not None, shipping_cost is not None, total is not None]):
+            expected_total = subtotal + iva_amount + shipping_cost
+            if abs(total - expected_total) > 0.01:
+                self.add_error('total', f'El total debe ser {expected_total:.2f} (subtotal + IVA + envío).')
+        
+        return cleaned_data
+
 
 class ShippingRateForm(forms.ModelForm):
     class Meta:
@@ -44,6 +58,17 @@ class ShippingRateForm(forms.ModelForm):
             'estimated_days': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        min_weight = cleaned_data.get('min_weight')
+        max_weight = cleaned_data.get('max_weight')
+        
+        if min_weight is not None and max_weight is not None:
+            if min_weight >= max_weight:
+                raise forms.ValidationError('El peso mínimo debe ser menor que el peso máximo.')
+        
+        return cleaned_data
 
 
 

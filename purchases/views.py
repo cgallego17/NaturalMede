@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum, Count
 from django.db import models
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -94,16 +94,8 @@ def purchase_create(request):
     print("Método:", request.method)
     
     if request.method == 'POST':
-        # Debug: imprimir datos recibidos
-        print("=== DEBUG PURCHASE CREATE ===")
-        print("POST data keys:", list(request.POST.keys()))
-        print("Formset data:", {k: v for k, v in request.POST.items() if k.startswith('items-')})
-        print("=============================")
-        
-        # Limpiar formularios vacíos antes de validar
         cleaned_data = request.POST.copy()
         total_forms = int(cleaned_data.get('items-TOTAL_FORMS', 0))
-        valid_forms = 0
         
         print(f"Total forms encontrados: {total_forms}")
         
@@ -117,7 +109,6 @@ def purchase_create(request):
             print(f"Formulario {i}: product='{product_value}', quantity='{quantity_value}'")
             
             if product_value and quantity_value:
-                valid_forms += 1
                 print(f"Formulario {i} es válido")
             else:
                 # Marcar formulario vacío para eliminación
@@ -129,12 +120,6 @@ def purchase_create(request):
                 cleaned_data[f'items-{i}-tax_percentage'] = ''
                 cleaned_data[f'items-{i}-discount_percentage'] = ''
                 print(f"Formulario {i} marcado para eliminación")
-        
-        # Actualizar TOTAL_FORMS con el número de formularios válidos
-        cleaned_data['items-TOTAL_FORMS'] = str(valid_forms)
-        
-        print("Formularios válidos encontrados:", valid_forms)
-        print("TOTAL_FORMS actualizado a:", valid_forms)
         
         form = PurchaseForm(cleaned_data)
         formset = PurchaseItemFormSet(cleaned_data)
@@ -160,6 +145,8 @@ def purchase_create(request):
                     # Guardar items
                     formset.instance = purchase
                     formset.save()
+
+                    purchase.recalculate_totals()
                     
                     print("COMPRA CREADA EXITOSAMENTE:", purchase.purchase_number)
                     messages.success(request, f'Compra #{purchase.purchase_number} creada exitosamente.')
@@ -207,8 +194,10 @@ def purchase_edit(request, pk):
         formset = PurchaseItemFormSet(request.POST, instance=purchase)
         
         if form.is_valid() and formset.is_valid():
-            form.save()
+            purchase = form.save()
             formset.save()
+
+            purchase.recalculate_totals()
             
             messages.success(request, f'Compra #{purchase.purchase_number} actualizada exitosamente.')
             return redirect('purchases:purchase_detail', pk=purchase.pk)

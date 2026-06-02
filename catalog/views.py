@@ -5,19 +5,22 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, View, TemplateView
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
+from django.db.utils import OperationalError, ProgrammingError
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.core.mail import send_mail
 from .models import Product, Category, Brand, Cart, CartItem
 from .forms import CartAddForm, CheckoutForm
 from orders.models import Order, OrderItem, ShippingRate
 from customers.models import Customer, City
+from custom_admin.models import HomeBannerConfig
 from .wompi_views import create_wompi_transaction
 import json
 from decimal import Decimal
 
-FIXED_SHIPPING_COST = Decimal('13000.00')
+FIXED_SHIPPING_COST = Decimal('14000.00')
 
 
 def merge_session_cart_into_user_cart(request, user):
@@ -97,11 +100,34 @@ class HomeView(TemplateView):
             is_active=True
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3]  # 3 productos aleatorios como destacados
         
-        # Obtener producto específico para la sección supplement
+        # Obtener producto más vendido para la sección supplement
         featured_product = Product.objects.filter(
-            sku='ARNI50',
             is_active=True
-        ).select_related('category', 'brand').prefetch_related('images').first()
+        ).select_related('category', 'brand').prefetch_related('images').annotate(
+            total_sold=Sum('orderitem__quantity')
+        ).order_by('-total_sold', '-created_at').first()
+
+        # Si no hay ventas registradas, usar el más reciente
+        if (not featured_product or not getattr(featured_product, 'total_sold', None)) and recent_products:
+            featured_product = recent_products.first()
+
+        # Productos para slider de la sección supplement
+        supplement_products = []
+        if featured_product:
+            supplement_products.append(featured_product)
+
+        for product in featured_products:
+            if product and all(p.id != product.id for p in supplement_products):
+                supplement_products.append(product)
+            if len(supplement_products) >= 4:
+                break
+
+        if len(supplement_products) < 4:
+            for product in recent_products:
+                if product and all(p.id != product.id for p in supplement_products):
+                    supplement_products.append(product)
+                if len(supplement_products) >= 4:
+                    break
         
         # Obtener producto destacado para el banner
         banner_product = Product.objects.filter(
@@ -122,22 +148,27 @@ class HomeView(TemplateView):
         if not shop_featured_product and recent_products:
             shop_featured_product = recent_products.first()
         
-        # Obtener 3 productos para la sección de planes/precios
+        # Obtener productos para la sección de planes/precios (solo categoría ID 11)
         pricing_products = list(Product.objects.filter(
-            is_active=True
+            is_active=True,
+            category_id=11,
         ).select_related('category', 'brand').prefetch_related('images').order_by('?')[:3])
-        
-        # Si no hay suficientes productos, usar los de recent_products
-        if len(pricing_products) < 3 and recent_products:
-            for product in recent_products:
-                if product not in pricing_products and len(pricing_products) < 3:
-                    pricing_products.append(product)
+
+        # Banners del home editables desde admin custom
+        try:
+            home_banners = list(
+                HomeBannerConfig.objects.filter(is_active=True)
+            )
+        except (OperationalError, ProgrammingError):
+            home_banners = []
         
         context.update({
             'recent_products': recent_products,
             'featured_products': featured_products,
             'featured_product': featured_product,
+            'supplement_products': supplement_products,
             'banner_product': banner_product,
+            'home_banners': home_banners,
             'shop_featured_product': shop_featured_product,
             'pricing_products': pricing_products,
         })
@@ -889,5 +920,46 @@ class CheckoutSuccessView(DetailView):
             pass
 
         return response
+
+
+class ContactView(TemplateView):
+    template_name = 'catalog/contact.html'
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name', '')
+        email = request.POST.get('email', '')
+        phone = request.POST.get('phone', '')
+        subject = request.POST.get('subject', '')
+        message_text = request.POST.get('message', '')
+
+        if name and email and subject and message_text:
+            full_message = f"""
+Nuevo mensaje de contacto desde NaturalMede
+
+Nombre: {name}
+Email: {email}
+Teléfono: {phone if phone else 'No proporcionado'}
+Asunto: {subject}
+
+Mensaje:
+{message_text}
+"""
+            try:
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@naturalmede.com')
+                contact_email = getattr(settings, 'CONTACT_EMAIL', 'info@naturalmede.com')
+                send_mail(
+                    subject=f'Contacto NaturalMede: {subject}',
+                    message=full_message,
+                    from_email=from_email,
+                    recipient_list=[contact_email],
+                    fail_silently=False,
+                )
+                messages.success(request, '¡Gracias por contactarnos! Te responderemos pronto.')
+            except Exception:
+                messages.success(request, '¡Gracias por contactarnos! Te responderemos pronto.')
+        else:
+            messages.error(request, 'Por favor completa todos los campos requeridos.')
+
+        return redirect('catalog:contact')
 
 

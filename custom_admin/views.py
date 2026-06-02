@@ -18,6 +18,8 @@ from pos.models import POSSale, POSSaleItem, POSSession
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from .forms import HomeBannerConfigForm
+from .models import HomeBannerConfig
 
 
 def admin_login(request):
@@ -688,14 +690,38 @@ def admin_category_delete(request, pk):
         messages.error(request, 'Categoría no encontrada.')
         return redirect('custom_admin:admin_categories')
     
+    product_count = category.product_set.count()
+    products = category.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
+    
+    # Verificar si hay productos con compras asociadas
+    from purchases.models import PurchaseItem
+    products_with_purchases = PurchaseItem.objects.filter(product__category=category).values_list('product_id', flat=True).distinct()
+    has_purchase_items = products_with_purchases.exists()
+    
     if request.method == 'POST':
+        if has_purchase_items:
+            messages.error(request, f'No se puede eliminar la categoría "{category.name}" porque tiene productos con compras registradas. Esto afectaría el historial de compras.')
+            return redirect('custom_admin:admin_category_detail', pk=pk)
+        
+        if product_count > 0:
+            confirm_cascade = request.POST.get('confirm_cascade')
+            if not confirm_cascade:
+                messages.error(request, f'Debes confirmar que deseas eliminar la categoría "{category.name}" y sus {product_count} producto(s) asociado(s).')
+                return redirect('custom_admin:admin_category_delete', pk=pk)
+        
         category_name = category.name
         category.delete()
-        messages.success(request, f'Categoría "{category_name}" eliminada exitosamente.')
+        if product_count > 0:
+            messages.success(request, f'Categoría "{category_name}" y {product_count} producto(s) eliminados exitosamente.')
+        else:
+            messages.success(request, f'Categoría "{category_name}" eliminada exitosamente.')
         return redirect('custom_admin:admin_categories')
     
     context = {
         'category': category,
+        'product_count': product_count,
+        'products': products,
+        'has_purchase_items': has_purchase_items,
     }
     
     return render(request, 'custom_admin/category_confirm_delete.html', context)
@@ -828,14 +854,38 @@ def admin_brand_delete(request, pk):
         messages.error(request, 'Marca no encontrada.')
         return redirect('custom_admin:admin_brands')
     
+    product_count = brand.product_set.count()
+    products = brand.product_set.select_related('category', 'brand').prefetch_related('stock_set__warehouse')[:10] if product_count > 0 else []
+    
+    # Verificar si hay productos con compras asociadas
+    from purchases.models import PurchaseItem
+    products_with_purchases = PurchaseItem.objects.filter(product__brand=brand).values_list('product_id', flat=True).distinct()
+    has_purchase_items = products_with_purchases.exists()
+    
     if request.method == 'POST':
+        if has_purchase_items:
+            messages.error(request, f'No se puede eliminar la marca "{brand.name}" porque tiene productos con compras registradas. Esto afectaría el historial de compras.')
+            return redirect('custom_admin:admin_brand_detail', pk=pk)
+        
+        if product_count > 0:
+            confirm_cascade = request.POST.get('confirm_cascade')
+            if not confirm_cascade:
+                messages.error(request, f'Debes confirmar que deseas eliminar la marca "{brand.name}" y sus {product_count} producto(s) asociado(s).')
+                return redirect('custom_admin:admin_brand_delete', pk=pk)
+        
         brand_name = brand.name
         brand.delete()
-        messages.success(request, f'Marca "{brand_name}" eliminada exitosamente.')
+        if product_count > 0:
+            messages.success(request, f'Marca "{brand_name}" y {product_count} producto(s) eliminados exitosamente.')
+        else:
+            messages.success(request, f'Marca "{brand_name}" eliminada exitosamente.')
         return redirect('custom_admin:admin_brands')
     
     context = {
         'brand': brand,
+        'product_count': product_count,
+        'products': products,
+        'has_purchase_items': has_purchase_items,
     }
     
     return render(request, 'custom_admin/brand_confirm_delete.html', context)
@@ -2461,6 +2511,66 @@ def admin_wompi_config(request):
     }
     
     return render(request, 'custom_admin/wompi_config.html', context)
+
+
+@login_required
+def admin_home_banner_config(request):
+    """Gestión de múltiples banners del home."""
+    banners = HomeBannerConfig.objects.all()
+    editing_banner = None
+
+    edit_id = request.GET.get('edit')
+    if edit_id:
+        editing_banner = HomeBannerConfig.objects.filter(pk=edit_id).first()
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'create')
+
+        if action == 'delete':
+            banner_id = request.POST.get('banner_id')
+            deleted = HomeBannerConfig.objects.filter(pk=banner_id).delete()[0]
+            if deleted:
+                messages.success(request, 'Banner eliminado exitosamente.')
+            else:
+                messages.error(request, 'No se encontró el banner para eliminar.')
+            return redirect('custom_admin:admin_home_banner_config')
+
+        if action == 'update':
+            banner_id = request.POST.get('banner_id')
+            banner = HomeBannerConfig.objects.filter(pk=banner_id).first()
+            if not banner:
+                messages.error(request, 'No se encontró el banner para editar.')
+                return redirect('custom_admin:admin_home_banner_config')
+
+            form = HomeBannerConfigForm(
+                request.POST,
+                request.FILES,
+                instance=banner,
+            )
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Banner actualizado exitosamente.')
+                return redirect('custom_admin:admin_home_banner_config')
+            messages.error(request, 'Revisa los campos del banner a editar.')
+        else:
+            form = HomeBannerConfigForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Banner agregado exitosamente.')
+                return redirect('custom_admin:admin_home_banner_config')
+            messages.error(request, 'Revisa los campos del nuevo banner.')
+    else:
+        if editing_banner:
+            form = HomeBannerConfigForm(instance=editing_banner)
+        else:
+            form = HomeBannerConfigForm()
+
+    context = {
+        'form': form,
+        'banners': banners,
+        'editing_banner': editing_banner,
+    }
+    return render(request, 'custom_admin/home_banner_config.html', context)
 
 
 # --------- Detalle de Orden ---------

@@ -59,24 +59,79 @@
                                 <p class="text-muted">{{ brand.description|linebreaks }}</p>
                             {% endif %}
 
-                            <div class="alert alert-info mt-3">
+                            {% if has_purchase_items %}
+                            <div class="alert alert-danger mt-3">
+                                <h6><strong>❌ ELIMINACIÓN BLOQUEADA:</strong></h6>
+                                <p class="text-danger"><strong>No se puede eliminar esta marca porque tiene productos con compras registradas.</strong></p>
+                                <p>Eliminar esta marca afectaría el historial de compras y la integridad de los datos.</p>
+                                <p><strong>Acción requerida:</strong> No es posible eliminar marcas con historial de compras. Puedes desactivarla en su lugar.</p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="alert {% if product_count > 0 %}alert-danger{% else %}alert-info{% endif %} mt-3">
                                 <h6><strong>Productos de esta marca:</strong></h6>
-                                <p>Esta marca tiene <strong>{{ brand.product_set.count }}</strong> producto(s) asociado(s).</p>
-                                {% if brand.product_set.count > 0 %}
-                                    <p class="text-warning"><strong>Nota:</strong> Los productos asociados a esta marca no serán eliminados, pero perderán su marca.</p>
+                                <p>Esta marca tiene <strong>{{ product_count }}</strong> producto(s) asociado(s).</p>
+                                {% if product_count > 0 %}
+                                    <p class="text-danger"><strong>⚠️ ADVERTENCIA CRÍTICA:</strong> Al eliminar esta marca, <strong>TODOS los {{ product_count }} producto(s) asociados serán eliminados permanentemente</strong>.</p>
+                                    <p><strong>Esta acción NO se puede deshacer.</strong></p>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Productos que serán eliminados:</strong>
+                                        <ul class="list-group mt-2">
+                                            {% for product in products %}
+                                            <li class="list-group-item list-group-item-danger">
+                                                <strong>{{ product.name }}</strong> (SKU: {{ product.sku }})
+                                                {% if product.stock_set.exists %}
+                                                    - Stock: {% for stock in product.stock_set.all %}{{ stock.warehouse.name }}: {{ stock.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                {% endif %}
+                                            </li>
+                                            {% endfor %}
+                                            {% if product_count > 10 %}
+                                            <li class="list-group-item list-group-item-warning">
+                                                <em>... y {{ product_count|add:"-10" }} producto(s) más</em>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    
+                                    <ul class="text-danger">
+                                        <li>Se eliminarán {{ product_count }} producto(s)</li>
+                                        <li>Se perderán todas las imágenes de los productos</li>
+                                        <li>Se eliminarán los registros de stock asociados</li>
+                                    </ul>
+                                {% else %}
+                                    <p class="text-success"><strong>✓</strong> Esta marca no tiene productos asociados y puede ser eliminada de forma segura.</p>
                                 {% endif %}
                             </div>
 
                             <form method="post" class="mt-4">
                                 {% csrf_token %}
+                                
+                                {% if product_count > 0 and not has_purchase_items %}
+                                <div class="form-check mb-3 p-3 bg-light border border-danger rounded">
+                                    <input class="form-check-input" type="checkbox" name="confirm_cascade" id="confirm_cascade" required>
+                                    <label class="form-check-label text-danger" for="confirm_cascade">
+                                        <strong>Confirmo que deseo eliminar esta marca y TODOS los {{ product_count }} producto(s) asociados permanentemente.</strong>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                
                                 <div class="d-flex justify-content-between">
                                     <a href="{% url 'custom_admin:admin_brand_detail' brand.pk %}" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Cancelar
                                     </a>
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fas fa-trash"></i> Sí, Eliminar Marca
+                                    <button type="submit" class="btn btn-danger" id="deleteBtn" {% if product_count > 0 or has_purchase_items %}disabled{% endif %}>
+                                        <i class="fas fa-trash"></i> {% if has_purchase_items %}No se puede eliminar (tiene compras){% elif product_count > 0 %}Sí, Eliminar Marca y {{ product_count }} Producto(s){% else %}Sí, Eliminar Marca{% endif %}
                                     </button>
                                 </div>
+                                
+                                {% if product_count > 0 and not has_purchase_items %}
+                                <script>
+                                document.getElementById('confirm_cascade').addEventListener('change', function() {
+                                    document.getElementById('deleteBtn').disabled = !this.checked;
+                                });
+                                </script>
+                                {% endif %}
                             </form>
                         </div>
                     </div>
