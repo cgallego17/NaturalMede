@@ -79,44 +79,51 @@
 
     /* ── Search bar ──────────────────────────────────────── */
     .header-search {
-        flex: 0 0 200px;
+        flex: 0 0 210px;
         margin-right: 14px;
     }
     .header-search .search-wrap {
         position: relative;
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #8ec63f;
+        border-radius: 25px;
+        background: #fff;
+        overflow: hidden;
+        transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .header-search .search-wrap:focus-within {
+        border-color: #66b021;
+        box-shadow: 0 0 0 3px rgba(102,176,33,.15);
     }
     .header-search .search-input {
-        width: 100%;
-        padding: 8px 36px 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        font-size: 13px;
+        flex: 1;
+        border: none;
         outline: none;
-        background: #f5f5f5;
-        transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+        padding: 7px 10px 7px 14px;
+        font-size: 13px;
+        background: transparent;
         color: #333;
-    }
-    .header-search .search-input:focus {
-        border-color: #66b021;
-        box-shadow: 0 0 0 3px rgba(102,176,33,.12);
-        background: #fff;
+        min-width: 0;
     }
     .header-search .search-input::placeholder { color: #aaa; }
     .header-search .search-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        margin: 3px;
         border: none;
-        background: none;
+        border-radius: 50%;
+        background: #66b021;
+        color: #fff;
+        font-size: 12px;
         cursor: pointer;
-        padding: 0;
-        color: #888;
-        font-size: 13px;
-        line-height: 1;
-        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
     }
-    .header-search .search-btn:hover { color: #66b021; }
+    .header-search .search-btn:hover { background: #4f8a18; }
 
     /* ── Sticky: ocultar social + reducir padding links ──── */
     .tg-menu-area.sticky-menu .navbar-wrap ul li a {
@@ -128,6 +135,9 @@
     .tg-menu-area.sticky-menu .header-search {
         flex: 0 0 180px;
         margin-right: 10px;
+    }
+    .tg-menu-area.sticky-menu .header-search .search-wrap {
+        border-color: #8ec63f;
     }
 
     /* ── Responsive ──────────────────────────────────────── */
