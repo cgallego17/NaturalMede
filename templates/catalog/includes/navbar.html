@@ -1,45 +1,5 @@
 {% load static %}
 <style>
-    /* ── Top bar ─────────────────────────────────────────── */
-    .top-header-bar {
-        background: #2c5530;
-        padding: 7px 0;
-        width: 100%;
-    }
-    .top-bar-inner {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 12px;
-    }
-    .top-bar-label {
-        color: #d4edda;
-        font-size: 13px;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-    }
-    .top-bar-icons {
-        display: flex;
-        gap: 7px;
-    }
-    .top-bar-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        text-decoration: none;
-        color: #fff;
-        transition: transform 0.25s ease, opacity 0.25s ease;
-    }
-    .top-bar-icon:hover  { transform: translateY(-2px); opacity: .85; color: #fff; }
-    .top-bar-icon.ig     { background: linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888); }
-    .top-bar-icon.tt     { background: #111; }
-    .top-bar-icon.wa     { background: #25D366; }
-    .top-bar-icon.fb     { background: #1877F2; }
-
     /* ── Logo ────────────────────────────────────────────── */
     .logo img,
     .nav-logo img {
@@ -52,7 +12,6 @@
     }
     .logo img:hover,
     .nav-logo img:hover { opacity: .8; }
-
     .footer-logo img {
         max-width: 180px !important;
         height: auto !important;
@@ -67,7 +26,7 @@
         background: transparent !important;
     }
 
-    /* ── Main nav layout ─────────────────────────────────── */
+    /* ── Nav row ─────────────────────────────────────────── */
     .menu-nav {
         display: flex;
         align-items: center;
@@ -75,20 +34,67 @@
         gap: 0;
     }
 
-    /* Search bar ─────────────────────────────────────────── */
+    /* Nav links toman el espacio disponible */
+    .navbar-wrap.main-menu {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* ── Social icons (inline, no absolute) ─────────────── */
+    .nav-social {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        margin: 0 14px;
+        border-left: 1px solid #e5e5e5;
+        border-right: 1px solid #e5e5e5;
+        padding: 0 14px;
+    }
+    .nav-social-label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+        white-space: nowrap;
+        margin-right: 4px;
+    }
+    .nav-social-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        text-decoration: none;
+        color: #fff;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        flex-shrink: 0;
+    }
+    .nav-social-icon:hover        { transform: translateY(-2px); opacity: .85; color: #fff; }
+    .nav-social-icon.ig           { background: linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888); }
+    .nav-social-icon.tt           { background: #111; }
+    .nav-social-icon.wa           { background: #25D366; }
+    .nav-social-icon.fb           { background: #1877F2; }
+
+    /* ── Search bar ──────────────────────────────────────── */
     .header-search {
-        flex: 0 1 240px;
-        margin: 0 20px 0 10px;
+        flex: 0 0 200px;
+        margin-right: 14px;
+    }
+    .header-search .search-wrap {
+        position: relative;
     }
     .header-search .search-input {
         width: 100%;
-        padding: 9px 40px 9px 14px;
+        padding: 8px 36px 8px 12px;
         border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+        border-radius: 20px;
+        font-size: 13px;
         outline: none;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        background: #fafafa;
+        background: #f5f5f5;
+        transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+        color: #333;
     }
     .header-search .search-input:focus {
         border-color: #66b021;
@@ -96,34 +102,41 @@
         background: #fff;
     }
     .header-search .search-input::placeholder { color: #aaa; }
-    .search-btn {
+    .header-search .search-btn {
         position: absolute;
-        right: 5px;
+        right: 10px;
         top: 50%;
         transform: translateY(-50%);
         border: none;
         background: none;
         cursor: pointer;
-        padding: 0 8px;
+        padding: 0;
         color: #888;
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 1;
         transition: color 0.2s;
     }
-    .search-btn:hover { color: #66b021; }
+    .header-search .search-btn:hover { color: #66b021; }
 
-    /* ── Sticky compact ──────────────────────────────────── */
+    /* ── Sticky: ocultar social + reducir padding links ──── */
     .tg-menu-area.sticky-menu .navbar-wrap ul li a {
-        padding: 18px 13px !important;
+        padding: 18px 12px !important;
+    }
+    .tg-menu-area.sticky-menu .nav-social {
+        display: none !important;
     }
     .tg-menu-area.sticky-menu .header-search {
-        flex: 0 1 200px;
-        margin: 0 12px 0 8px !important;
+        flex: 0 0 180px;
+        margin-right: 10px;
     }
 
-    /* ── Mobile tweaks ───────────────────────────────────── */
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 1199px) {
+        .nav-social          { display: none !important; }
+        .header-search       { flex: 0 0 170px; }
+    }
     @media (max-width: 991px) {
-        .header-search        { display: none !important; }
-        .top-header-bar       { display: none !important; }
+        .header-search       { display: none !important; }
     }
     @media (max-width: 767.98px) {
         .menu-area { padding: 5px 0; }
@@ -156,34 +169,9 @@
 <button class="scroll-top scroll-to-target scroll-top-two" data-target="html">
     <i class="fas fa-angle-up"></i>
 </button>
-<!-- Scroll-top-end-->
 
 <!-- header-area -->
 <header id="home">
-
-    <!-- Top bar: redes sociales (solo desktop, desaparece al hacer scroll) -->
-    <div class="top-header-bar d-none d-lg-block">
-        <div class="container">
-            <div class="top-bar-inner">
-                <span class="top-bar-label">Síguenos en:</span>
-                <div class="top-bar-icons">
-                    <a href="https://www.instagram.com/naturalmede" target="_blank" class="top-bar-icon ig" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://www.tiktok.com/@naturalmede" target="_blank" class="top-bar-icon tt" title="TikTok">
-                        <i class="fab fa-tiktok"></i>
-                    </a>
-                    <a href="https://wa.me/573001234567" target="_blank" class="top-bar-icon wa" title="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="https://www.facebook.com/naturalmede" target="_blank" class="top-bar-icon fb" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="header-fixed-height"></div>
     <div id="sticky-header" class="tg-menu-area menu-area">
         <div class="container">
@@ -194,14 +182,14 @@
                         <nav class="menu-nav">
 
                             <!-- Logo -->
-                            <div class="logo" style="flex-shrink:0;">
+                            <div class="logo" style="flex-shrink:0; margin-right:10px;">
                                 <a href="{% url 'catalog:home' %}">
                                     <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo">
                                 </a>
                             </div>
 
-                            <!-- Nav links -->
-                            <div class="navbar-wrap main-menu d-none d-xl-flex" style="flex:1; margin: 0 10px;">
+                            <!-- Links de navegación -->
+                            <div class="navbar-wrap main-menu d-none d-xl-flex">
                                 <ul class="navigation">
                                     <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                                         <a href="{% url 'catalog:home' %}">Inicio</a>
@@ -240,11 +228,28 @@
                                 </ul>
                             </div>
 
+                            <!-- Redes sociales (solo >1200px, desaparece en sticky) -->
+                            <div class="nav-social d-none d-xl-flex">
+                                <span class="nav-social-label">Síguenos:</span>
+                                <a href="https://www.instagram.com/naturalmede" target="_blank" class="nav-social-icon ig" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="https://www.tiktok.com/@naturalmede" target="_blank" class="nav-social-icon tt" title="TikTok">
+                                    <i class="fab fa-tiktok"></i>
+                                </a>
+                                <a href="https://wa.me/573001234567" target="_blank" class="nav-social-icon wa" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.facebook.com/naturalmede" target="_blank" class="nav-social-icon fb" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </div>
+
                             <!-- Buscador -->
                             <div class="header-search d-none d-lg-block">
                                 <form action="{% url 'catalog:product_search' %}" method="GET" class="search-form">
-                                    <div style="position:relative;">
-                                        <input type="text" name="q" placeholder="Buscar productos..."
+                                    <div class="search-wrap">
+                                        <input type="text" name="q" placeholder="Buscar..."
                                                class="search-input" value="{{ request.GET.q }}">
                                         <button type="submit" class="search-btn">
                                             <i class="fas fa-search"></i>
@@ -276,7 +281,7 @@
 </header>
 <!-- header-area-end -->
 
-<!-- Mobile Menu  -->
+<!-- Mobile Menu -->
 <div class="mobile-menu">
     <nav class="menu-box">
         <div class="close-btn"><i class="fas fa-times"></i></div>
@@ -285,9 +290,7 @@
                 <img src="{% static 'images/505404935_18062359487175673_4384658091805177440_n-removebg-preview.png' %}" alt="NaturalMede Logo">
             </a>
         </div>
-        <div class="menu-outer">
-            <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
-        </div>
+        <div class="menu-outer"></div>
         <div class="social-links">
             <ul class="clearfix">
                 <li><a href="https://www.facebook.com/naturalmede"><i class="fab fa-facebook-f"></i></a></li>
