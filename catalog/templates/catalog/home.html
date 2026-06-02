@@ -5,11 +5,95 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>NaturalMede - Tienda Naturista Online</title>
-        <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/input-onlinepngtools.png' %}">
+        <!-- SEO Primary -->
+        <title>NaturalMede | Tienda Naturista Online en Colombia - Productos Naturales</title>
+        <meta name="description" content="Compra productos naturales, suplementos, vitaminas y remedios naturistas en NaturalMede. Tienda naturista online en Colombia con envío a todo el país. ¡Cuida tu salud de forma natural!">
+        <meta name="keywords" content="tienda naturista Colombia, productos naturales, suplementos naturales, vitaminas, remedios naturales, NaturalMede, tienda online naturista, salud natural">
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+        <meta name="author" content="NaturalMede">
+        <link rel="canonical" href="https://naturalmede.com/">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://naturalmede.com/">
+        <meta property="og:title" content="NaturalMede | Tienda Naturista Online en Colombia">
+        <meta property="og:description" content="Compra productos naturales, suplementos y vitaminas en NaturalMede. Tienda naturista online con envío a todo Colombia.">
+        <meta property="og:image" content="https://naturalmede.com/static/images/logo-naturalmede.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:locale" content="es_CO">
+        <meta property="og:site_name" content="NaturalMede">
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="NaturalMede | Tienda Naturista Online en Colombia">
+        <meta name="twitter:description" content="Compra productos naturales, suplementos y vitaminas. Tienda naturista online con envío a todo Colombia.">
+        <meta name="twitter:image" content="https://naturalmede.com/static/images/logo-naturalmede.png">
+
+        <!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/input-onlinepngtools.png' %}">
+
+        <!-- JSON-LD Structured Data -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebSite",
+                    "@id": "https://naturalmede.com/#website",
+                    "url": "https://naturalmede.com/",
+                    "name": "NaturalMede",
+                    "description": "Tienda naturista online en Colombia - Productos naturales y suplementos",
+                    "inLanguage": "es-CO",
+                    "potentialAction": {
+                        "@type": "SearchAction",
+                        "target": {
+                            "@type": "EntryPoint",
+                            "urlTemplate": "https://naturalmede.com/search/?q={search_term_string}"
+                        },
+                        "query-input": "required name=search_term_string"
+                    }
+                },
+                {
+                    "@type": "Organization",
+                    "@id": "https://naturalmede.com/#organization",
+                    "name": "NaturalMede",
+                    "url": "https://naturalmede.com/",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://naturalmede.com/static/images/logo-naturalmede.png"
+                    },
+                    "sameAs": [
+                        "https://www.instagram.com/naturalmede",
+                        "https://www.tiktok.com/@naturalmede.tienda",
+                        "https://www.facebook.com/naturalmede"
+                    ],
+                    "contactPoint": {
+                        "@type": "ContactPoint",
+                        "telephone": "+573001234567",
+                        "contactType": "customer service",
+                        "availableLanguage": "Spanish"
+                    }
+                },
+                {
+                    "@type": "Store",
+                    "@id": "https://naturalmede.com/#store",
+                    "name": "NaturalMede - Tienda Naturista",
+                    "url": "https://naturalmede.com/",
+                    "image": "https://naturalmede.com/static/images/logo-naturalmede.png",
+                    "description": "Tienda naturista online en Colombia. Vendemos productos naturales, suplementos, vitaminas y remedios naturistas.",
+                    "priceRange": "$$",
+                    "servesCuisine": "Productos Naturales",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressCountry": "CO"
+                    }
+                }
+            ]
+        }
+        </script>
         <!-- Place favicon.ico in the root directory -->
 
 		<!-- CSS here -->
@@ -319,7 +403,7 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-3 col-md-6 col-sm-8 mb-30">
                             <div class="tiktok-video-wrapper wow fadeInUp" data-wow-delay=".2s">
-                                <iframe src="https://www.tiktok.com/embed/v2/7637580291875376405?autoplay=1&loop=1&muted=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@naturalmede.tienda/video/7637580291875376405" data-video-id="7637580291875376405" style="max-width: 340px;"><section></section></blockquote>
                                 <a href="https://www.tiktok.com/@naturalmede.tienda/video/7637580291875376405" target="_blank" rel="noopener noreferrer" class="tiktok-link">
                                     <i class="fab fa-tiktok"></i> Ver en TikTok
                                 </a>
@@ -327,7 +411,7 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-8 mb-30">
                             <div class="tiktok-video-wrapper wow fadeInUp" data-wow-delay=".4s">
-                                <iframe src="https://www.tiktok.com/embed/v2/7637574853108698388?autoplay=1&loop=1&muted=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@naturalmede.tienda/video/7637574853108698388" data-video-id="7637574853108698388" style="max-width: 340px;"><section></section></blockquote>
                                 <a href="https://www.tiktok.com/@naturalmede.tienda/video/7637574853108698388" target="_blank" rel="noopener noreferrer" class="tiktok-link">
                                     <i class="fab fa-tiktok"></i> Ver en TikTok
                                 </a>
@@ -335,7 +419,7 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-8 mb-30">
                             <div class="tiktok-video-wrapper wow fadeInUp" data-wow-delay=".6s">
-                                <iframe src="https://www.tiktok.com/embed/v2/7627176476554710293?autoplay=1&loop=1&muted=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@naturalmede.tienda/video/7627176476554710293" data-video-id="7627176476554710293" style="max-width: 340px;"><section></section></blockquote>
                                 <a href="https://www.tiktok.com/@naturalmede.tienda/video/7627176476554710293" target="_blank" rel="noopener noreferrer" class="tiktok-link">
                                     <i class="fab fa-tiktok"></i> Ver en TikTok
                                 </a>
@@ -343,7 +427,7 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-8 mb-30">
                             <div class="tiktok-video-wrapper wow fadeInUp" data-wow-delay=".8s">
-                                <iframe src="https://www.tiktok.com/embed/v2/7621231876421782804?autoplay=1&loop=1&muted=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@naturalmede.tienda/video/7621231876421782804" data-video-id="7621231876421782804" style="max-width: 340px;"><section></section></blockquote>
                                 <a href="https://www.tiktok.com/@naturalmede.tienda/video/7621231876421782804" target="_blank" rel="noopener noreferrer" class="tiktok-link">
                                     <i class="fab fa-tiktok"></i> Ver en TikTok
                                 </a>
@@ -1341,5 +1425,6 @@
                 return cookieValue;
             }
 </script>
+        <script async src="https://www.tiktok.com/embed.js"></script>
     </body>
 </html>

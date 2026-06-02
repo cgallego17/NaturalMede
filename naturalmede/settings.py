@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize',  # Para filtros como intcomma
+    'django.contrib.humanize',
+    'django.contrib.sitemaps',
     'rest_framework',
     'corsheaders',
     # Local apps
