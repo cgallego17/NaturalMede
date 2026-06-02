@@ -79,51 +79,48 @@
 
     /* ── Search bar ──────────────────────────────────────── */
     .header-search {
-        flex: 0 0 210px;
+        flex: 0 0 195px;
         margin-right: 14px;
     }
     .header-search .search-wrap {
-        position: relative;
         display: flex;
         align-items: center;
-        border: 1.5px solid #8ec63f;
-        border-radius: 25px;
-        background: #fff;
+        background: #f0f0f0;
+        border: 1.5px solid transparent;
+        border-radius: 8px;
         overflow: hidden;
-        transition: border-color 0.25s, box-shadow 0.25s;
+        transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
     }
     .header-search .search-wrap:focus-within {
+        background: #fff;
         border-color: #66b021;
-        box-shadow: 0 0 0 3px rgba(102,176,33,.15);
+        box-shadow: 0 2px 8px rgba(102,176,33,.15);
     }
     .header-search .search-input {
         flex: 1;
         border: none;
         outline: none;
-        padding: 7px 10px 7px 14px;
+        padding: 8px 4px 8px 12px;
         font-size: 13px;
         background: transparent;
         color: #333;
         min-width: 0;
     }
-    .header-search .search-input::placeholder { color: #aaa; }
+    .header-search .search-input::placeholder { color: #999; font-size: 13px; }
     .header-search .search-btn {
         flex-shrink: 0;
-        width: 32px;
-        height: 32px;
-        margin: 3px;
         border: none;
-        border-radius: 50%;
-        background: #66b021;
-        color: #fff;
-        font-size: 12px;
+        background: transparent;
+        padding: 0 11px;
         cursor: pointer;
+        color: #66b021;
+        font-size: 14px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
+        transition: color 0.2s;
+        height: 100%;
     }
-    .header-search .search-btn:hover { background: #4f8a18; }
+    .header-search .search-btn:hover { color: #4f8a18; }
 
     /* ── Sticky: ocultar social + reducir padding links ──── */
     .tg-menu-area.sticky-menu .navbar-wrap ul li a {
@@ -259,7 +256,7 @@
                             <div class="header-search d-none d-lg-block">
                                 <form action="{% url 'catalog:product_search' %}" method="GET" class="search-form">
                                     <div class="search-wrap">
-                                        <input type="text" name="q" placeholder="Buscar..."
+                                        <input type="text" name="q" placeholder="Buscar productos..."
                                                class="search-input" value="{{ request.GET.q }}">
                                         <button type="submit" class="search-btn">
                                             <i class="fas fa-search"></i>
